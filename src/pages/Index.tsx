@@ -32,12 +32,12 @@ const Index = () => {
         <div className="mb-8 flex items-center space-x-4">
           <img 
             src={medicalLogo} 
-            alt="HA Nursing Scribe Logo" 
+            alt="Patient Admission Robot Logo" 
             className="h-16 w-16"
           />
           <div>
             <h1 className="text-3xl font-bold text-primary mb-2">
-              HA Nursing Scribe
+              Patient Admission Robot
             </h1>
             <p className="text-muted-foreground">
               AI-Assisted Patient Assessment Documentation System
