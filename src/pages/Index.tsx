@@ -8,7 +8,7 @@ import { AndroidLayout } from "@/components/AndroidLayout";
 import { usePatientAssessment } from "@/hooks/usePatientAssessment";
 import { Button } from "@/components/ui/button";
 import { Save, Send } from "lucide-react";
-import medicalLogo from "@/assets/medical-logo.png";
+
 
 const Index = () => {
   const {
@@ -36,12 +36,7 @@ const Index = () => {
       <div className="min-h-screen bg-background">
         <div className="container mx-auto py-6 px-4 max-w-6xl">
           {/* Header */}
-          <div className="mb-8 flex items-center space-x-4">
-            <img 
-              src={medicalLogo} 
-              alt="Patient Admission Robot Logo" 
-              className="h-16 w-16"
-            />
+          <div className="mb-8">
             <div>
               <h1 className="text-3xl font-bold text-primary mb-2">
                 Patient Admission Robot
