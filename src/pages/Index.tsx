@@ -19,11 +19,16 @@ const Index = () => {
     handleRecordingStart,
     handleRecordingStop,
     handleFieldChange,
-    getFormFields
+    getFormFields,
+    submitAssessment
   } = usePatientAssessment();
 
   const currentSectionData = sections.find(s => s.id === currentSection);
   const currentFields = getFormFields(currentSection);
+
+  const handleSubmit = async () => {
+    await submitAssessment();
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -79,7 +84,10 @@ const Index = () => {
             Save Draft
           </Button>
           
-          <Button className="flex items-center bg-primary hover:bg-primary-hover">
+          <Button 
+            className="flex items-center bg-primary hover:bg-primary-hover"
+            onClick={handleSubmit}
+          >
             <Send className="h-4 w-4 mr-2" />
             Submit to EMR
           </Button>

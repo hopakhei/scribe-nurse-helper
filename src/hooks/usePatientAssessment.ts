@@ -1,5 +1,6 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 export interface Patient {
   name: string;
@@ -43,6 +44,8 @@ export interface FormField {
 }
 
 export function usePatientAssessment() {
+  const { toast } = useToast();
+  
   // Mock patient data (would come from EMR API)
   const [patient] = useState<Patient>({
     name: "CHAN Tai Man",
@@ -71,63 +74,268 @@ export function usePatientAssessment() {
   ]);
 
   const [currentSection, setCurrentSection] = useState('general-physical');
-
-  // Mock risk scores (would be calculated from form data)
-  const [riskScores] = useState<RiskScore[]>([
-    {
-      name: "MEWS",
-      score: 4,
-      maxScore: 14,
-      level: 'medium',
-      description: "Modified Early Warning Score"
-    },
-    {
-      name: "Morse Fall Scale",
-      score: 70,
-      maxScore: 125,
-      level: 'high',
-      description: "High risk for falls"
-    },
-    {
-      name: "Norton Scale",
-      score: 12,
-      maxScore: 20,
-      level: 'high',
-      description: "Pressure injury risk"
-    },
-    {
-      name: "Malnutrition (MST)",
-      score: 3,
-      maxScore: 5,
-      level: 'medium',
-      description: "Nutritional screening"
-    }
-  ]);
-
+  const [riskScores, setRiskScores] = useState<RiskScore[]>([]);
   const [isRecording, setIsRecording] = useState(false);
+  const [assessmentId, setAssessmentId] = useState<string | null>(null);
+  const [formFields, setFormFields] = useState<Record<string, FormField[]>>({});
+
+  // Initialize assessment on component mount
+  useEffect(() => {
+    initializeAssessment();
+  }, []);
+
+  // Load risk scores when assessment ID is available
+  useEffect(() => {
+    if (assessmentId) {
+      loadRiskScores();
+      loadFormFields();
+    }
+  }, [assessmentId]);
+
+  const initializeAssessment = async () => {
+    try {
+      // Create patient record if doesn't exist
+      const { data: existingPatient } = await supabase
+        .from('patients')
+        .select('id')
+        .eq('hospital_no', patient.hospitalNo)
+        .single();
+
+      let patientId = existingPatient?.id;
+
+      if (!existingPatient) {
+        const { data: newPatient, error: patientError } = await supabase
+          .from('patients')
+          .insert({
+            name: patient.name,
+            hospital_no: patient.hospitalNo,
+            id_no: patient.idNo,
+            age: patient.age,
+            sex: patient.sex,
+            dept: patient.dept,
+            team: patient.team,
+            ward: patient.ward,
+            bed: patient.bed,
+            admission_type: patient.admissionType as any,
+            admission_date: patient.admissionDate
+          })
+          .select('id')
+          .single();
+
+        if (patientError) throw patientError;
+        patientId = newPatient.id;
+      }
+
+      // Create assessment record
+      const { data: assessment, error: assessmentError } = await supabase
+        .from('patient_assessments')
+        .insert({
+          patient_id: patientId,
+          assessment_date: patient.assessmentDate,
+          assessment_time: patient.assessmentTime
+        })
+        .select('id')
+        .single();
+
+      if (assessmentError) throw assessmentError;
+      setAssessmentId(assessment.id);
+
+      // Initialize sections
+      const sectionsData = sections.map(section => ({
+        assessment_id: assessment.id,
+        section_id: section.id,
+        section_title: section.title,
+        completed: section.completed
+      }));
+
+      await supabase
+        .from('assessment_sections')
+        .insert(sectionsData);
+
+    } catch (error) {
+      console.error('Error initializing assessment:', error);
+      toast({
+        title: "Error",
+        description: "Failed to initialize assessment",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const loadRiskScores = async () => {
+    if (!assessmentId) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('risk_scores')
+        .select('*')
+        .eq('assessment_id', assessmentId);
+
+      if (error) throw error;
+
+      const scores: RiskScore[] = data?.map(score => ({
+        name: score.score_name,
+        score: score.score_value,
+        maxScore: score.max_score,
+        level: score.risk_level as 'low' | 'medium' | 'high',
+        description: score.description || ''
+      })) || [];
+
+      setRiskScores(scores);
+    } catch (error) {
+      console.error('Error loading risk scores:', error);
+    }
+  };
+
+  const loadFormFields = async () => {
+    if (!assessmentId) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('form_field_values')
+        .select('*')
+        .eq('assessment_id', assessmentId);
+
+      if (error) throw error;
+
+      // Group fields by section
+      const fieldsBySection: Record<string, FormField[]> = {};
+      
+      // Initialize with default fields for each section
+      sections.forEach(section => {
+        fieldsBySection[section.id] = getDefaultFormFields(section.id);
+      });
+
+      // Override with saved values
+      data?.forEach(fieldValue => {
+        const sectionFields = fieldsBySection[fieldValue.section_id] || [];
+        const fieldIndex = sectionFields.findIndex(f => f.id === fieldValue.field_id);
+        
+        if (fieldIndex >= 0) {
+          sectionFields[fieldIndex] = {
+            ...sectionFields[fieldIndex],
+            value: fieldValue.value || '',
+            dataSource: fieldValue.data_source as any,
+            aiSourceText: fieldValue.ai_source_text || undefined
+          };
+        }
+      });
+
+      setFormFields(fieldsBySection);
+    } catch (error) {
+      console.error('Error loading form fields:', error);
+    }
+  };
 
   const handleRecordingStart = () => {
     setIsRecording(true);
     console.log('Recording started - AI listening...');
   };
 
-  const handleRecordingStop = () => {
+  const handleRecordingStop = async () => {
     setIsRecording(false);
     console.log('Recording stopped - Processing conversation...');
-    // Simulate AI processing delay
-    setTimeout(() => {
-      console.log('AI form population complete');
-      // In real implementation, this would populate form fields
-    }, 2000);
+    
+    if (!assessmentId) return;
+
+    try {
+      // Mock transcript for demo
+      const mockTranscript = "患者說：咳得好辛苦，有啲黃色嘅痰。尋日喺屋企行去廁所，覺得暈跟住就跌低咗。";
+      
+      const { data, error } = await supabase.functions.invoke('process-audio-transcript', {
+        body: {
+          assessmentId,
+          transcriptText: mockTranscript
+        }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "AI Processing Complete",
+        description: `Processed ${data.fieldsProcessed} fields from conversation`,
+      });
+
+      // Reload form fields and calculate risk scores
+      await loadFormFields();
+      await calculateRiskScores();
+
+    } catch (error) {
+      console.error('Error processing transcript:', error);
+      toast({
+        title: "Error",
+        description: "Failed to process audio transcript",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleFieldChange = (fieldId: string, value: any) => {
+  const calculateRiskScores = async () => {
+    if (!assessmentId) return;
+
+    try {
+      const { error } = await supabase.functions.invoke('calculate-risk-scores', {
+        body: { assessmentId }
+      });
+
+      if (error) throw error;
+      await loadRiskScores();
+    } catch (error) {
+      console.error('Error calculating risk scores:', error);
+    }
+  };
+
+  const handleFieldChange = async (fieldId: string, value: any) => {
+    if (!assessmentId) return;
+
     console.log(`Field ${fieldId} changed to:`, value);
-    // In real implementation, this would update form state
+
+    try {
+      const field = Object.values(formFields).flat().find(f => f.id === fieldId);
+      if (!field) return;
+
+      await supabase
+        .from('form_field_values')
+        .upsert({
+          assessment_id: assessmentId,
+          section_id: field.id.split('-')[0], // Extract section from field ID
+          field_id: fieldId,
+          field_label: field.label,
+          value: String(value),
+          data_source: 'manual'
+        }, { onConflict: 'assessment_id,field_id' });
+
+      // Update local state
+      const updatedFields = { ...formFields };
+      Object.keys(updatedFields).forEach(sectionId => {
+        const fieldIndex = updatedFields[sectionId].findIndex(f => f.id === fieldId);
+        if (fieldIndex >= 0) {
+          updatedFields[sectionId][fieldIndex].value = value;
+        }
+      });
+      setFormFields(updatedFields);
+
+      // Recalculate risk scores if risk-related field changed
+      if (fieldId.includes('morse-') || fieldId.includes('mst-')) {
+        await calculateRiskScores();
+      }
+
+    } catch (error) {
+      console.error('Error saving field:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save field value",
+        variant: "destructive",
+      });
+    }
   };
 
   // Form field definitions for each section
   const getFormFields = (sectionId: string): FormField[] => {
+    return formFields[sectionId] || getDefaultFormFields(sectionId);
+  };
+
+  const getDefaultFormFields = (sectionId: string): FormField[] => {
     switch (sectionId) {
       case 'general-physical':
         return [
@@ -135,33 +343,30 @@ export function usePatientAssessment() {
             id: 'emergency-contact-1-name',
             label: 'Emergency Contact 1 - Name',
             type: 'text',
-            value: 'CHAN Siu Ming',
-            dataSource: 'ai-filled',
-            aiSourceText: 'Patient mentioned: "我個仔叫陳小明"',
+            value: '',
+            dataSource: 'manual',
             required: true
           },
           {
             id: 'emergency-contact-1-relationship',
             label: 'Emergency Contact 1 - Relationship',
             type: 'text',
-            value: 'Son',
-            dataSource: 'ai-filled',
-            aiSourceText: 'Patient mentioned: "我個仔叫陳小明"'
+            value: '',
+            dataSource: 'manual'
           },
           {
             id: 'current-complaint',
             label: 'Current Complaint / Problem',
             type: 'textarea',
-            value: 'Cough with yellow sputum, dizziness, fell at home yesterday',
-            dataSource: 'ai-filled',
-            aiSourceText: 'Patient said: "咳得好辛苦，有啲黃色嘅痰。尋日喺屋企行去廁所，覺得暈跟住就跌低咗"',
+            value: '',
+            dataSource: 'manual',
             required: true
           },
           {
             id: 'temperature',
             label: 'Temperature (°C)',
             type: 'number',
-            value: '37.9',
+            value: '',
             dataSource: 'manual',
             required: true
           },
@@ -169,7 +374,7 @@ export function usePatientAssessment() {
             id: 'temperature-method',
             label: 'Temperature Method',
             type: 'select',
-            value: 'Tympanic',
+            value: '',
             options: ['Oral', 'Tympanic', 'Axilla', 'Rectal', 'Skin'],
             dataSource: 'manual'
           },
@@ -177,7 +382,7 @@ export function usePatientAssessment() {
             id: 'pulse',
             label: 'Pulse (/min)',
             type: 'number',
-            value: '98',
+            value: '',
             dataSource: 'manual',
             required: true
           },
@@ -185,7 +390,7 @@ export function usePatientAssessment() {
             id: 'bp-systolic',
             label: 'BP Systolic (mmHg)',
             type: 'number',
-            value: '155',
+            value: '',
             dataSource: 'manual',
             required: true
           },
@@ -193,7 +398,7 @@ export function usePatientAssessment() {
             id: 'bp-diastolic',
             label: 'BP Diastolic (mmHg)',
             type: 'number',
-            value: '90',
+            value: '',
             dataSource: 'manual',
             required: true
           },
@@ -201,7 +406,7 @@ export function usePatientAssessment() {
             id: 'respiratory-rate',
             label: 'Respiratory Rate (/min)',
             type: 'number',
-            value: '22',
+            value: '',
             dataSource: 'manual',
             required: true
           },
@@ -209,35 +414,32 @@ export function usePatientAssessment() {
             id: 'spo2',
             label: 'SpO2 (%)',
             type: 'number',
-            value: '95',
+            value: '',
             dataSource: 'manual'
           },
           {
             id: 'coughing',
             label: 'Coughing',
             type: 'select',
-            value: 'Yes',
+            value: '',
             options: ['Yes', 'No'],
-            dataSource: 'ai-filled',
-            aiSourceText: 'Patient said: "咳得好辛苦"'
+            dataSource: 'manual'
           },
           {
             id: 'sputum',
             label: 'Sputum Present',
             type: 'select',
-            value: 'Yes',
+            value: '',
             options: ['Yes', 'No'],
-            dataSource: 'ai-filled',
-            aiSourceText: 'Patient mentioned yellow sputum'
+            dataSource: 'manual'
           },
           {
             id: 'sputum-colour',
             label: 'Sputum Colour',
             type: 'select',
-            value: 'Yellow',
+            value: '',
             options: ['Clear', 'White', 'Yellow', 'Green', 'Cream colour', 'Coffee/Rusty', 'Blood-stained'],
-            dataSource: 'ai-filled',
-            aiSourceText: 'Patient said: "有啲黃色嘅痰"'
+            dataSource: 'manual'
           }
         ];
 
@@ -247,73 +449,65 @@ export function usePatientAssessment() {
             id: 'marital-status',
             label: 'Marital Status',
             type: 'select',
-            value: 'Widowed',
+            value: '',
             options: ['Single', 'Married', 'Cohabited', 'Widowed', 'Separated', 'Divorced', 'Unknown', 'Cannot be assessed'],
-            dataSource: 'ai-filled',
-            aiSourceText: 'Patient mentioned: "我老婆幾年前走咗"'
+            dataSource: 'manual'
           },
           {
             id: 'religion',
             label: 'Religion',
             type: 'select',
-            value: 'Traditional Chinese',
+            value: '',
             options: ['Nil', 'Buddhism', 'Catholic', 'Christian', 'Confucianism', 'Hindu', 'Jehovah Witness', 'Jewish', 'Muslim', 'Sikh', 'Traditional Chinese', 'Taoism', 'Other', 'Unknown', 'Cannot be assessed'],
-            dataSource: 'ai-filled',
-            aiSourceText: 'Patient mentioned traditional beliefs'
+            dataSource: 'manual'
           },
           {
             id: 'education',
             label: 'Education Level',
             type: 'select',
-            value: 'Primary',
+            value: '',
             options: ['No school / Kindergarten', 'Primary', 'Secondary', 'Tertiary', 'Unknown', 'Cannot be assessed'],
-            dataSource: 'ai-filled',
-            aiSourceText: 'Patient mentioned elementary education'
+            dataSource: 'manual'
           },
           {
             id: 'employment-status',
             label: 'Employment Status',
             type: 'select',
-            value: 'Retired',
+            value: '',
             options: ['Employer', 'Employee', 'Self-employed', 'Homemaker', 'Student', 'Unemployed', 'Retired', 'Not working', 'Other', 'Unknown', 'Cannot be assessed'],
-            dataSource: 'ai-filled',
-            aiSourceText: 'Patient mentioned being retired'
+            dataSource: 'manual'
           },
           {
             id: 'household-members',
             label: 'Household Members',
             type: 'select',
-            value: 'Alone',
+            value: '',
             options: ['Alone', 'Grandparents', 'Father', 'Mother', 'Spouse', 'Siblings', 'Children', 'Attendant / maid / helper', 'Relatives', 'Guardian', 'Friend', 'Boyfriend / girlfriend', 'Others'],
-            dataSource: 'ai-filled',
-            aiSourceText: 'Patient confirmed living alone when asked'
+            dataSource: 'manual'
           },
           {
             id: 'accommodation',
             label: 'Accommodation Type',
             type: 'select',
-            value: 'Public rental flat',
+            value: '',
             options: ['Hospital', 'Hostel', 'Halfway house', 'Old aged home', 'Private residential flat', 'Public rental flat', 'Street Sleeper', 'Temporary housing', 'Traditional village house', 'Other', 'Unknown', 'Cannot be assessed'],
-            dataSource: 'ai-filled',
-            aiSourceText: 'Patient mentioned living in public housing'
+            dataSource: 'manual'
           },
           {
             id: 'smoking-status',
             label: 'Smoking Status',
             type: 'select',
-            value: 'Ex-smoker',
+            value: '',
             options: ['Smoker', 'Ex-smoker', 'Non-smoker', 'Unknown', 'Cannot be assessed'],
-            dataSource: 'ai-filled',
-            aiSourceText: 'Patient mentioned quitting smoking 10 years ago'
+            dataSource: 'manual'
           },
           {
             id: 'drinking-status',
             label: 'Drinking Status',
             type: 'select',
-            value: 'Social Drinker',
+            value: '',
             options: ['Drinker', 'Ex-drinker', 'Non-drinker', 'Social Drinker', 'Unknown', 'Cannot be assessed'],
-            dataSource: 'ai-filled',
-            aiSourceText: 'Patient mentioned occasional drinking with meals'
+            dataSource: 'manual'
           }
         ];
 
@@ -323,25 +517,23 @@ export function usePatientAssessment() {
             id: 'cpe-screening',
             label: 'CPE Screening - Hospitalization outside HK in last 12 months',
             type: 'select',
-            value: 'No',
+            value: '',
             options: ['Unknown', 'No', 'Yes'],
-            dataSource: 'ai-filled',
-            aiSourceText: 'Patient confirmed no recent overseas hospitalizations'
+            dataSource: 'manual'
           },
           {
             id: 'morse-history-falling',
             label: 'Morse Fall Scale - History of Falling',
             type: 'select',
-            value: 'Yes (25 points)',
+            value: '',
             options: ['No (0 points)', 'Yes (25 points)'],
-            dataSource: 'ai-filled',
-            aiSourceText: 'Patient said: "尋日喺屋企行去廁所，覺得暈跟住就跌低咗"'
+            dataSource: 'manual'
           },
           {
             id: 'morse-secondary-diagnosis',
             label: 'Morse Fall Scale - Secondary Diagnosis',
             type: 'select',
-            value: 'Yes (15 points)',
+            value: '',
             options: ['No (0 points)', 'Yes (15 points)'],
             dataSource: 'manual'
           },
@@ -349,7 +541,7 @@ export function usePatientAssessment() {
             id: 'morse-ambulatory-aid',
             label: 'Morse Fall Scale - Ambulatory Aid',
             type: 'select',
-            value: 'None/Bed rest/Nurse assist (0 points)',
+            value: '',
             options: ['None/Bed rest/Nurse assist (0 points)', 'Crutches/Cane/Walkers (15 points)', 'Furniture (30 points)'],
             dataSource: 'manual'
           },
@@ -357,7 +549,7 @@ export function usePatientAssessment() {
             id: 'morse-iv-therapy',
             label: 'Morse Fall Scale - IV Therapy/Lock',
             type: 'select',
-            value: 'Yes (20 points)',
+            value: '',
             options: ['No (0 points)', 'Yes (20 points)'],
             dataSource: 'manual'
           },
@@ -365,7 +557,7 @@ export function usePatientAssessment() {
             id: 'morse-gait',
             label: 'Morse Fall Scale - Gait',
             type: 'select',
-            value: 'Weak (10 points)',
+            value: '',
             options: ['Normal/Bed rest/Wheelchair (0 points)', 'Weak (10 points)', 'Impaired (20 points)'],
             dataSource: 'manual'
           },
@@ -373,7 +565,7 @@ export function usePatientAssessment() {
             id: 'morse-mental-status',
             label: 'Morse Fall Scale - Mental Status',
             type: 'select',
-            value: 'Oriented to own ability (0 points)',
+            value: '',
             options: ['Oriented to own ability (0 points)', 'Overestimates/Forgets limitations (15 points)'],
             dataSource: 'manual'
           }
@@ -385,25 +577,23 @@ export function usePatientAssessment() {
             id: 'vision-left',
             label: 'Vision (Left Eye)',
             type: 'select',
-            value: 'Blurred vision',
+            value: '',
             options: ['Normal', 'Cataract', 'Squint', 'Glaucoma', 'Double vision', 'Blurred vision', 'Blindness', 'Other'],
-            dataSource: 'ai-filled',
-            aiSourceText: 'Patient mentioned difficulty seeing clearly'
+            dataSource: 'manual'
           },
           {
             id: 'vision-right',
             label: 'Vision (Right Eye)',
             type: 'select',
-            value: 'Blurred vision',
+            value: '',
             options: ['Normal', 'Cataract', 'Squint', 'Glaucoma', 'Double vision', 'Blurred vision', 'Blindness', 'Other'],
-            dataSource: 'ai-filled',
-            aiSourceText: 'Patient mentioned difficulty seeing clearly'
+            dataSource: 'manual'
           },
           {
             id: 'language-dialect',
             label: 'Language / Dialect',
             type: 'select',
-            value: 'Cantonese (廣東話)',
+            value: '',
             options: ['Cantonese (廣東話)', 'English', 'Mandarin (普通話)', 'Shanghainese (上海話)', 'Chiu Chow (潮州話)', 'Hokkien (福建話)', 'Hakka (客家話)', 'Filipino (菲律賓話)', 'Others'],
             dataSource: 'pre-populated'
           },
@@ -411,7 +601,7 @@ export function usePatientAssessment() {
             id: 'speech',
             label: 'Speech Quality',
             type: 'select',
-            value: 'Clear',
+            value: '',
             options: ['Clear', 'Slurring', 'Incomprehensible sounds', 'Dysphasia'],
             dataSource: 'manual'
           },
@@ -419,16 +609,15 @@ export function usePatientAssessment() {
             id: 'hearing-left',
             label: 'Hearing (Left Ear)',
             type: 'select',
-            value: 'Impaired',
+            value: '',
             options: ['Normal', 'Impaired', 'Deaf'],
-            dataSource: 'ai-filled',
-            aiSourceText: 'Patient asked to repeat questions multiple times'
+            dataSource: 'manual'
           },
           {
             id: 'mobility-status',
             label: 'Mobility Status',
             type: 'select',
-            value: 'Ambulatory with aids',
+            value: '',
             options: ['Independent', 'Ambulatory with aids', 'Dependent'],
             dataSource: 'manual'
           }
@@ -440,43 +629,39 @@ export function usePatientAssessment() {
             id: 'urinary-pattern',
             label: 'Urinary Pattern',
             type: 'select',
-            value: 'Frequent',
+            value: '',
             options: ['Normal', 'Frequent', 'Dysuria', 'Incontinence', 'Urinary retention', 'Anuria', 'Oliguria', 'Others'],
-            dataSource: 'ai-filled',
-            aiSourceText: 'Patient mentioned frequent trips to toilet'
+            dataSource: 'manual'
           },
           {
             id: 'bowel-pattern',
             label: 'Bowel Pattern',
             type: 'select',
-            value: 'Constipation',
+            value: '',
             options: ['Normal', 'Incontinence', 'Constipation', 'Diarrhoea', 'Others'],
-            dataSource: 'ai-filled',
-            aiSourceText: 'Patient mentioned difficulty with bowel movements'
+            dataSource: 'manual'
           },
           {
             id: 'mst-weight-loss',
             label: 'MST - Recent Weight Loss',
             type: 'select',
-            value: 'Yes, 1-5kg (1 point)',
+            value: '',
             options: ['No (0 points)', 'Unsure (2 points)', 'Yes, 1-5kg (1 point)', 'Yes, 6-10kg (2 points)', 'Yes, 11-15kg (3 points)', 'Yes, >15kg (4 points)'],
-            dataSource: 'ai-filled',
-            aiSourceText: 'Patient said: "呢幾個月瘦咗差唔多5公斤"'
+            dataSource: 'manual'
           },
           {
             id: 'mst-poor-appetite',
             label: 'MST - Poor Appetite',
             type: 'select',
-            value: 'Yes (1 point)',
+            value: '',
             options: ['No (0 points)', 'Yes (1 point)'],
-            dataSource: 'ai-filled',
-            aiSourceText: 'Patient said: "冇乜心機食嘢"'
+            dataSource: 'manual'
           },
           {
             id: 'diet-type',
             label: 'Diet Type',
             type: 'select',
-            value: 'Soft diet',
+            value: '',
             options: ['Diet as tolerated', 'Regular diet', 'Soft diet', 'Mince diet', 'Congee diet', 'Semi-clear fluid diet', 'Clear fluid diet', 'D-pureed meat soft rice diet', 'D-puree diet'],
             dataSource: 'manual'
           },
@@ -484,16 +669,15 @@ export function usePatientAssessment() {
             id: 'food-preference',
             label: 'Food Preference',
             type: 'select',
-            value: 'No pork',
+            value: '',
             options: ['Fish only', 'No beef', 'No pork', 'No chicken', 'Vegetarian', 'Others'],
-            dataSource: 'ai-filled',
-            aiSourceText: 'Patient mentioned not eating pork'
+            dataSource: 'manual'
           },
           {
             id: 'oral-feeding',
             label: 'Oral Feeding Assistance',
             type: 'select',
-            value: 'Self-help',
+            value: '',
             options: ['Self-help', 'With assistance', 'By others'],
             dataSource: 'manual'
           }
@@ -505,7 +689,7 @@ export function usePatientAssessment() {
             id: 'skin-condition',
             label: 'General Skin Condition',
             type: 'select',
-            value: 'Dry',
+            value: '',
             options: ['Intact', 'Dry', 'Fragile', 'Oedema', 'Rash', 'Pressure injury / Wound'],
             dataSource: 'manual'
           },
@@ -513,7 +697,7 @@ export function usePatientAssessment() {
             id: 'wound-1-present',
             label: 'Wound 1 Present',
             type: 'select',
-            value: 'Yes',
+            value: '',
             options: ['No', 'Yes'],
             dataSource: 'manual'
           },
@@ -521,7 +705,7 @@ export function usePatientAssessment() {
             id: 'wound-1-type',
             label: 'Wound 1 - Type',
             type: 'select',
-            value: 'Abrasion',
+            value: '',
             options: ['Pressure injury', 'Medical device related pressure injury', 'Abrasion', 'Laceration', 'Ulcer', 'Suture wound', 'Incision', 'Drain wound', 'Burn', 'Scald'],
             dataSource: 'manual'
           },
@@ -529,21 +713,21 @@ export function usePatientAssessment() {
             id: 'wound-1-location',
             label: 'Wound 1 - Location/Site',
             type: 'text',
-            value: 'Left forehead, 3cm above eyebrow',
+            value: '',
             dataSource: 'manual'
           },
           {
             id: 'wound-1-size',
             label: 'Wound 1 - Size (LxWxD, cm)',
             type: 'text',
-            value: '2 x 1 x 0.2',
+            value: '',
             dataSource: 'manual'
           },
           {
             id: 'wound-1-severity',
             label: 'Wound 1 - Severity',
             type: 'select',
-            value: 'Shallow',
+            value: '',
             options: ['Shallow', 'Intermediate', 'Deep', 'Stage 1', 'Stage 2', 'Stage 3', 'Stage 4', 'Unstageable', 'Deep tissue pressure injury'],
             dataSource: 'manual'
           },
@@ -551,7 +735,7 @@ export function usePatientAssessment() {
             id: 'wound-1-discharge',
             label: 'Wound 1 - Discharge',
             type: 'select',
-            value: 'Small amount',
+            value: '',
             options: ['Nil', 'Small amount', 'Profuse'],
             dataSource: 'manual'
           }
@@ -563,52 +747,47 @@ export function usePatientAssessment() {
             id: 'pain-present',
             label: 'Pain Present',
             type: 'select',
-            value: 'Yes',
+            value: '',
             options: ['No', 'Unassessable', 'Yes'],
-            dataSource: 'ai-filled',
-            aiSourceText: 'Patient mentioned pain from the fall'
+            dataSource: 'manual'
           },
           {
             id: 'pain-severity',
             label: 'Pain Severity',
             type: 'select',
-            value: 'Medium',
+            value: '',
             options: ['High', 'Medium', 'Low'],
-            dataSource: 'ai-filled',
-            aiSourceText: 'Patient described moderate pain level'
+            dataSource: 'manual'
           },
           {
             id: 'pain-location',
             label: 'Pain Location',
             type: 'select',
-            value: 'Head',
+            value: '',
             options: ['Whole body', 'Head', 'Face', 'Chest', 'Abdomen', 'Back', 'Upper limbs', 'Lower limbs', 'Others'],
-            dataSource: 'ai-filled',
-            aiSourceText: 'Patient indicated head pain from fall'
+            dataSource: 'manual'
           },
           {
             id: 'emotional-status',
             label: 'Emotional Status',
             type: 'select',
-            value: 'Depressed',
+            value: '',
             options: ['Stable', 'Depressed', 'Confused', 'Agitated', 'Others'],
-            dataSource: 'ai-filled',
-            aiSourceText: 'Patient appeared sad and withdrawn during conversation'
+            dataSource: 'manual'
           },
           {
             id: 'suicide-admission',
             label: 'Admitted due to suicidal attempt/idea',
             type: 'select',
-            value: 'No',
+            value: '',
             options: ['Yes', 'No'],
-            dataSource: 'ai-filled',
-            aiSourceText: 'Patient denied suicidal ideation when assessed'
+            dataSource: 'manual'
           },
           {
             id: 'suicide-expression',
             label: 'Expresses suicidal idea/self-harm',
             type: 'select',
-            value: 'No',
+            value: '',
             options: ['Yes', 'No'],
             dataSource: 'manual'
           }
@@ -616,6 +795,31 @@ export function usePatientAssessment() {
 
       default:
         return [];
+    }
+  };
+
+  const submitAssessment = async () => {
+    if (!assessmentId) return;
+
+    try {
+      const { error } = await supabase.functions.invoke('submit-assessment', {
+        body: { assessmentId }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Assessment Submitted",
+        description: "Assessment successfully submitted to EMR system",
+      });
+
+    } catch (error) {
+      console.error('Error submitting assessment:', error);
+      toast({
+        title: "Error",
+        description: "Failed to submit assessment",
+        variant: "destructive",
+      });
     }
   };
 
@@ -629,6 +833,8 @@ export function usePatientAssessment() {
     handleRecordingStart,
     handleRecordingStop,
     handleFieldChange,
-    getFormFields
+    getFormFields,
+    submitAssessment,
+    assessmentId
   };
 }

@@ -14,16 +14,284 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      assessment_sections: {
+        Row: {
+          assessment_id: string | null
+          completed: boolean | null
+          created_at: string | null
+          id: string
+          section_id: string
+          section_title: string
+          updated_at: string | null
+        }
+        Insert: {
+          assessment_id?: string | null
+          completed?: boolean | null
+          created_at?: string | null
+          id?: string
+          section_id: string
+          section_title: string
+          updated_at?: string | null
+        }
+        Update: {
+          assessment_id?: string | null
+          completed?: boolean | null
+          created_at?: string | null
+          id?: string
+          section_id?: string
+          section_title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assessment_sections_assessment_id_fkey"
+            columns: ["assessment_id"]
+            isOneToOne: false
+            referencedRelation: "patient_assessments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      audio_transcripts: {
+        Row: {
+          assessment_id: string | null
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          processed: boolean | null
+          transcript_text: string
+          user_id: string | null
+        }
+        Insert: {
+          assessment_id?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          processed?: boolean | null
+          transcript_text: string
+          user_id?: string | null
+        }
+        Update: {
+          assessment_id?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          processed?: boolean | null
+          transcript_text?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audio_transcripts_assessment_id_fkey"
+            columns: ["assessment_id"]
+            isOneToOne: false
+            referencedRelation: "patient_assessments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      form_field_values: {
+        Row: {
+          ai_source_text: string | null
+          assessment_id: string | null
+          created_at: string | null
+          data_source: Database["public"]["Enums"]["data_source"]
+          field_id: string
+          field_label: string
+          id: string
+          section_id: string
+          updated_at: string | null
+          value: string | null
+        }
+        Insert: {
+          ai_source_text?: string | null
+          assessment_id?: string | null
+          created_at?: string | null
+          data_source?: Database["public"]["Enums"]["data_source"]
+          field_id: string
+          field_label: string
+          id?: string
+          section_id: string
+          updated_at?: string | null
+          value?: string | null
+        }
+        Update: {
+          ai_source_text?: string | null
+          assessment_id?: string | null
+          created_at?: string | null
+          data_source?: Database["public"]["Enums"]["data_source"]
+          field_id?: string
+          field_label?: string
+          id?: string
+          section_id?: string
+          updated_at?: string | null
+          value?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "form_field_values_assessment_id_fkey"
+            columns: ["assessment_id"]
+            isOneToOne: false
+            referencedRelation: "patient_assessments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      patient_assessments: {
+        Row: {
+          assessment_date: string
+          assessment_time: string
+          completed_at: string | null
+          created_at: string | null
+          id: string
+          patient_id: string | null
+          status: Database["public"]["Enums"]["assessment_status"] | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          assessment_date?: string
+          assessment_time?: string
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          patient_id?: string | null
+          status?: Database["public"]["Enums"]["assessment_status"] | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          assessment_date?: string
+          assessment_time?: string
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          patient_id?: string | null
+          status?: Database["public"]["Enums"]["assessment_status"] | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_assessments_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      patients: {
+        Row: {
+          admission_date: string | null
+          admission_type: Database["public"]["Enums"]["admission_type"] | null
+          age: number | null
+          bed: string | null
+          created_at: string | null
+          dept: string | null
+          hospital_no: string
+          id: string
+          id_no: string | null
+          name: string
+          sex: string | null
+          team: string | null
+          updated_at: string | null
+          ward: string | null
+        }
+        Insert: {
+          admission_date?: string | null
+          admission_type?: Database["public"]["Enums"]["admission_type"] | null
+          age?: number | null
+          bed?: string | null
+          created_at?: string | null
+          dept?: string | null
+          hospital_no: string
+          id?: string
+          id_no?: string | null
+          name: string
+          sex?: string | null
+          team?: string | null
+          updated_at?: string | null
+          ward?: string | null
+        }
+        Update: {
+          admission_date?: string | null
+          admission_type?: Database["public"]["Enums"]["admission_type"] | null
+          age?: number | null
+          bed?: string | null
+          created_at?: string | null
+          dept?: string | null
+          hospital_no?: string
+          id?: string
+          id_no?: string | null
+          name?: string
+          sex?: string | null
+          team?: string | null
+          updated_at?: string | null
+          ward?: string | null
+        }
+        Relationships: []
+      }
+      risk_scores: {
+        Row: {
+          assessment_id: string | null
+          calculated_at: string | null
+          description: string | null
+          id: string
+          max_score: number
+          risk_level: Database["public"]["Enums"]["risk_level"]
+          score_name: string
+          score_value: number
+        }
+        Insert: {
+          assessment_id?: string | null
+          calculated_at?: string | null
+          description?: string | null
+          id?: string
+          max_score: number
+          risk_level: Database["public"]["Enums"]["risk_level"]
+          score_name: string
+          score_value: number
+        }
+        Update: {
+          assessment_id?: string | null
+          calculated_at?: string | null
+          description?: string | null
+          id?: string
+          max_score?: number
+          risk_level?: Database["public"]["Enums"]["risk_level"]
+          score_name?: string
+          score_value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "risk_scores_assessment_id_fkey"
+            columns: ["assessment_id"]
+            isOneToOne: false
+            referencedRelation: "patient_assessments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      calculate_morse_fall_score: {
+        Args: { assessment_id_param: string }
+        Returns: number
+      }
+      cleanup_expired_transcripts: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
     }
     Enums: {
-      [_ in never]: never
+      admission_type: "A&E" | "Elective" | "Transfer" | "Readmission"
+      assessment_status: "in_progress" | "completed" | "submitted"
+      data_source: "pre-populated" | "ai-filled" | "manual"
+      risk_level: "low" | "medium" | "high"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +418,11 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      admission_type: ["A&E", "Elective", "Transfer", "Readmission"],
+      assessment_status: ["in_progress", "completed", "submitted"],
+      data_source: ["pre-populated", "ai-filled", "manual"],
+      risk_level: ["low", "medium", "high"],
+    },
   },
 } as const
