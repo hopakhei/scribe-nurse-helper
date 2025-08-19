@@ -1,37 +1,8 @@
-import { useState, useEffect, createContext, useContext } from 'react';
+import { useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 
-interface AuthState {
-  user: User | null;
-  session: Session | null;
-  loading: boolean;
-  profile: any | null;
-}
-
-interface AuthContextType extends AuthState {
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string, fullName?: string) => Promise<{ error: any }>;
-  signOut: () => Promise<void>;
-  loadProfile: () => Promise<void>;
-}
-
-const AuthContext = createContext<AuthContextType | null>(null);
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within AuthProvider');
-  }
-  return context;
-};
-
-export const useAuthState = (): AuthState & {
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string, fullName?: string) => Promise<{ error: any }>;
-  signOut: () => Promise<void>;
-  loadProfile: () => Promise<void>;
-} => {
+export const useAuthState = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
@@ -65,8 +36,20 @@ export const useAuthState = (): AuthState & {
         
         // Defer profile loading to prevent deadlocks
         if (session?.user) {
-          setTimeout(() => {
-            loadProfile();
+          setTimeout(async () => {
+            try {
+              const { data, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('user_id', session.user.id)
+                .maybeSingle();
+
+              if (!error && data) {
+                setProfile(data);
+              }
+            } catch (error) {
+              console.error('Error loading profile:', error);
+            }
           }, 0);
         } else {
           setProfile(null);
@@ -81,8 +64,20 @@ export const useAuthState = (): AuthState & {
       setLoading(false);
       
       if (session?.user) {
-        setTimeout(() => {
-          loadProfile();
+        setTimeout(async () => {
+          try {
+            const { data, error } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('user_id', session.user.id)
+              .maybeSingle();
+
+            if (!error && data) {
+              setProfile(data);
+            }
+          } catch (error) {
+            console.error('Error loading profile:', error);
+          }
         }, 0);
       }
     });
