@@ -232,6 +232,42 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          created_at: string
+          department: string | null
+          email: string
+          full_name: string | null
+          id: string
+          role: string
+          updated_at: string
+          user_id: string
+          ward: string | null
+        }
+        Insert: {
+          created_at?: string
+          department?: string | null
+          email: string
+          full_name?: string | null
+          id?: string
+          role?: string
+          updated_at?: string
+          user_id: string
+          ward?: string | null
+        }
+        Update: {
+          created_at?: string
+          department?: string | null
+          email?: string
+          full_name?: string | null
+          id?: string
+          role?: string
+          updated_at?: string
+          user_id?: string
+          ward?: string | null
+        }
+        Relationships: []
+      }
       risk_scores: {
         Row: {
           assessment_id: string | null
@@ -285,6 +321,18 @@ export type Database = {
       cleanup_expired_transcripts: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      get_current_user_department: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      get_current_user_role: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      get_current_user_ward: {
+        Args: Record<PropertyKey, never>
+        Returns: string
       }
     }
     Enums: {
