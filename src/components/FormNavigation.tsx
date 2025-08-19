@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ChevronLeft, ChevronRight, Check } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface FormSection {
@@ -71,15 +71,8 @@ export function FormNavigation({
             variant={section.id === currentSection ? "default" : "outline"}
             size="sm"
             onClick={() => onSectionChange(section.id)}
-            className={cn(
-              "flex items-center space-x-1 text-xs",
-              section.completed && section.id !== currentSection && 
-              "bg-success/10 border-success text-success-foreground"
-            )}
+            className="flex items-center space-x-1 text-xs"
           >
-            {section.completed && (
-              <Check className="h-3 w-3" />
-            )}
             <span>{index + 1}. {section.title}</span>
           </Button>
         ))}
