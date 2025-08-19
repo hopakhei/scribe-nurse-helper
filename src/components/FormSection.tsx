@@ -7,7 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-export type FieldType = 'text' | 'textarea' | 'select' | 'checkbox' | 'number';
+export type FieldType = 'text' | 'textarea' | 'select' | 'checkbox' | 'number' | 'radio' | 'date' | 'time';
 export type DataSource = 'pre-populated' | 'ai-filled' | 'manual';
 
 interface FormField {
@@ -68,6 +68,8 @@ export function FormSection({ title, description, fields, onFieldChange }: FormS
     switch (field.type) {
       case 'text':
       case 'number':
+      case 'date':
+      case 'time':
         return (
           <Input
             type={field.type}
@@ -118,6 +120,29 @@ export function FormSection({ title, description, fields, onFieldChange }: FormS
               disabled={field.dataSource === 'pre-populated'}
             />
             <Label className="text-sm">{field.label}</Label>
+          </div>
+        );
+
+      case 'radio':
+        return (
+          <div className="space-y-2">
+            {field.options?.map((option) => (
+              <div key={option} className="flex items-center space-x-2">
+                <input
+                  type="radio"
+                  id={`${field.id}-${option}`}
+                  name={field.id}
+                  value={option}
+                  checked={field.value === option}
+                  onChange={(e) => onFieldChange(field.id, e.target.value)}
+                  disabled={field.dataSource === 'pre-populated'}
+                  className="w-4 h-4"
+                />
+                <Label htmlFor={`${field.id}-${option}`} className="text-sm">
+                  {option}
+                </Label>
+              </div>
+            ))}
           </div>
         );
       
