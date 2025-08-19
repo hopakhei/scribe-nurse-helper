@@ -43,13 +43,15 @@ export function AndroidLayout({ children }: AndroidLayoutProps) {
     }
   }, []);
 
-  return (
-    <div className={cn(
-      "min-h-screen w-full",
-      isFullscreen && "android-fullscreen",
-      orientation === 'landscape' && "landscape-mode"
-    )}>
-      <style jsx>{`
+  // Inject styles dynamically
+  useEffect(() => {
+    const styleId = 'android-layout-styles';
+    let existingStyle = document.getElementById(styleId);
+    
+    if (!existingStyle) {
+      const style = document.createElement('style');
+      style.id = styleId;
+      style.textContent = `
         .android-fullscreen {
           padding-top: env(safe-area-inset-top);
           padding-bottom: env(safe-area-inset-bottom);
@@ -75,7 +77,24 @@ export function AndroidLayout({ children }: AndroidLayoutProps) {
           min-height: 48px;
           font-size: 16px;
         }
-      `}</style>
+      `;
+      document.head.appendChild(style);
+    }
+
+    return () => {
+      const style = document.getElementById(styleId);
+      if (style) {
+        style.remove();
+      }
+    };
+  }, []);
+
+  return (
+    <div className={cn(
+      "min-h-screen w-full",
+      isFullscreen && "android-fullscreen",
+      orientation === 'landscape' && "landscape-mode"
+    )}>
       {children}
     </div>
   );
