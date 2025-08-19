@@ -9,10 +9,12 @@ interface AndroidLayoutProps {
 export function AndroidLayout({ children }: AndroidLayoutProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [orientation, setOrientation] = useState<'portrait' | 'landscape'>('portrait');
+  const [isAndroid, setIsAndroid] = useState(false);
 
   useEffect(() => {
     // Detect if running in Capacitor/Android
     const isCapacitor = window.location.protocol === 'capacitor:';
+    setIsAndroid(isCapacitor);
     
     if (isCapacitor) {
       // Enable fullscreen mode for robot interface
@@ -42,6 +44,30 @@ export function AndroidLayout({ children }: AndroidLayoutProps) {
       };
     }
   }, []);
+
+  // Runtime detector for pointer-events interference
+  useEffect(() => {
+    if (!isAndroid) return;
+
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+          const element = mutation.target as HTMLElement;
+          if (element.style.pointerEvents === 'none' && element.id === 'app-root') {
+            console.warn('Detected pointer-events: none on app-root, removing...');
+            element.style.pointerEvents = 'auto';
+          }
+        }
+      });
+    });
+
+    const appRoot = document.getElementById('app-root');
+    if (appRoot) {
+      observer.observe(appRoot, { attributes: true, subtree: false });
+    }
+
+    return () => observer.disconnect();
+  }, [isAndroid]);
 
   // Inject styles dynamically
   useEffect(() => {
@@ -93,7 +119,8 @@ export function AndroidLayout({ children }: AndroidLayoutProps) {
     <div className={cn(
       "min-h-screen w-full",
       isFullscreen && "android-fullscreen",
-      orientation === 'landscape' && "landscape-mode"
+      orientation === 'landscape' && "landscape-mode",
+      isAndroid && "android-interface"
     )}>
       {children}
     </div>

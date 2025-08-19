@@ -146,7 +146,15 @@
     
     /* Prevent overscroll bounce on mobile */
     overscroll-behavior: none;
-    
+  }
+  
+  /* Defensive CSS to ensure interactions work */
+  #app-root {
+    pointer-events: auto !important;
+  }
+  
+  /* Android/Capacitor specific styles */
+  .android-interface {
     /* Disable text selection for robot interface */
     -webkit-user-select: none;
     -moz-user-select: none;
