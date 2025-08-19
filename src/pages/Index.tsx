@@ -1,3 +1,4 @@
+
 import { PatientHeader } from "@/components/PatientHeader";
 import { AudioRecordingControls } from "@/components/AudioRecordingControls";
 import { FormNavigation } from "@/components/FormNavigation";
@@ -17,55 +18,12 @@ const Index = () => {
     riskScores,
     handleRecordingStart,
     handleRecordingStop,
-    handleFieldChange
+    handleFieldChange,
+    getFormFields
   } = usePatientAssessment();
 
-  // Mock form fields for demonstration
-  const mockFields = [
-    {
-      id: 'chief-complaint',
-      label: 'Chief Complaint',
-      type: 'textarea' as const,
-      value: 'Cough with yellow sputum, dizziness, fell at home',
-      dataSource: 'ai-filled' as const,
-      aiSourceText: 'Patient said: "咳得好辛苦，有啲黃色嘅痰。尋日喺屋企行去廁所，覺得暈跟住就跌低咗"',
-      required: true
-    },
-    {
-      id: 'marital-status',
-      label: 'Marital Status',
-      type: 'select' as const,
-      value: 'Widowed',
-      options: ['Single', 'Married', 'Divorced', 'Widowed'],
-      dataSource: 'ai-filled' as const,
-      aiSourceText: 'Patient mentioned: "我老婆幾年前走咗"'
-    },
-    {
-      id: 'living-arrangement',
-      label: 'Living Arrangement',
-      type: 'select' as const,
-      value: 'Lives alone',
-      options: ['Lives alone', 'Lives with family', 'Lives with spouse', 'Residential care'],
-      dataSource: 'ai-filled' as const,
-      aiSourceText: 'Patient confirmed living alone when asked'
-    },
-    {
-      id: 'vital-signs-temp',
-      label: 'Temperature (°C)',
-      type: 'number' as const,
-      value: '37.9',
-      dataSource: 'manual' as const,
-      required: true
-    },
-    {
-      id: 'vital-signs-bp',
-      label: 'Blood Pressure (mmHg)',
-      type: 'text' as const,
-      value: '155/90',
-      dataSource: 'manual' as const,
-      required: true
-    }
-  ];
+  const currentSectionData = sections.find(s => s.id === currentSection);
+  const currentFields = getFormFields(currentSection);
 
   return (
     <div className="min-h-screen bg-background">
@@ -108,9 +66,9 @@ const Index = () => {
 
         {/* Current Form Section */}
         <FormSection
-          title={sections.find(s => s.id === currentSection)?.title || ''}
-          description="Complete the fields below. AI-filled data is highlighted in blue."
-          fields={mockFields}
+          title={currentSectionData?.title || 'Patient Assessment Form'}
+          description={`Complete the ${currentSectionData?.title} fields below. AI-filled data is highlighted in blue and shows source conversation.`}
+          fields={currentFields}
           onFieldChange={handleFieldChange}
         />
 
