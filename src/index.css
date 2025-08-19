@@ -2,41 +2,74 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Clinical Design System - Professional Medical Interface */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Core Background Colors */
+    --background: 218 25% 98%;
+    --foreground: 215 25% 15%;
 
+    /* Card & Surface Colors */
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 215 25% 15%;
 
+    /* Interactive Elements */
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 215 25% 15%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Primary - Medical Blue */
+    --primary: 210 85% 45%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 210 85% 40%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Secondary - Soft Medical Gray */
+    --secondary: 215 15% 95%;
+    --secondary-foreground: 215 25% 25%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Muted - Background Elements */
+    --muted: 215 15% 96%;
+    --muted-foreground: 215 15% 45%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Accent - Clinical Green */
+    --accent: 160 60% 45%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    /* Status Colors */
+    --success: 160 60% 45%;
+    --success-foreground: 0 0% 100%;
+    --warning: 35 90% 55%;
+    --warning-foreground: 0 0% 100%;
+    --destructive: 0 75% 55%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    /* Form & Input Colors */
+    --border: 215 15% 88%;
+    --input: 215 15% 92%;
+    --input-focus: 210 85% 45%;
+    --ring: 210 85% 45%;
 
-    --radius: 0.5rem;
+    /* Medical Data Source Colors */
+    --pre-populated: 215 15% 94%;
+    --pre-populated-foreground: 215 20% 40%;
+    --ai-filled: 210 85% 96%;
+    --ai-filled-foreground: 210 85% 35%;
+    --manual-entry: 0 0% 100%;
+    --manual-entry-foreground: 215 25% 15%;
+
+    /* Risk Score Colors */
+    --risk-low: 160 60% 95%;
+    --risk-low-foreground: 160 60% 35%;
+    --risk-medium: 35 90% 95%;
+    --risk-medium-foreground: 35 90% 35%;
+    --risk-high: 0 75% 95%;
+    --risk-high-foreground: 0 75% 35%;
+
+    /* Audio Recording States */
+    --recording-active: 0 75% 55%;
+    --recording-inactive: 215 15% 70%;
+
+    --radius: 0.75rem;
 
     --sidebar-background: 0 0% 98%;
 

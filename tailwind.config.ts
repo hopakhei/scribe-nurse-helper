@@ -26,7 +26,8 @@ export default {
 				foreground: 'hsl(var(--foreground))',
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
-					foreground: 'hsl(var(--primary-foreground))'
+					foreground: 'hsl(var(--primary-foreground))',
+					hover: 'hsl(var(--primary-hover))'
 				},
 				secondary: {
 					DEFAULT: 'hsl(var(--secondary))',
@@ -51,6 +52,34 @@ export default {
 				card: {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
+				},
+				success: {
+					DEFAULT: 'hsl(var(--success))',
+					foreground: 'hsl(var(--success-foreground))'
+				},
+				warning: {
+					DEFAULT: 'hsl(var(--warning))',
+					foreground: 'hsl(var(--warning-foreground))'
+				},
+				medical: {
+					'pre-populated': 'hsl(var(--pre-populated))',
+					'pre-populated-foreground': 'hsl(var(--pre-populated-foreground))',
+					'ai-filled': 'hsl(var(--ai-filled))',
+					'ai-filled-foreground': 'hsl(var(--ai-filled-foreground))',
+					'manual-entry': 'hsl(var(--manual-entry))',
+					'manual-entry-foreground': 'hsl(var(--manual-entry-foreground))'
+				},
+				risk: {
+					low: 'hsl(var(--risk-low))',
+					'low-foreground': 'hsl(var(--risk-low-foreground))',
+					medium: 'hsl(var(--risk-medium))',
+					'medium-foreground': 'hsl(var(--risk-medium-foreground))',
+					high: 'hsl(var(--risk-high))',
+					'high-foreground': 'hsl(var(--risk-high-foreground))'
+				},
+				recording: {
+					active: 'hsl(var(--recording-active))',
+					inactive: 'hsl(var(--recording-inactive))'
 				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
