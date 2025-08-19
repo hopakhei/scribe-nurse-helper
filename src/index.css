@@ -34,10 +34,38 @@
     
     /* Custom colors for medical interface */
     --recording-active: 0 84% 60%;
-    --ai-filled: 217 91% 60%;
-    --pre-populated: 142 76% 36%;
-    --manual-entry: 240 5.9% 10%;
+    --recording-inactive: 240 5.9% 90%;
+    --ai-filled: 217 91% 95%;
+    --ai-filled-foreground: 217 91% 20%;
+    --pre-populated: 142 76% 95%;
+    --pre-populated-foreground: 142 76% 20%;
+    --manual-entry: 0 0% 100%;
+    --manual-entry-foreground: 240 5.9% 10%;
     --primary-hover: 142 76% 30%;
+    
+    /* Risk assessment colors */
+    --risk-low: 142 76% 95%;
+    --risk-low-foreground: 142 76% 20%;
+    --risk-medium: 43 74% 95%;
+    --risk-medium-foreground: 43 74% 20%;
+    --risk-high: 0 84% 95%;
+    --risk-high-foreground: 0 84% 20%;
+    
+    /* Success and warning colors */
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 98%;
+    --warning: 43 74% 66%;
+    --warning-foreground: 0 0% 98%;
+    
+    /* Sidebar colors */
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.9% 10%;
+    --sidebar-primary: 142 76% 36%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 240 5.9% 90%;
+    --sidebar-ring: 142 76% 36%;
   }
 
   .dark {
@@ -65,6 +93,41 @@
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+    
+    /* Custom colors for medical interface - dark mode */
+    --recording-active: 0 84% 60%;
+    --recording-inactive: 240 3.7% 15.9%;
+    --ai-filled: 217 91% 15%;
+    --ai-filled-foreground: 217 91% 80%;
+    --pre-populated: 142 76% 15%;
+    --pre-populated-foreground: 142 76% 80%;
+    --manual-entry: 240 10% 3.9%;
+    --manual-entry-foreground: 0 0% 98%;
+    --primary-hover: 142 76% 30%;
+    
+    /* Risk assessment colors - dark mode */
+    --risk-low: 142 76% 15%;
+    --risk-low-foreground: 142 76% 80%;
+    --risk-medium: 43 74% 15%;
+    --risk-medium-foreground: 43 74% 80%;
+    --risk-high: 0 84% 15%;
+    --risk-high-foreground: 0 84% 80%;
+    
+    /* Success and warning colors - dark mode */
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 98%;
+    --warning: 43 74% 66%;
+    --warning-foreground: 0 0% 98%;
+    
+    /* Sidebar colors - dark mode */
+    --sidebar-background: 240 10% 3.9%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 142 76% 36%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 142 76% 36%;
   }
 }
 
