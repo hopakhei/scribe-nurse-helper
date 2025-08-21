@@ -6,13 +6,11 @@ import { RiskScoreDisplay } from "@/components/RiskScoreDisplay";
 import { FormSection } from "@/components/FormSection";
 import { AndroidLayout } from "@/components/AndroidLayout";
 import { usePatientAssessment } from "@/hooks/usePatientAssessment";
-import { useAuthState } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Save, Send, LogOut, User } from "lucide-react";
+import { Save, Send } from "lucide-react";
 
 
 const Index = () => {
-  const { signOut, profile } = useAuthState();
   const {
     patient,
     sections,
@@ -47,26 +45,6 @@ const Index = () => {
                 <p className="text-muted-foreground">
                   AI-Assisted Patient Assessment Documentation System
                 </p>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="text-right">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <User className="h-4 w-4" />
-                    {profile?.full_name || 'User'}
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    {profile?.role || 'nurse'} • {profile?.department || 'General'} • {profile?.ward || 'Ward 1'}
-                  </div>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={signOut}
-                  className="flex items-center gap-2"
-                >
-                  <LogOut className="h-4 w-4" />
-                  Sign Out
-                </Button>
               </div>
             </div>
           </div>
