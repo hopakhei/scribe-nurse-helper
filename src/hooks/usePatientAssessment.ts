@@ -138,14 +138,15 @@ export function usePatientAssessment() {
     }
   };
 
-  const loadFormFields = async () => {
-    if (!assessmentId) return;
+  const loadFormFields = async (assessmentIdParam?: string) => {
+    const id = assessmentIdParam || assessmentId;
+    if (!id) return;
 
     try {
       const { data, error } = await supabase
         .from('form_field_values')
         .select('*')
-        .eq('assessment_id', assessmentId);
+        .eq('assessment_id', id);
 
       if (error) throw error;
 
@@ -180,44 +181,77 @@ export function usePatientAssessment() {
 
   const handleRecordingStart = () => {
     setIsRecording(true);
-    console.log('Recording started - AI listening...');
   };
 
-  const handleRecordingStop = async () => {
+  const handleRecordingStop = async (audioBlob?: Blob) => {
     setIsRecording(false);
-    console.log('Recording stopped - Processing conversation...');
     
-    if (!assessmentId) return;
-
+    if (!audioBlob) {
+      console.log('No audio data received');
+      return;
+    }
+    
     try {
-      // Mock transcript for demo
-      const mockTranscript = "患者說：咳得好辛苦，有啲黃色嘅痰。尋日喺屋企行去廁所，覺得暈跟住就跌低咗。";
+      console.log('Processing audio with AI...');
       
-      const { data, error } = await supabase.functions.invoke('process-audio-transcript', {
-        body: {
-          assessmentId,
-          transcriptText: mockTranscript
+      // Convert audio blob to base64
+      const reader = new FileReader();
+      reader.readAsDataURL(audioBlob);
+      
+      reader.onloadend = async () => {
+        const base64Audio = (reader.result as string).split(',')[1];
+        
+        try {
+          // First, transcribe the audio
+          const transcribeResponse = await supabase.functions.invoke('transcribe-audio', {
+            body: { audio: base64Audio }
+          });
+          
+          if (transcribeResponse.error) {
+            throw transcribeResponse.error;
+          }
+          
+          const { text: transcriptText } = transcribeResponse.data;
+          console.log('Transcription:', transcriptText?.substring(0, 100) + '...');
+          
+          if (transcriptText && transcriptText.trim()) {
+            // Process the transcript to extract form fields
+            const processResponse = await supabase.functions.invoke('process-audio-transcript', {
+              body: { 
+                assessmentId: assessmentId,
+                transcriptText: transcriptText 
+              }
+            });
+            
+            if (processResponse.error) {
+              throw processResponse.error;
+            }
+            
+            console.log('AI processing complete');
+            
+            // Show success message
+            toast({
+              title: "AI Processing Complete",
+              description: `Extracted information from conversation and filled form fields`,
+            });
+            
+            // Reload data to get new AI-filled fields
+            await loadFormFields(assessmentId);
+            await calculateRiskScores();
+          }
+          
+        } catch (error) {
+          console.error('Error processing audio:', error);
+          toast({
+            title: "Error",
+            description: "Failed to process audio recording",
+            variant: "destructive",
+          });
         }
-      });
-
-      if (error) throw error;
-
-      toast({
-        title: "AI Processing Complete",
-        description: `Processed ${data.fieldsProcessed} fields from conversation`,
-      });
-
-      // Reload form fields and calculate risk scores
-      await loadFormFields();
-      await calculateRiskScores();
-
+      };
+      
     } catch (error) {
-      console.error('Error processing transcript:', error);
-      toast({
-        title: "Error",
-        description: "Failed to process audio transcript",
-        variant: "destructive",
-      });
+      console.error('Error in handleRecordingStop:', error);
     }
   };
 

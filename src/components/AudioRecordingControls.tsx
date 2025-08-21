@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 
 interface AudioRecordingControlsProps {
   onRecordingStart: () => void;
-  onRecordingStop: () => void;
+  onRecordingStop: (audioBlob?: Blob) => void;
 }
 
 export function AudioRecordingControls({ 
@@ -15,24 +15,60 @@ export function AudioRecordingControls({
   onRecordingStop 
 }: AudioRecordingControlsProps) {
   const [isRecording, setIsRecording] = useState(false);
+  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+  const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
 
   const handleToggleRecording = async () => {
-    try {
-      if (isRecording) {
-        setIsRecording(false);
-        onRecordingStop();
-      } else {
-        // Request microphone permissions for Android
-        if ('navigator' in window && 'mediaDevices' in navigator) {
-          await navigator.mediaDevices.getUserMedia({ audio: true });
-        }
+    if (!isRecording) {
+      // Start recording
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+          audio: {
+            sampleRate: 44100,
+            channelCount: 1,
+            echoCancellation: true,
+            noiseSuppression: true
+          } 
+        });
+        
+        const recorder = new MediaRecorder(stream, {
+          mimeType: 'audio/webm;codecs=opus'
+        });
+        
+        const chunks: Blob[] = [];
+        
+        recorder.ondataavailable = (event) => {
+          if (event.data.size > 0) {
+            chunks.push(event.data);
+          }
+        };
+        
+        recorder.onstop = () => {
+          const audioBlob = new Blob(chunks, { type: 'audio/webm' });
+          setAudioChunks([]);
+          onRecordingStop(audioBlob);
+          
+          // Stop all tracks to release microphone
+          stream.getTracks().forEach(track => track.stop());
+        };
+        
+        setMediaRecorder(recorder);
+        setAudioChunks(chunks);
+        recorder.start(1000); // Collect data every second
         setIsRecording(true);
         onRecordingStart();
+        
+      } catch (error) {
+        console.error('Error accessing microphone:', error);
+        alert('Unable to access microphone. Please check permissions.');
       }
-    } catch (error) {
-      console.error('Error accessing microphone:', error);
-      // Handle permission denied or hardware issues
-      alert('Microphone access is required for audio recording. Please grant permission and try again.');
+    } else {
+      // Stop recording
+      if (mediaRecorder && mediaRecorder.state === 'recording') {
+        mediaRecorder.stop();
+      }
+      setIsRecording(false);
+      setMediaRecorder(null);
     }
   };
 
