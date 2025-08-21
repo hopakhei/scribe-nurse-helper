@@ -79,87 +79,38 @@ export function usePatientAssessment() {
   const [assessmentId, setAssessmentId] = useState<string | null>(null);
   const [formFields, setFormFields] = useState<Record<string, FormField[]>>({});
 
-  // Initialize assessment on component mount
+  // Initialize assessment on component mount - mock for development
   useEffect(() => {
-    initializeAssessment();
+    // Mock initialization without database calls for development
+    setAssessmentId('mock-assessment-id');
+    initializeMockData();
   }, []);
 
-  // Load risk scores when assessment ID is available
-  useEffect(() => {
-    if (assessmentId) {
-      loadRiskScores();
-      loadFormFields();
-    }
-  }, [assessmentId]);
+  const initializeMockData = () => {
+    // Initialize form fields with default values for development
+    const fieldsBySection: Record<string, FormField[]> = {};
+    sections.forEach(section => {
+      fieldsBySection[section.id] = getDefaultFormFields(section.id);
+    });
+    setFormFields(fieldsBySection);
 
-  const initializeAssessment = async () => {
-    try {
-      // Create patient record if doesn't exist
-      const { data: existingPatient } = await supabase
-        .from('patients')
-        .select('id')
-        .eq('hospital_no', patient.hospitalNo)
-        .single();
-
-      let patientId = existingPatient?.id;
-
-      if (!existingPatient) {
-        const { data: newPatient, error: patientError } = await supabase
-          .from('patients')
-          .insert({
-            name: patient.name,
-            hospital_no: patient.hospitalNo,
-            id_no: patient.idNo,
-            age: patient.age,
-            sex: patient.sex,
-            dept: patient.dept,
-            team: patient.team,
-            ward: patient.ward,
-            bed: patient.bed,
-            admission_type: patient.admissionType as any,
-            admission_date: patient.admissionDate
-          })
-          .select('id')
-          .single();
-
-        if (patientError) throw patientError;
-        patientId = newPatient.id;
+    // Initialize mock risk scores
+    setRiskScores([
+      {
+        name: 'Morse Fall Scale',
+        score: 45,
+        maxScore: 125,
+        level: 'medium',
+        description: 'Medium risk of falls'
+      },
+      {
+        name: 'Malnutrition Screening',
+        score: 2,
+        maxScore: 5,
+        level: 'low',
+        description: 'Low malnutrition risk'
       }
-
-      // Create assessment record
-      const { data: assessment, error: assessmentError } = await supabase
-        .from('patient_assessments')
-        .insert({
-          patient_id: patientId,
-          assessment_date: patient.assessmentDate,
-          assessment_time: patient.assessmentTime
-        })
-        .select('id')
-        .single();
-
-      if (assessmentError) throw assessmentError;
-      setAssessmentId(assessment.id);
-
-      // Initialize sections
-      const sectionsData = sections.map(section => ({
-        assessment_id: assessment.id,
-        section_id: section.id,
-        section_title: section.title,
-        completed: section.completed
-      }));
-
-      await supabase
-        .from('assessment_sections')
-        .insert(sectionsData);
-
-    } catch (error) {
-      console.error('Error initializing assessment:', error);
-      toast({
-        title: "Error",
-        description: "Failed to initialize assessment",
-        variant: "destructive",
-      });
-    }
+    ]);
   };
 
   const loadRiskScores = async () => {
@@ -285,49 +236,19 @@ export function usePatientAssessment() {
     }
   };
 
-  const handleFieldChange = async (fieldId: string, value: any) => {
-    if (!assessmentId) return;
-
+  const handleFieldChange = (fieldId: string, value: any) => {
     console.log(`Field ${fieldId} changed to:`, value);
 
-    try {
-      const field = Object.values(formFields).flat().find(f => f.id === fieldId);
-      if (!field) return;
-
-      await supabase
-        .from('form_field_values')
-        .upsert({
-          assessment_id: assessmentId,
-          section_id: field.id.split('-')[0], // Extract section from field ID
-          field_id: fieldId,
-          field_label: field.label,
-          value: String(value),
-          data_source: 'manual'
-        }, { onConflict: 'assessment_id,field_id' });
-
-      // Update local state
-      const updatedFields = { ...formFields };
-      Object.keys(updatedFields).forEach(sectionId => {
-        const fieldIndex = updatedFields[sectionId].findIndex(f => f.id === fieldId);
-        if (fieldIndex >= 0) {
-          updatedFields[sectionId][fieldIndex].value = value;
-        }
-      });
-      setFormFields(updatedFields);
-
-      // Recalculate risk scores if risk-related field changed
-      if (fieldId.includes('morse-') || fieldId.includes('mst-')) {
-        await calculateRiskScores();
+    // Update local state immediately for development
+    const updatedFields = { ...formFields };
+    Object.keys(updatedFields).forEach(sectionId => {
+      const fieldIndex = updatedFields[sectionId].findIndex(f => f.id === fieldId);
+      if (fieldIndex >= 0) {
+        updatedFields[sectionId][fieldIndex].value = value;
+        updatedFields[sectionId][fieldIndex].dataSource = 'manual';
       }
-
-    } catch (error) {
-      console.error('Error saving field:', error);
-      toast({
-        title: "Error",
-        description: "Failed to save field value",
-        variant: "destructive",
-      });
-    }
+    });
+    setFormFields(updatedFields);
   };
 
   // Form field definitions for each section
