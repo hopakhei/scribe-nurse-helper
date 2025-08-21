@@ -283,6 +283,63 @@ export function usePatientAssessment() {
       }
     });
     setFormFields(updatedFields);
+
+    // Recalculate risk scores locally when Morse Fall Scale fields change
+    if (fieldId.startsWith('morse-')) {
+      calculateLocalRiskScores(updatedFields);
+    }
+  };
+
+  const calculateLocalRiskScores = (fieldsData: Record<string, FormField[]>) => {
+    const riskFields = fieldsData['risk'] || [];
+    
+    // Calculate Morse Fall Scale Score
+    let morseScore = 0;
+    
+    const historyFalling = riskFields.find(f => f.id === 'morse-history-falling')?.value;
+    if (historyFalling === 'Yes (25 points)') morseScore += 25;
+    
+    const secondaryDiagnosis = riskFields.find(f => f.id === 'morse-secondary-diagnosis')?.value;
+    if (secondaryDiagnosis === 'Yes (15 points)') morseScore += 15;
+    
+    const ambulatoryAid = riskFields.find(f => f.id === 'morse-ambulatory-aid')?.value;
+    if (ambulatoryAid === 'Crutches/Cane/Walkers (15 points)') morseScore += 15;
+    else if (ambulatoryAid === 'Furniture (30 points)') morseScore += 30;
+    
+    const ivTherapy = riskFields.find(f => f.id === 'morse-iv-therapy')?.value;
+    if (ivTherapy === 'Yes (20 points)') morseScore += 20;
+    
+    const gait = riskFields.find(f => f.id === 'morse-gait')?.value;
+    if (gait === 'Weak (10 points)') morseScore += 10;
+    else if (gait === 'Impaired (20 points)') morseScore += 20;
+    
+    const mentalStatus = riskFields.find(f => f.id === 'morse-mental-status')?.value;
+    if (mentalStatus === 'Overestimates/Forgets limitations (15 points)') morseScore += 15;
+
+    // Determine risk level
+    let riskLevel: 'low' | 'medium' | 'high' = 'low';
+    if (morseScore >= 45) riskLevel = 'high';
+    else if (morseScore >= 25) riskLevel = 'medium';
+
+    const updatedScores: RiskScore[] = [
+      {
+        name: 'Morse Fall Scale',
+        score: morseScore,
+        maxScore: 125,
+        level: riskLevel,
+        description: `${riskLevel.charAt(0).toUpperCase() + riskLevel.slice(1)} risk of falls (${morseScore}/125 points)`
+      },
+      {
+        name: 'Malnutrition Screening',
+        score: 2,
+        maxScore: 5,
+        level: 'low',
+        description: 'Low malnutrition risk'
+      }
+    ];
+
+    console.log('Risk scores calculated:', updatedScores);
+    setRiskScores(updatedScores);
   };
 
   // Form field definitions for each section
