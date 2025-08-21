@@ -284,15 +284,21 @@ export function usePatientAssessment() {
     });
     setFormFields(updatedFields);
 
-    // Recalculate risk scores locally when Morse Fall Scale fields change
-    if (fieldId.startsWith('morse-')) {
+    // Recalculate risk scores locally when relevant fields change
+    if (fieldId.startsWith('morse-') || fieldId.startsWith('gcs-') || fieldId.startsWith('norton-') || 
+        fieldId.startsWith('braden-') || fieldId.startsWith('hkc-must-') || fieldId.startsWith('mst-')) {
       calculateLocalRiskScores(updatedFields);
     }
   };
 
   const calculateLocalRiskScores = (fieldsData: Record<string, FormField[]>) => {
     const riskFields = fieldsData['risk'] || [];
+    const physicalFields = fieldsData['physical'] || [];
+    const nutritionFields = fieldsData['nutrition'] || [];
+    const functionalFields = fieldsData['functional'] || [];
     
+    const updatedScores: RiskScore[] = [];
+
     // Calculate Morse Fall Scale Score
     let morseScore = 0;
     
@@ -316,27 +322,131 @@ export function usePatientAssessment() {
     const mentalStatus = riskFields.find(f => f.id === 'morse-mental-status')?.value;
     if (mentalStatus === 'Overestimates/Forgets limitations (15 points)') morseScore += 15;
 
-    // Determine risk level
     let riskLevel: 'low' | 'medium' | 'high' = 'low';
     if (morseScore >= 45) riskLevel = 'high';
     else if (morseScore >= 25) riskLevel = 'medium';
 
-    const updatedScores: RiskScore[] = [
-      {
-        name: 'Morse Fall Scale',
-        score: morseScore,
-        maxScore: 125,
-        level: riskLevel,
-        description: `${riskLevel.charAt(0).toUpperCase() + riskLevel.slice(1)} risk of falls (${morseScore}/125 points)`
-      },
-      {
-        name: 'Malnutrition Screening',
-        score: 2,
+    updatedScores.push({
+      name: 'Morse Fall Scale',
+      score: morseScore,
+      maxScore: 125,
+      level: riskLevel,
+      description: `${riskLevel.charAt(0).toUpperCase() + riskLevel.slice(1)} risk of falls (${morseScore}/125 points)`
+    });
+
+    // Calculate Glasgow Coma Scale (GCS)
+    let gcsScore = 0;
+    const eyeResponse = parseInt(String(physicalFields.find(f => f.id === 'gcs-eye')?.value || '0'));
+    const verbalResponse = parseInt(String(physicalFields.find(f => f.id === 'gcs-verbal')?.value || '0'));
+    const motorResponse = parseInt(String(physicalFields.find(f => f.id === 'gcs-motor')?.value || '0'));
+    
+    gcsScore = eyeResponse + verbalResponse + motorResponse;
+    
+    if (gcsScore > 0) {
+      let gcsRisk: 'low' | 'medium' | 'high' = 'low';
+      if (gcsScore <= 8) gcsRisk = 'high';
+      else if (gcsScore <= 12) gcsRisk = 'medium';
+
+      updatedScores.push({
+        name: 'Glasgow Coma Scale',
+        score: gcsScore,
+        maxScore: 15,
+        level: gcsRisk,
+        description: `GCS ${gcsScore}/15 - ${gcsRisk} risk neurological impairment`
+      });
+    }
+
+    // Calculate Norton Scale
+    let nortonScore = 0;
+    const physicalCondition = parseInt(String(riskFields.find(f => f.id === 'norton-physical')?.value || '0'));
+    const mentalCondition = parseInt(String(riskFields.find(f => f.id === 'norton-mental')?.value || '0'));
+    const activity = parseInt(String(riskFields.find(f => f.id === 'norton-activity')?.value || '0'));
+    const mobility = parseInt(String(riskFields.find(f => f.id === 'norton-mobility')?.value || '0'));
+    const incontinence = parseInt(String(riskFields.find(f => f.id === 'norton-incontinence')?.value || '0'));
+    
+    nortonScore = physicalCondition + mentalCondition + activity + mobility + incontinence;
+    
+    if (nortonScore > 0) {
+      let nortonRisk: 'low' | 'medium' | 'high' = 'low';
+      if (nortonScore <= 14) nortonRisk = 'high';
+      else if (nortonScore <= 18) nortonRisk = 'medium';
+
+      updatedScores.push({
+        name: 'Norton Scale',
+        score: nortonScore,
+        maxScore: 20,
+        level: nortonRisk,
+        description: `${nortonRisk.charAt(0).toUpperCase() + nortonRisk.slice(1)} pressure injury risk (${nortonScore}/20)`
+      });
+    }
+
+    // Calculate Braden Scale
+    let bradenScore = 0;
+    const sensory = parseInt(String(riskFields.find(f => f.id === 'braden-sensory')?.value || '0'));
+    const moisture = parseInt(String(riskFields.find(f => f.id === 'braden-moisture')?.value || '0'));
+    const bradenActivity = parseInt(String(riskFields.find(f => f.id === 'braden-activity')?.value || '0'));
+    const bradenMobility = parseInt(String(riskFields.find(f => f.id === 'braden-mobility')?.value || '0'));
+    const nutrition = parseInt(String(riskFields.find(f => f.id === 'braden-nutrition')?.value || '0'));
+    const friction = parseInt(String(riskFields.find(f => f.id === 'braden-friction')?.value || '0'));
+    
+    bradenScore = sensory + moisture + bradenActivity + bradenMobility + nutrition + friction;
+    
+    if (bradenScore > 0) {
+      let bradenRisk: 'low' | 'medium' | 'high' = 'low';
+      if (bradenScore <= 12) bradenRisk = 'high';
+      else if (bradenScore <= 18) bradenRisk = 'medium';
+
+      updatedScores.push({
+        name: 'Braden Scale',
+        score: bradenScore,
+        maxScore: 23,
+        level: bradenRisk,
+        description: `${bradenRisk.charAt(0).toUpperCase() + bradenRisk.slice(1)} pressure injury risk (${bradenScore}/23)`
+      });
+    }
+
+    // Calculate HKC-MUST Score
+    let hkcMustScore = 0;
+    const bmiScore = parseInt(String(nutritionFields.find(f => f.id === 'hkc-must-bmi')?.value || '0'));
+    const weightLossScore = parseInt(String(nutritionFields.find(f => f.id === 'hkc-must-weight-loss')?.value || '0'));
+    const acuteIllness = parseInt(String(nutritionFields.find(f => f.id === 'hkc-must-acute')?.value || '0'));
+    
+    hkcMustScore = bmiScore + weightLossScore + acuteIllness;
+    
+    if (hkcMustScore > 0) {
+      let hkcRisk: 'low' | 'medium' | 'high' = 'low';
+      if (hkcMustScore >= 2) hkcRisk = 'medium';
+      if (hkcMustScore >= 4) hkcRisk = 'high';
+
+      updatedScores.push({
+        name: 'HKC-MUST',
+        score: hkcMustScore,
+        maxScore: 6,
+        level: hkcRisk,
+        description: `${hkcRisk.charAt(0).toUpperCase() + hkcRisk.slice(1)} malnutrition risk (${hkcMustScore}/6)`
+      });
+    }
+
+    // Calculate MST Score
+    let mstScore = 0;
+    const weightLoss = parseInt(String(nutritionFields.find(f => f.id === 'mst-weight-loss')?.value || '0'));
+    const poorAppetite = parseInt(String(nutritionFields.find(f => f.id === 'mst-appetite')?.value || '0'));
+    
+    mstScore = weightLoss + poorAppetite;
+    
+    if (mstScore > 0) {
+      let mstRisk: 'low' | 'medium' | 'high' = 'low';
+      if (mstScore >= 2) mstRisk = 'medium';
+      if (mstScore >= 4) mstRisk = 'high';
+
+      updatedScores.push({
+        name: 'Malnutrition Screening Tool',
+        score: mstScore,
         maxScore: 5,
-        level: 'low',
-        description: 'Low malnutrition risk'
-      }
-    ];
+        level: mstRisk,
+        description: `${mstRisk.charAt(0).toUpperCase() + mstRisk.slice(1)} malnutrition risk (${mstScore}/5)`
+      });
+    }
 
     console.log('Risk scores calculated:', updatedScores);
     setRiskScores(updatedScores);
@@ -351,6 +461,7 @@ export function usePatientAssessment() {
     switch (sectionId) {
       case 'general-physical':
         return [
+          // General Information
           {
             id: 'emergency-contact-1-name',
             label: 'Emergency Contact 1 - Name',
@@ -367,6 +478,28 @@ export function usePatientAssessment() {
             dataSource: 'manual'
           },
           {
+            id: 'emergency-contact-1-phone',
+            label: 'Emergency Contact 1 - Phone',
+            type: 'text',
+            value: '',
+            dataSource: 'manual'
+          },
+          {
+            id: 'emergency-contact-2-name',
+            label: 'Emergency Contact 2 - Name',
+            type: 'text',
+            value: '',
+            dataSource: 'manual'
+          },
+          {
+            id: 'bring-in-belongings',
+            label: 'Bring-in Belongings',
+            type: 'textarea',
+            value: '',
+            dataSource: 'manual'
+          },
+          // Current Complaint
+          {
             id: 'current-complaint',
             label: 'Current Complaint / Problem',
             type: 'textarea',
@@ -374,6 +507,7 @@ export function usePatientAssessment() {
             dataSource: 'manual',
             required: true
           },
+          // Vital Signs
           {
             id: 'temperature',
             label: 'Temperature (°C)',
@@ -399,6 +533,30 @@ export function usePatientAssessment() {
             required: true
           },
           {
+            id: 'pulse-site',
+            label: 'Pulse Site',
+            type: 'select',
+            value: '',
+            options: ['Radial', 'Apical', 'Carotid', 'Brachial', 'Femoral', 'Popliteal', 'Dorsalis pedis', 'Other'],
+            dataSource: 'manual'
+          },
+          {
+            id: 'pulse-pattern',
+            label: 'Pulse Pattern',
+            type: 'select',
+            value: '',
+            options: ['Regular', 'Irregular', 'N/A'],
+            dataSource: 'manual'
+          },
+          {
+            id: 'pacemaker',
+            label: 'Pacemaker',
+            type: 'select',
+            value: '',
+            options: ['Yes', 'No'],
+            dataSource: 'manual'
+          },
+          {
             id: 'bp-systolic',
             label: 'BP Systolic (mmHg)',
             type: 'number',
@@ -415,6 +573,14 @@ export function usePatientAssessment() {
             required: true
           },
           {
+            id: 'bp-position',
+            label: 'BP Position',
+            type: 'select',
+            value: '',
+            options: ['Sitting', 'Standing', 'Lying', 'Other'],
+            dataSource: 'manual'
+          },
+          {
             id: 'respiratory-rate',
             label: 'Respiratory Rate (/min)',
             type: 'number',
@@ -423,10 +589,41 @@ export function usePatientAssessment() {
             required: true
           },
           {
+            id: 'breathing-pattern',
+            label: 'Breathing Pattern',
+            type: 'select',
+            value: '',
+            options: ['Normal', 'Dyspnoea'],
+            dataSource: 'manual'
+          },
+          {
             id: 'spo2',
             label: 'SpO2 (%)',
             type: 'number',
             value: '',
+            dataSource: 'manual'
+          },
+          {
+            id: 'oxygen-therapy',
+            label: 'Oxygen Therapy',
+            type: 'select',
+            value: '',
+            options: ['Yes', 'No'],
+            dataSource: 'manual'
+          },
+          {
+            id: 'oxygen-rate',
+            label: 'Oxygen Rate (L/min)',
+            type: 'number',
+            value: '',
+            dataSource: 'manual'
+          },
+          {
+            id: 'oxygen-delivery',
+            label: 'Oxygen Delivery Method',
+            type: 'select',
+            value: '',
+            options: ['Mask', 'Cannula', 'Ventilator'],
             dataSource: 'manual'
           },
           {
@@ -446,17 +643,169 @@ export function usePatientAssessment() {
             dataSource: 'manual'
           },
           {
+            id: 'sputum-amount',
+            label: 'Sputum Amount',
+            type: 'text',
+            value: '',
+            dataSource: 'manual'
+          },
+          {
             id: 'sputum-colour',
             label: 'Sputum Colour',
             type: 'select',
             value: '',
             options: ['Clear', 'White', 'Yellow', 'Green', 'Cream colour', 'Coffee/Rusty', 'Blood-stained'],
             dataSource: 'manual'
+          },
+          // Body Measurement
+          {
+            id: 'weight',
+            label: 'Weight (kg)',
+            type: 'number',
+            value: '',
+            dataSource: 'manual',
+            required: true
+          },
+          {
+            id: 'height',
+            label: 'Height (cm)',
+            type: 'number',
+            value: '',
+            dataSource: 'manual',
+            required: true
+          },
+          {
+            id: 'bmi',
+            label: 'Body Mass Index (kg/m²)',
+            type: 'number',
+            value: '',
+            dataSource: 'manual'
+          },
+          {
+            id: 'weight-loss-10-percent',
+            label: '10% weight loss within 6 months prior to admission',
+            type: 'checkbox',
+            value: false,
+            dataSource: 'manual'
+          },
+          // Urinalysis
+          {
+            id: 'urinalysis-sugar',
+            label: 'Urinalysis - Sugar',
+            type: 'select',
+            value: '',
+            options: ['Negative', 'Trace', '+', '++', '+++ or above'],
+            dataSource: 'manual'
+          },
+          {
+            id: 'urinalysis-albumin',
+            label: 'Urinalysis - Albumin',
+            type: 'select',
+            value: '',
+            options: ['Negative', 'Trace', '+', '++', '+++ or above'],
+            dataSource: 'manual'
+          },
+          {
+            id: 'urinalysis-ketone',
+            label: 'Urinalysis - Ketone',
+            type: 'select',
+            value: '',
+            options: ['Negative', 'Trace', '+', '++', '+++ or above'],
+            dataSource: 'manual'
+          },
+          {
+            id: 'urinalysis-wbc',
+            label: 'Urinalysis - White Blood Cell',
+            type: 'select',
+            value: '',
+            options: ['Negative', 'Trace', '+', '++', '+++ or above'],
+            dataSource: 'manual'
+          },
+          {
+            id: 'urinalysis-rbc',
+            label: 'Urinalysis - Red Blood Cell',
+            type: 'select',
+            value: '',
+            options: ['Negative', 'Trace', '+', '++', '+++ or above'],
+            dataSource: 'manual'
+          },
+          {
+            id: 'urinalysis-nitrite',
+            label: 'Urinalysis - Nitrite',
+            type: 'select',
+            value: '',
+            options: ['Negative', 'Trace', '+', '++', '+++ or above'],
+            dataSource: 'manual'
+          },
+          // Other Measurements
+          {
+            id: 'last-menstrual-period',
+            label: 'Last Menstrual Period',
+            type: 'date',
+            value: '',
+            dataSource: 'manual'
+          },
+          {
+            id: 'pregnancy-test',
+            label: 'Pregnancy Test',
+            type: 'select',
+            value: '',
+            options: ['-ve', 'Inconclusive', '+ve'],
+            dataSource: 'manual'
+          },
+          {
+            id: 'blood-glucose',
+            label: 'Blood Glucose Monitoring (mmol/L)',
+            type: 'number',
+            value: '',
+            dataSource: 'manual'
+          },
+          // Level of Consciousness (AVPU)
+          {
+            id: 'avpu',
+            label: 'Level of Consciousness (AVPU)',
+            type: 'select',
+            value: '',
+            options: ['Alert (A)', 'Response to Voice (V)', 'Response to Pain (P)', 'Unresponsive (U)'],
+            dataSource: 'manual'
+          },
+          // Glasgow Coma Scale
+          {
+            id: 'gcs-eye',
+            label: 'GCS - Eye Opening Response',
+            type: 'select',
+            value: '',
+            options: ['4 - Spontaneously', '3 - To speech', '2 - To pain', '1 - No response'],
+            dataSource: 'manual'
+          },
+          {
+            id: 'gcs-verbal',
+            label: 'GCS - Verbal Response',
+            type: 'select',
+            value: '',
+            options: ['5 - Oriented', '4 - Confused', '3 - Inappropriate words', '2 - Incomprehensible sounds', '1 - None'],
+            dataSource: 'manual'
+          },
+          {
+            id: 'gcs-motor',
+            label: 'GCS - Motor Response',
+            type: 'select',
+            value: '',
+            options: ['6 - Obeys commands', '5 - Localizes to pain', '4 - Flexion withdrawal', '3 - Abnormal flexion', '2 - Abnormal extension', '1 - No response'],
+            dataSource: 'manual'
+          },
+          {
+            id: 'gcs-total',
+            label: 'GCS Total Score',
+            type: 'number',
+            value: '',
+            dataSource: 'manual'
           }
         ];
 
       case 'social':
         return [
+          // Basic Demographics
           {
             id: 'marital-status',
             label: 'Marital Status',
@@ -489,6 +838,24 @@ export function usePatientAssessment() {
             options: ['Employer', 'Employee', 'Self-employed', 'Homemaker', 'Student', 'Unemployed', 'Retired', 'Not working', 'Other', 'Unknown', 'Cannot be assessed'],
             dataSource: 'manual'
           },
+          // Financial Support
+          {
+            id: 'financial-support',
+            label: 'Financial Support',
+            type: 'select',
+            value: '',
+            options: ['Comprehensive Social Security Assistance', 'Disability Allowance', 'Old Age Allowance', 'Traffic Accident Victims Assistance', 'Self-supporting', 'Supported by family', 'Supported by others'],
+            dataSource: 'manual'
+          },
+          // Occupation
+          {
+            id: 'occupation',
+            label: 'Occupation',
+            type: 'select',
+            value: '',
+            options: ['Elementary occupation', 'Craft and related worker', 'Service / shop sales worker', 'Plant / machine operator', 'Clerk', 'Associate professional', 'Professional', 'Health Care Worker', 'Other'],
+            dataSource: 'manual'
+          },
           {
             id: 'household-members',
             label: 'Household Members',
@@ -505,6 +872,16 @@ export function usePatientAssessment() {
             options: ['Hospital', 'Hostel', 'Halfway house', 'Old aged home', 'Private residential flat', 'Public rental flat', 'Street Sleeper', 'Temporary housing', 'Traditional village house', 'Other', 'Unknown', 'Cannot be assessed'],
             dataSource: 'manual'
           },
+          // Nationality
+          {
+            id: 'nationality',
+            label: 'Nationality',
+            type: 'select',
+            value: '',
+            options: ['Chinese (Hong Kong)', 'Chinese (Mainland China)', 'Chinese (Taiwan)', 'American', 'British', 'Canadian', 'Filipino', 'Indian', 'Indonesian', 'Japanese', 'Korean', 'Nepalese', 'Pakistani', 'Thai', 'Other', 'Unknown', 'Cannot be assessed'],
+            dataSource: 'manual'
+          },
+          // Habits
           {
             id: 'smoking-status',
             label: 'Smoking Status',
@@ -514,23 +891,223 @@ export function usePatientAssessment() {
             dataSource: 'manual'
           },
           {
+            id: 'cigarettes-per-day',
+            label: 'Cigarettes per Day',
+            type: 'number',
+            value: '',
+            dataSource: 'manual'
+          },
+          {
+            id: 'smoking-start-year',
+            label: 'Smoking Start Year (yyyy)',
+            type: 'number',
+            value: '',
+            dataSource: 'manual'
+          },
+          {
+            id: 'smoking-quit-year',
+            label: 'Smoking Quit Year (yyyy)',
+            type: 'number',
+            value: '',
+            dataSource: 'manual'
+          },
+          {
             id: 'drinking-status',
             label: 'Drinking Status',
             type: 'select',
             value: '',
-            options: ['Drinker', 'Ex-drinker', 'Non-drinker', 'Social Drinker', 'Unknown', 'Cannot be assessed'],
+            options: ['Drinker', 'Ex-drinker', 'Non-drinker', 'Unknown', 'Cannot be assessed'],
+            dataSource: 'manual'
+          },
+          {
+            id: 'social-drinker',
+            label: 'Social Drinker',
+            type: 'select',
+            value: '',
+            options: ['Yes', 'No'],
+            dataSource: 'manual'
+          },
+          {
+            id: 'drinking-start-year',
+            label: 'Drinking Start Year (yyyy)',
+            type: 'number',
+            value: '',
+            dataSource: 'manual'
+          },
+          {
+            id: 'drinking-quit-year',
+            label: 'Drinking Quit Year (yyyy)',
+            type: 'number',
+            value: '',
+            dataSource: 'manual'
+          },
+          {
+            id: 'beverage-spirits',
+            label: 'Spirits (ml/day)',
+            type: 'number',
+            value: '',
+            dataSource: 'manual'
+          },
+          {
+            id: 'beverage-wine',
+            label: 'Wine (ml/day)',
+            type: 'number',
+            value: '',
+            dataSource: 'manual'
+          },
+          {
+            id: 'beverage-liquor',
+            label: 'Liquor (ml/day)',
+            type: 'number',
+            value: '',
+            dataSource: 'manual'
+          },
+          // Substance Use
+          {
+            id: 'substance-use-status',
+            label: 'Substance Use Status',
+            type: 'select',
+            value: '',
+            options: ['Active user', 'Ex-user', 'Non-user', 'Unknown', 'Cannot be assessed'],
+            dataSource: 'manual'
+          },
+          {
+            id: 'substance-type',
+            label: 'Type of Substance',
+            type: 'select',
+            value: '',
+            options: ['Cannabinoid', 'Cocaine', 'Ketamine', 'Opioid', 'Stimulant', 'Tranquillizer', 'Hypnotic', 'Sedative', 'Other'],
+            dataSource: 'manual'
+          },
+          {
+            id: 'substance-start-year',
+            label: 'Substance Use Start Year (yyyy)',
+            type: 'number',
+            value: '',
+            dataSource: 'manual'
+          },
+          {
+            id: 'substance-quit-year',
+            label: 'Substance Use Quit Year (yyyy)',
+            type: 'number',
+            value: '',
             dataSource: 'manual'
           }
         ];
 
       case 'risk':
         return [
+          // Infection Risk
+          {
+            id: 'infection-risk',
+            label: 'Infection Risk',
+            type: 'select',
+            value: '',
+            options: ['At risk', 'Not at risk', 'Unknown'],
+            dataSource: 'manual'
+          },
           {
             id: 'cpe-screening',
             label: 'CPE Screening - Hospitalization outside HK in last 12 months',
             type: 'select',
             value: '',
             options: ['Unknown', 'No', 'Yes'],
+            dataSource: 'manual'
+          },
+          {
+            id: 'cpe-country',
+            label: 'CPE Screening - Country/Area/City',
+            type: 'text',
+            value: '',
+            dataSource: 'manual'
+          },
+          {
+            id: 'vre-screening',
+            label: 'VRE Screening - Hospitalization outside HK in last 12 months',
+            type: 'select',
+            value: '',
+            options: ['Unknown', 'No', 'Yes'],
+            dataSource: 'manual'
+          },
+          {
+            id: 'vre-country',
+            label: 'VRE Screening - Country/Area/City',
+            type: 'text',
+            value: '',
+            dataSource: 'manual'
+          },
+          {
+            id: 'isolation-precaution',
+            label: 'Isolation Precaution Type',
+            type: 'select',
+            value: '',
+            options: ['Airborne', 'Contact', 'Droplet', 'Reverse Isolation'],
+            dataSource: 'manual'
+          },
+          {
+            id: 'isolation-remarks',
+            label: 'Isolation Precaution Remarks',
+            type: 'textarea',
+            value: '',
+            dataSource: 'manual'
+          },
+          {
+            id: 'ftocc-risk',
+            label: 'FTOCC Risk Status',
+            type: 'select',
+            value: '',
+            options: ['At risk', 'Not at risk', 'Unknown'],
+            dataSource: 'manual'
+          },
+          {
+            id: 'ftocc-fever',
+            label: 'FTOCC - Fever',
+            type: 'checkbox',
+            value: false,
+            dataSource: 'manual'
+          },
+          {
+            id: 'ftocc-travel',
+            label: 'FTOCC - Travel',
+            type: 'checkbox',
+            value: false,
+            dataSource: 'manual'
+          },
+          {
+            id: 'ftocc-occupation',
+            label: 'FTOCC - Occupation',
+            type: 'checkbox',
+            value: false,
+            dataSource: 'manual'
+          },
+          {
+            id: 'ftocc-clustering',
+            label: 'FTOCC - Clustering',
+            type: 'checkbox',
+            value: false,
+            dataSource: 'manual'
+          },
+          {
+            id: 'ftocc-contact',
+            label: 'FTOCC - Contact',
+            type: 'checkbox',
+            value: false,
+            dataSource: 'manual'
+          },
+          {
+            id: 'ftocc-remarks',
+            label: 'FTOCC Remarks',
+            type: 'textarea',
+            value: '',
+            dataSource: 'manual'
+          },
+          // Morse Fall Scale
+          {
+            id: 'morse-fall-risk',
+            label: 'Morse Fall Scale Risk',
+            type: 'select',
+            value: '',
+            options: ['At risk', 'Not at risk'],
             dataSource: 'manual'
           },
           {
@@ -580,11 +1157,179 @@ export function usePatientAssessment() {
             value: '',
             options: ['Oriented to own ability (0 points)', 'Overestimates/Forgets limitations (15 points)'],
             dataSource: 'manual'
+          },
+          {
+            id: 'morse-total-score',
+            label: 'Morse Fall Scale Total Score',
+            type: 'number',
+            value: '',
+            dataSource: 'manual'
+          },
+          {
+            id: 'morse-remarks',
+            label: 'Morse Fall Scale Remarks',
+            type: 'textarea',
+            value: '',
+            dataSource: 'manual'
+          },
+          // Norton Scale
+          {
+            id: 'norton-pressure-risk',
+            label: 'Norton Scale Pressure Injury Risk',
+            type: 'select',
+            value: '',
+            options: ['At risk', 'Not at risk'],
+            dataSource: 'manual'
+          },
+          {
+            id: 'norton-physical',
+            label: 'Norton Scale - Physical Condition',
+            type: 'select',
+            value: '',
+            options: ['4 - Good', '3 - Fair', '2 - Poor', '1 - Very bad'],
+            dataSource: 'manual'
+          },
+          {
+            id: 'norton-mental',
+            label: 'Norton Scale - Mental Condition',
+            type: 'select',
+            value: '',
+            options: ['4 - Alert', '3 - Apathetic', '2 - Confused', '1 - Stupor'],
+            dataSource: 'manual'
+          },
+          {
+            id: 'norton-activity',
+            label: 'Norton Scale - Activity',
+            type: 'select',
+            value: '',
+            options: ['4 - Ambulant', '3 - Walk with help', '2 - Chair bound', '1 - Bed'],
+            dataSource: 'manual'
+          },
+          {
+            id: 'norton-mobility',
+            label: 'Norton Scale - Mobility',
+            type: 'select',
+            value: '',
+            options: ['4 - Full', '3 - Slightly limited', '2 - Very limited', '1 - Immobile'],
+            dataSource: 'manual'
+          },
+          {
+            id: 'norton-incontinence',
+            label: 'Norton Scale - Incontinence',
+            type: 'select',
+            value: '',
+            options: ['4 - Not', '3 - Occasionally', '2 - Usually / Urine', '1 - Doubly'],
+            dataSource: 'manual'
+          },
+          {
+            id: 'norton-total-score',
+            label: 'Norton Scale Total Score',
+            type: 'number',
+            value: '',
+            dataSource: 'manual'
+          },
+          // Braden Scale
+          {
+            id: 'braden-pressure-risk',
+            label: 'Braden Scale Pressure Injury Risk',
+            type: 'select',
+            value: '',
+            options: ['At risk', 'Not at risk'],
+            dataSource: 'manual'
+          },
+          {
+            id: 'braden-sensory',
+            label: 'Braden Scale - Sensory Perception',
+            type: 'select',
+            value: '',
+            options: ['4 - No impairment', '3 - Slightly limited', '2 - Very limited', '1 - Completely limited'],
+            dataSource: 'manual'
+          },
+          {
+            id: 'braden-moisture',
+            label: 'Braden Scale - Moisture',
+            type: 'select',
+            value: '',
+            options: ['4 - Rarely moist', '3 - Occasionally moist', '2 - Very moist', '1 - Constantly moist'],
+            dataSource: 'manual'
+          },
+          {
+            id: 'braden-activity',
+            label: 'Braden Scale - Activity',
+            type: 'select',
+            value: '',
+            options: ['4 - Walks frequently', '3 - Walks occasionally', '2 - Chairfast', '1 - Bedfast'],
+            dataSource: 'manual'
+          },
+          {
+            id: 'braden-mobility',
+            label: 'Braden Scale - Mobility',
+            type: 'select',
+            value: '',
+            options: ['4 - No limitations', '3 - Slightly limited', '2 - Very limited', '1 - Completely immobile'],
+            dataSource: 'manual'
+          },
+          {
+            id: 'braden-nutrition',
+            label: 'Braden Scale - Nutrition',
+            type: 'select',
+            value: '',
+            options: ['4 - Excellent', '3 - Adequate', '2 - Probably inadequate', '1 - Very Poor'],
+            dataSource: 'manual'
+          },
+          {
+            id: 'braden-friction',
+            label: 'Braden Scale - Friction & Shear',
+            type: 'select',
+            value: '',
+            options: ['3 - No apparent problem', '2 - Potential problem', '1 - Problem'],
+            dataSource: 'manual'
+          },
+          {
+            id: 'braden-total-score',
+            label: 'Braden Scale Total Score',
+            type: 'number',
+            value: '',
+            dataSource: 'manual'
+          },
+          // Other Risks
+          {
+            id: 'missing-risk',
+            label: 'Missing Risk',
+            type: 'select',
+            value: '',
+            options: ['At risk', 'Not at risk'],
+            dataSource: 'manual'
+          },
+          {
+            id: 'suicide-admission',
+            label: 'Patient admitted due to suicidal attempt/idea',
+            type: 'select',
+            value: '',
+            options: ['Yes', 'No'],
+            dataSource: 'manual'
+          },
+          {
+            id: 'suicide-expression',
+            label: 'Patient expresses suicidal idea/self-harm',
+            type: 'select',
+            value: '',
+            options: ['Yes', 'No'],
+            dataSource: 'manual'
+          },
+          {
+            id: 'suicide-disclosure',
+            label: 'Relatives/friends disclose suicidal inclination',
+            type: 'select',
+            value: '',
+            options: ['Yes', 'No', 'Not applicable'],
+            dataSource: 'manual'
           }
         ];
 
       case 'functional':
         return [
+          // Communication
           {
             id: 'vision-left',
             label: 'Vision (Left Eye)',
@@ -626,11 +1371,256 @@ export function usePatientAssessment() {
             dataSource: 'manual'
           },
           {
+            id: 'hearing-left-aid',
+            label: 'Hearing Aid (Left Ear)',
+            type: 'checkbox',
+            value: false,
+            dataSource: 'manual'
+          },
+          {
+            id: 'hearing-right',
+            label: 'Hearing (Right Ear)',
+            type: 'select',
+            value: '',
+            options: ['Normal', 'Impaired', 'Deaf'],
+            dataSource: 'manual'
+          },
+          {
+            id: 'hearing-right-aid',
+            label: 'Hearing Aid (Right Ear)',
+            type: 'checkbox',
+            value: false,
+            dataSource: 'manual'
+          },
+          {
+            id: 'denture-lower',
+            label: 'Denture (Lower Jaw)',
+            type: 'select',
+            value: '',
+            options: ['Nil', 'Fixed', 'Removable'],
+            dataSource: 'manual'
+          },
+          {
+            id: 'denture-upper',
+            label: 'Denture (Upper Jaw)',
+            type: 'select',
+            value: '',
+            options: ['Nil', 'Fixed', 'Removable'],
+            dataSource: 'manual'
+          },
+          {
+            id: 'communication-remarks',
+            label: 'Communication Remarks',
+            type: 'textarea',
+            value: '',
+            dataSource: 'manual'
+          },
+          // Respiration
+          {
+            id: 'respiration-status',
+            label: 'Respiration Status',
+            type: 'select',
+            value: '',
+            options: ['Normal', 'Dyspnoea'],
+            dataSource: 'manual'
+          },
+          {
+            id: 'spo2-peripheral',
+            label: 'Saturation of Peripheral Oxygen (%)',
+            type: 'number',
+            value: '',
+            dataSource: 'manual'
+          },
+          {
+            id: 'respiration-remarks',
+            label: 'Respiration Remarks',
+            type: 'textarea',
+            value: '',
+            dataSource: 'manual'
+          },
+          // Mobility
+          {
             id: 'mobility-status',
             label: 'Mobility Status',
             type: 'select',
             value: '',
             options: ['Independent', 'Ambulatory with aids', 'Dependent'],
+            dataSource: 'manual'
+          },
+          {
+            id: 'left-upper-limb-weakness',
+            label: 'Left Upper Limb - Weakness',
+            type: 'checkbox',
+            value: false,
+            dataSource: 'manual'
+          },
+          {
+            id: 'left-upper-limb-paralysis',
+            label: 'Left Upper Limb - Paralysis',
+            type: 'checkbox',
+            value: false,
+            dataSource: 'manual'
+          },
+          {
+            id: 'left-upper-limb-contracture',
+            label: 'Left Upper Limb - Contracture',
+            type: 'checkbox',
+            value: false,
+            dataSource: 'manual'
+          },
+          {
+            id: 'left-upper-limb-rigid',
+            label: 'Left Upper Limb - Rigid',
+            type: 'checkbox',
+            value: false,
+            dataSource: 'manual'
+          },
+          {
+            id: 'right-upper-limb-weakness',
+            label: 'Right Upper Limb - Weakness',
+            type: 'checkbox',
+            value: false,
+            dataSource: 'manual'
+          },
+          {
+            id: 'right-upper-limb-paralysis',
+            label: 'Right Upper Limb - Paralysis',
+            type: 'checkbox',
+            value: false,
+            dataSource: 'manual'
+          },
+          {
+            id: 'right-upper-limb-contracture',
+            label: 'Right Upper Limb - Contracture',
+            type: 'checkbox',
+            value: false,
+            dataSource: 'manual'
+          },
+          {
+            id: 'right-upper-limb-rigid',
+            label: 'Right Upper Limb - Rigid',
+            type: 'checkbox',
+            value: false,
+            dataSource: 'manual'
+          },
+          {
+            id: 'left-lower-limb-weakness',
+            label: 'Left Lower Limb - Weakness',
+            type: 'checkbox',
+            value: false,
+            dataSource: 'manual'
+          },
+          {
+            id: 'left-lower-limb-paralysis',
+            label: 'Left Lower Limb - Paralysis',
+            type: 'checkbox',
+            value: false,
+            dataSource: 'manual'
+          },
+          {
+            id: 'left-lower-limb-contracture',
+            label: 'Left Lower Limb - Contracture',
+            type: 'checkbox',
+            value: false,
+            dataSource: 'manual'
+          },
+          {
+            id: 'left-lower-limb-rigid',
+            label: 'Left Lower Limb - Rigid',
+            type: 'checkbox',
+            value: false,
+            dataSource: 'manual'
+          },
+          {
+            id: 'right-lower-limb-weakness',
+            label: 'Right Lower Limb - Weakness',
+            type: 'checkbox',
+            value: false,
+            dataSource: 'manual'
+          },
+          {
+            id: 'right-lower-limb-paralysis',
+            label: 'Right Lower Limb - Paralysis',
+            type: 'checkbox',
+            value: false,
+            dataSource: 'manual'
+          },
+          {
+            id: 'right-lower-limb-contracture',
+            label: 'Right Lower Limb - Contracture',
+            type: 'checkbox',
+            value: false,
+            dataSource: 'manual'
+          },
+          {
+            id: 'right-lower-limb-rigid',
+            label: 'Right Lower Limb - Rigid',
+            type: 'checkbox',
+            value: false,
+            dataSource: 'manual'
+          },
+          // Walking Aids
+          {
+            id: 'walking-aid-stick',
+            label: 'Walking Aid - Stick',
+            type: 'checkbox',
+            value: false,
+            dataSource: 'manual'
+          },
+          {
+            id: 'walking-aid-quadripod',
+            label: 'Walking Aid - Quadripod',
+            type: 'checkbox',
+            value: false,
+            dataSource: 'manual'
+          },
+          {
+            id: 'walking-aid-tripod',
+            label: 'Walking Aid - Tripod',
+            type: 'checkbox',
+            value: false,
+            dataSource: 'manual'
+          },
+          {
+            id: 'walking-aid-frame',
+            label: 'Walking Aid - Frame',
+            type: 'checkbox',
+            value: false,
+            dataSource: 'manual'
+          },
+          {
+            id: 'walking-aid-wheelchair',
+            label: 'Walking Aid - Wheelchair',
+            type: 'checkbox',
+            value: false,
+            dataSource: 'manual'
+          },
+          {
+            id: 'walking-aid-crutch',
+            label: 'Walking Aid - Crutch',
+            type: 'checkbox',
+            value: false,
+            dataSource: 'manual'
+          },
+          {
+            id: 'walking-aid-rollator',
+            label: 'Walking Aid - Rollator',
+            type: 'checkbox',
+            value: false,
+            dataSource: 'manual'
+          },
+          {
+            id: 'assisted-by-persons',
+            label: 'Assisted by (number of persons)',
+            type: 'number',
+            value: '',
+            dataSource: 'manual'
+          },
+          {
+            id: 'mobility-others',
+            label: 'Mobility - Others',
+            type: 'textarea',
+            value: '',
             dataSource: 'manual'
           }
         ];
