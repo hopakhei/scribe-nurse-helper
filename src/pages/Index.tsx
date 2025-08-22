@@ -8,7 +8,6 @@ import { AndroidLayout } from "@/components/AndroidLayout";
 import { usePatientAssessment } from "@/hooks/usePatientAssessment";
 import { Button } from "@/components/ui/button";
 import { Save, Send } from "lucide-react";
-import RealtimeTranscriptionPanel from "@/components/RealtimeTranscriptionPanel";
 
 
 const Index = () => {
@@ -56,9 +55,8 @@ const Index = () => {
           {/* Patient Information */}
           <PatientHeader patient={patient} />
 
-          {/* Main Content Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
-            {/* Left Column - Form Controls */}
+          {/* Main Content */}
+          <div className="max-w-4xl mx-auto mt-8">
             <div className="space-y-6">
               {/* Audio Recording Controls */}
               <AudioRecordingControls 
@@ -104,16 +102,6 @@ const Index = () => {
                   Submit to EMR
                 </Button>
               </div>
-            </div>
-
-            {/* Right Column - Real-time Transcription */}
-            <div className="space-y-6">
-              <RealtimeTranscriptionPanel
-                onTranscriptUpdate={(transcript) => {
-                  console.log('Real-time transcript:', transcript);
-                  // Future enhancement: auto-fill form fields from live transcript
-                }}
-              />
             </div>
           </div>
         </div>
