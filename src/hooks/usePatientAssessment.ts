@@ -76,6 +76,8 @@ export function usePatientAssessment() {
   const [currentSection, setCurrentSection] = useState('general-physical');
   const [riskScores, setRiskScores] = useState<RiskScore[]>([]);
   const [isRecording, setIsRecording] = useState(false);
+  const [isProcessingAudio, setIsProcessingAudio] = useState(false);
+  const [lastTranscript, setLastTranscript] = useState<string>("");
   const [assessmentId, setAssessmentId] = useState<string | null>(null);
   const [formFields, setFormFields] = useState<Record<string, FormField[]>>({});
 
@@ -1887,6 +1889,8 @@ export function usePatientAssessment() {
     setCurrentSection,
     riskScores,
     isRecording,
+    isProcessingAudio,
+    lastTranscript,
     handleRecordingStart,
     handleRecordingStop,
     handleFieldChange,

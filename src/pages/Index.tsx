@@ -18,6 +18,9 @@ const Index = () => {
     currentSection,
     setCurrentSection,
     riskScores,
+    isRecording,
+    isProcessingAudio,
+    lastTranscript,
     handleRecordingStart,
     handleRecordingStop,
     handleFieldChange,
@@ -61,6 +64,8 @@ const Index = () => {
               <AudioRecordingControls 
                 onRecordingStart={handleRecordingStart}
                 onRecordingStop={handleRecordingStop}
+                transcriptText={lastTranscript}
+                isProcessing={isProcessingAudio}
               />
 
               {/* Risk Scores */}
