@@ -82,7 +82,7 @@ export function usePatientAssessment() {
   // Initialize assessment on component mount - mock for development
   useEffect(() => {
     // Mock initialization without database calls for development
-    setAssessmentId('mock-assessment-id');
+    setAssessmentId(crypto.randomUUID());
     initializeMockData();
   }, []);
 
