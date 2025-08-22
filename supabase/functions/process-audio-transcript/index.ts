@@ -28,11 +28,21 @@ serve(async (req) => {
   }
 
   try {
-    // Initialize Supabase client
+    // Initialize Supabase client with the user's JWT for RLS
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      { global: { headers: { Authorization: req.headers.get('Authorization') ?? '' } } }
     );
+
+    // Verify auth context and get user
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
     const { assessmentId, transcriptText } = await req.json();
     
@@ -47,11 +57,30 @@ serve(async (req) => {
 
     console.log('Processing transcript with AI:', transcriptText.substring(0, 100) + '...');
 
+    // Ensure a patient_assessments row exists for this assessment (needed for RLS on related tables)
+    const { data: paRows, error: paSelectError } = await supabase
+      .from('patient_assessments')
+      .select('id')
+      .eq('id', assessmentId)
+      .limit(1);
+
+    if (paSelectError) {
+      console.error('Error checking patient_assessments:', paSelectError);
+    } else if (!paRows || paRows.length === 0) {
+      const { error: paInsertError } = await supabase
+        .from('patient_assessments')
+        .insert({ id: assessmentId, user_id: user.id });
+      if (paInsertError) {
+        console.error('Error creating patient assessment:', paInsertError);
+      }
+    }
+
     // Store the raw transcript in the database
     const { data: transcript, error: insertError } = await supabase
       .from('audio_transcripts')
       .insert({
         assessment_id: assessmentId,
+        user_id: user.id,
         transcript_text: transcriptText,
         processed: false,
         expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 hours
@@ -83,8 +112,7 @@ serve(async (req) => {
             field_label: field.fieldLabel,
             value: field.value,
             data_source: 'ai-filled',
-            ai_source_text: field.aiSourceText,
-            confidence_score: field.confidenceScore || 0.8
+            ai_source_text: field.aiSourceText
           });
 
         if (upsertError) {
