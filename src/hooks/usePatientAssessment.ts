@@ -194,6 +194,12 @@ export function usePatientAssessment() {
     try {
       console.log('Processing audio with AI...');
       
+      // Show initial processing message
+      toast({
+        title: "Processing Audio",
+        description: "Transcribing audio with AI...",
+      });
+      
       // Convert audio blob to base64
       const reader = new FileReader();
       reader.readAsDataURL(audioBlob);
@@ -215,6 +221,12 @@ export function usePatientAssessment() {
           console.log('Transcription:', transcriptText?.substring(0, 100) + '...');
           
           if (transcriptText && transcriptText.trim()) {
+            // Show AI processing message
+            toast({
+              title: "Extracting Information",
+              description: "AI is analyzing conversation and filling form fields...",
+            });
+            
             // Process the transcript to extract form fields
             const processResponse = await supabase.functions.invoke('process-audio-transcript', {
               body: { 
@@ -224,6 +236,19 @@ export function usePatientAssessment() {
             });
             
             if (processResponse.error) {
+              // Check for authentication errors
+              if (processResponse.error.message?.includes('Unauthorized') || 
+                  processResponse.error.message?.includes('JWT')) {
+                toast({
+                  title: "Authentication Required",
+                  description: "Please sign in to use AI features. Redirecting to login...",
+                  variant: "destructive",
+                });
+                setTimeout(() => {
+                  window.location.href = '/auth';
+                }, 2000);
+                return;
+              }
               throw processResponse.error;
             }
             
@@ -238,20 +263,50 @@ export function usePatientAssessment() {
             // Reload data to get new AI-filled fields
             await loadFormFields(assessmentId);
             await calculateRiskScores();
+          } else {
+            toast({
+              title: "No Speech Detected",
+              description: "No clear speech was detected in the recording. Please try again.",
+              variant: "destructive",
+            });
           }
           
         } catch (error) {
           console.error('Error processing audio:', error);
-          toast({
-            title: "Error",
-            description: "Failed to process audio recording",
-            variant: "destructive",
-          });
+          
+          // Handle specific error types
+          if (error?.message?.includes('Unauthorized') || error?.message?.includes('JWT')) {
+            toast({
+              title: "Authentication Required",
+              description: "Please sign in to use AI features. Redirecting to login...",
+              variant: "destructive",
+            });
+            setTimeout(() => {
+              window.location.href = '/auth';
+            }, 2000);
+          } else if (error?.message?.includes('network') || error?.message?.includes('fetch')) {
+            toast({
+              title: "Network Error",
+              description: "Failed to connect to AI services. Please check your connection and try again.",
+              variant: "destructive",
+            });
+          } else {
+            toast({
+              title: "Processing Error",
+              description: error?.message || "Failed to process audio recording. Please try again.",
+              variant: "destructive",
+            });
+          }
         }
       };
       
     } catch (error) {
       console.error('Error in handleRecordingStop:', error);
+      toast({
+        title: "Error",
+        description: "Failed to process audio recording",
+        variant: "destructive",
+      });
     }
   };
 
