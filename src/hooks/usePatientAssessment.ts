@@ -183,13 +183,17 @@ export function usePatientAssessment() {
 
   const handleRecordingStart = () => {
     setIsRecording(true);
+    setLastTranscript(""); // Clear previous transcript
+    setIsProcessingAudio(false); // Reset processing state
   };
 
   const handleRecordingStop = async (audioBlob?: Blob) => {
     setIsRecording(false);
+    setIsProcessingAudio(true); // Start processing
     
     if (!audioBlob) {
       console.log('No audio data received');
+      setIsProcessingAudio(false);
       return;
     }
     
@@ -223,6 +227,9 @@ export function usePatientAssessment() {
           console.log('Transcription:', transcriptText?.substring(0, 100) + '...');
           
           if (transcriptText && transcriptText.trim()) {
+            // Store the transcript for display
+            setLastTranscript(transcriptText);
+            
             // Show AI processing message
             toast({
               title: "Extracting Information",
@@ -299,6 +306,8 @@ export function usePatientAssessment() {
               variant: "destructive",
             });
           }
+        } finally {
+          setIsProcessingAudio(false); // Stop processing
         }
       };
       
@@ -309,6 +318,7 @@ export function usePatientAssessment() {
         description: "Failed to process audio recording",
         variant: "destructive",
       });
+      setIsProcessingAudio(false); // Stop processing on error
     }
   };
 
