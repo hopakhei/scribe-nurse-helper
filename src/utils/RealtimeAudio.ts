@@ -92,15 +92,8 @@ export class RealtimeTranscription {
     try {
       this.onStatusChange('Connecting to transcription service...');
       
-      // Get the current origin and construct WebSocket URL
-      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      const host = window.location.hostname;
-      const port = window.location.port ? `:${window.location.port}` : '';
-      
-      // For production, use the Supabase functions URL
-      const wsUrl = host.includes('supabase.co') || host.includes('vercel.app') || host.includes('netlify.app')
-        ? `wss://liuimkjmebgliurclubd.functions.supabase.co/realtime-transcription`
-        : `${protocol}//${host}${port}/functions/v1/realtime-transcription`;
+      // Always use the Supabase functions URL for WebSocket connections
+      const wsUrl = `wss://liuimkjmebgliurclubd.functions.supabase.co/realtime-transcription`;
 
       console.log('Connecting to WebSocket:', wsUrl);
       this.ws = new WebSocket(wsUrl);
