@@ -100,7 +100,7 @@ export const UserSelection = ({ onSignInComplete, onNewUserSignIn }: UserSelecti
 
   if (selectedUser) {
     return (
-      <Card className="w-full max-w-md">
+      <Card className="w-full">
         <CardHeader className="text-center">
           <div className="flex items-center justify-between mb-4">
             <Button
@@ -111,7 +111,6 @@ export const UserSelection = ({ onSignInComplete, onNewUserSignIn }: UserSelecti
             >
               <X className="h-4 w-4" />
             </Button>
-            <Shield className="h-8 w-8 text-primary" />
             <div className="w-8" />
           </div>
           <CardTitle className="text-xl font-bold">Quick Sign In</CardTitle>
@@ -189,25 +188,18 @@ export const UserSelection = ({ onSignInComplete, onNewUserSignIn }: UserSelecti
   }
 
   return (
-    <Card className="w-full max-w-lg">
+    <Card className="w-full">
       <CardHeader className="text-center">
-        <div className="flex items-center justify-center mb-4">
-          <Shield className="h-8 w-8 text-primary" />
-        </div>
-        <CardTitle className="text-2xl font-bold">Patient Assessment System</CardTitle>
+        <CardTitle className="text-xl font-bold">Recent Users</CardTitle>
         <CardDescription>
-          Choose your account or sign in as a different user
+          Choose your account for quick access
         </CardDescription>
       </CardHeader>
       
       <CardContent className="space-y-6">
         {storedUsers.length > 0 && (
           <>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Users className="h-5 w-5 text-muted-foreground" />
-                <span className="font-medium">Recent Users</span>
-              </div>
+            <div className="flex items-center justify-end">
               {storedUsers.length > 1 && (
                 <Button
                   variant="ghost"
@@ -264,15 +256,6 @@ export const UserSelection = ({ onSignInComplete, onNewUserSignIn }: UserSelecti
         )}
 
         <div className="space-y-3">
-          <Button
-            onClick={onNewUserSignIn}
-            variant="outline"
-            className="w-full"
-          >
-            <UserPlus className="mr-2 h-4 w-4" />
-            Sign in as different user
-          </Button>
-          
           {storedUsers.length === 0 && (
             <Button
               onClick={onNewUserSignIn}

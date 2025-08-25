@@ -112,12 +112,6 @@ const Auth = () => {
     // Redirect will be handled by the existing useEffect
   };
 
-  const handleNewUserSignIn = () => {
-    setShowTraditionalAuth(true);
-    setError(null);
-    setMessage(null);
-  };
-
   if (loading) {
     return (
       <AndroidLayout>
@@ -128,31 +122,32 @@ const Auth = () => {
     );
   }
 
-  // Show UserSelection if we have stored users and not explicitly showing traditional auth
-  if (storedUsers.length > 0 && !showTraditionalAuth) {
-    return (
-      <AndroidLayout>
-        <div className="min-h-screen bg-background flex items-center justify-center p-4">
-          <UserSelection
-            onSignInComplete={handleSignInComplete}
-            onNewUserSignIn={handleNewUserSignIn}
-          />
-        </div>
-      </AndroidLayout>
-    );
-  }
-
   return (
     <AndroidLayout>
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
+        <div className="w-full max-w-md space-y-6">
+          {/* Remembered Users Section */}
+          {storedUsers.length > 0 && (
+            <UserSelection
+              onSignInComplete={handleSignInComplete}
+              onNewUserSignIn={() => {}} // Do nothing, forms are always visible
+            />
+          )}
+
+          {/* Traditional Auth Section */}
+          <Card className="w-full">
           <CardHeader className="text-center">
             <div className="flex items-center justify-center mb-4">
               <Shield className="h-8 w-8 text-primary" />
             </div>
-            <CardTitle className="text-2xl font-bold">Patient Assessment System</CardTitle>
+            <CardTitle className="text-2xl font-bold">
+              {storedUsers.length > 0 ? 'Or Sign In Another Way' : 'Patient Assessment System'}
+            </CardTitle>
             <CardDescription>
-              Secure access to patient admission and assessment tools
+              {storedUsers.length > 0 
+                ? 'Use email and password to sign in or create a new account'
+                : 'Secure access to patient admission and assessment tools'
+              }
             </CardDescription>
           </CardHeader>
           
@@ -313,7 +308,8 @@ const Auth = () => {
               </Alert>
             )}
           </CardContent>
-        </Card>
+          </Card>
+        </div>
       </div>
     </AndroidLayout>
   );
