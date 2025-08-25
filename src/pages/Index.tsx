@@ -226,7 +226,7 @@ const Index = () => {
                 </Button>
                 
                 <Button 
-                  onClick={submitAssessment}
+                  onClick={() => submitAssessment(navigate)}
                   className="flex items-center min-h-[48px] px-6"
                 >
                   Submit to EMR

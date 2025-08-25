@@ -1908,7 +1908,7 @@ export function usePatientAssessment(patientId?: string) {
     }
   };
 
-  const submitAssessment = async () => {
+  const submitAssessment = async (navigate?: (path: string) => void) => {
     if (!assessmentId) return;
 
     try {
@@ -1920,8 +1920,15 @@ export function usePatientAssessment(patientId?: string) {
 
       toast({
         title: "Assessment Submitted",
-        description: "Assessment successfully submitted to EMR system",
+        description: "Assessment successfully submitted to EMR system. Redirecting to patient list...",
       });
+
+      // Redirect to patient list after successful submission
+      if (navigate) {
+        setTimeout(() => {
+          navigate('/');
+        }, 2000);
+      }
 
     } catch (error) {
       console.error('Error submitting assessment:', error);

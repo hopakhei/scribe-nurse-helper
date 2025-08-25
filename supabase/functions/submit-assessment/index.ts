@@ -42,6 +42,29 @@ serve(async (req) => {
       throw assessmentError
     }
 
+    // Get assessment details to update patient status
+    const { data: assessmentData, error: assessmentFetchError } = await supabaseClient
+      .from('patient_assessments')
+      .select('patient_id')
+      .eq('id', assessmentId)
+      .single()
+
+    if (assessmentFetchError) {
+      throw assessmentFetchError
+    }
+
+    // Update patient status to assessment_completed
+    const { error: patientError } = await supabaseClient
+      .from('patients')
+      .update({ 
+        patient_status: 'assessment_completed'
+      })
+      .eq('id', assessmentData.patient_id)
+
+    if (patientError) {
+      throw patientError
+    }
+
     // Get complete assessment data for EMR submission
     const { data: assessment, error: fetchError } = await supabaseClient
       .from('patient_assessments')

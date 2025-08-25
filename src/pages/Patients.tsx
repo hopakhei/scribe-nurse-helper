@@ -6,7 +6,8 @@ import { PatientCard } from "@/components/PatientCard";
 import { BedAssignmentModal } from "@/components/BedAssignmentModal";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Users, Clock, CheckCircle, AlertCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Loader2, Users, Clock, CheckCircle, AlertCircle, LogOut } from "lucide-react";
 import { toast } from "sonner";
 
 interface Patient {
@@ -26,7 +27,7 @@ interface Patient {
 }
 
 const Patients = () => {
-  const { user, profile, loading: authLoading } = useAuthState();
+  const { user, profile, loading: authLoading, signOut } = useAuthState();
   const [patients, setPatients] = useState<Patient[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
@@ -105,20 +106,54 @@ const Patients = () => {
 
   const statusCounts = getStatusCounts();
 
+  const getRoleBadgeColor = (role?: string) => {
+    switch (role) {
+      case 'admin':
+        return 'bg-red-100 text-red-800 hover:bg-red-200';
+      case 'doctor':
+        return 'bg-blue-100 text-blue-800 hover:bg-blue-200';
+      case 'nurse':
+        return 'bg-green-100 text-green-800 hover:bg-green-200';
+      default:
+        return 'bg-gray-100 text-gray-800 hover:bg-gray-200';
+    }
+  };
+
   return (
     <AndroidLayout>
       <div className="p-4 space-y-6">
-        {/* Header */}
+        {/* User Header */}
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold flex items-center gap-2">
-              <Users className="h-6 w-6" />
-              Patient List
-            </h1>
-            <p className="text-muted-foreground">
-              Ward {profile?.ward || '3A'} - {patients.length} patients
-            </p>
+          <div className="flex items-center gap-3">
+            <div>
+              <h2 className="font-semibold">{profile?.full_name || profile?.email}</h2>
+              <div className="flex items-center gap-2">
+                <Badge variant="secondary" className={getRoleBadgeColor(profile?.role)}>
+                  {profile?.role || 'User'}
+                </Badge>
+                {profile?.department && (
+                  <span className="text-sm text-muted-foreground">
+                    {profile.department}
+                  </span>
+                )}
+              </div>
+            </div>
           </div>
+          <Button variant="outline" size="sm" onClick={signOut}>
+            <LogOut className="h-4 w-4 mr-2" />
+            Sign Out
+          </Button>
+        </div>
+
+        {/* Page Header */}
+        <div>
+          <h1 className="text-2xl font-bold flex items-center gap-2">
+            <Users className="h-6 w-6" />
+            Patient List
+          </h1>
+          <p className="text-muted-foreground">
+            Ward {profile?.ward || '3A'} - {patients.length} patients
+          </p>
         </div>
 
         {/* Status Summary */}
