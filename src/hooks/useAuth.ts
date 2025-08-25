@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { useLocalUserManager } from './useLocalUserManager';
 
 export const useAuthState = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<any | null>(null);
+  const { saveUser } = useLocalUserManager();
 
   const loadProfile = async () => {
     if (!user) return;
@@ -100,7 +102,7 @@ export const useAuthState = () => {
     });
   };
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (email: string, password: string, rememberDevice: boolean = false) => {
     try {
       cleanupAuthState();
       
@@ -118,6 +120,23 @@ export const useAuthState = () => {
       if (error) return { error };
       
       if (data.user) {
+        // Save user to local storage if remember device is enabled
+        if (rememberDevice && data.session) {
+          setTimeout(async () => {
+            try {
+              const { data: profileData } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('user_id', data.user.id)
+                .maybeSingle();
+              
+              await saveUser(data.user, profileData, rememberDevice);
+            } catch (err) {
+              console.error('Error saving user profile:', err);
+            }
+          }, 0);
+        }
+
         // Force page reload for clean state
         window.location.href = '/';
       }

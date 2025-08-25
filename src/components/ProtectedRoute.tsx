@@ -10,11 +10,12 @@ interface ProtectedRouteProps {
 export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { user, loading } = useAuthState();
 
-  useEffect(() => {
-    if (!loading && !user) {
-      window.location.href = '/auth';
-    }
-  }, [user, loading]);
+  // Remove automatic redirect - let Index page handle user selection
+  // useEffect(() => {
+  //   if (!loading && !user) {
+  //     window.location.href = '/auth';
+  //   }
+  // }, [user, loading]);
 
   if (loading) {
     return (
@@ -30,18 +31,19 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     );
   }
 
-  if (!user) {
-    return (
-      <AndroidLayout>
-        <div className="min-h-screen bg-background flex items-center justify-center">
-          <div className="text-center space-y-4">
-            <Shield className="h-12 w-12 text-destructive mx-auto" />
-            <p className="text-muted-foreground">Redirecting to login...</p>
-          </div>
-        </div>
-      </AndroidLayout>
-    );
-  }
+  // Let Index page handle non-authenticated users
+  // if (!user) {
+  //   return (
+  //     <AndroidLayout>
+  //       <div className="min-h-screen bg-background flex items-center justify-center">
+  //         <div className="text-center space-y-4">
+  //           <Shield className="h-12 w-12 text-destructive mx-auto" />
+  //           <p className="text-muted-foreground">Redirecting to login...</p>
+  //         </div>
+  //       </div>
+  //     </AndroidLayout>
+  //   );
+  // }
 
   return <>{children}</>;
 };

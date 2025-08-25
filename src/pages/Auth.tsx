@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Loader2, Shield, UserPlus, LogIn } from 'lucide-react';
 import { AndroidLayout } from '@/components/AndroidLayout';
 
@@ -22,6 +23,7 @@ const Auth = () => {
     confirmPassword: '', 
     fullName: '' 
   });
+  const [rememberDevice, setRememberDevice] = useState(false);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -36,7 +38,7 @@ const Auth = () => {
     setError(null);
     
     try {
-      const { error } = await signIn(signInData.email, signInData.password);
+      const { error } = await signIn(signInData.email, signInData.password, rememberDevice);
       
       if (error) {
         if (error.message.includes('Invalid login credentials')) {
@@ -158,6 +160,18 @@ const Auth = () => {
                       required
                       disabled={isLoading}
                     />
+                  </div>
+
+                  <div className="flex items-center space-x-2 mb-4">
+                    <Checkbox
+                      id="remember"
+                      checked={rememberDevice}
+                      onCheckedChange={(checked) => setRememberDevice(checked === true)}
+                      disabled={isLoading}
+                    />
+                    <Label htmlFor="remember" className="text-sm">
+                      Remember this device for quick access
+                    </Label>
                   </div>
 
                   <Button 
