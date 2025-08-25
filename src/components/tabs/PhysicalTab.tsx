@@ -94,18 +94,40 @@ export function PhysicalTab({ onFieldChange, fieldValues }: PhysicalTabProps) {
           required: true
         },
         {
-          id: 'bp_systolic',
-          label: 'BP Systolic',
-          type: 'number',
+          id: 'blood_pressure',
+          label: 'Blood Pressure',
+          type: 'inline-group',
           dataSource: 'manual',
-          required: true
+          inlineFields: [
+            {
+              id: 'bp_systolic',
+              label: 'Systolic',
+              type: 'number',
+              dataSource: 'manual',
+              required: true
+            },
+            {
+              id: 'bp_diastolic',
+              label: 'Diastolic',
+              type: 'number',
+              dataSource: 'manual',
+              required: true
+            }
+          ]
         },
         {
-          id: 'bp_diastolic',
-          label: 'BP Diastolic',
-          type: 'number',
+          id: 'mean_bp',
+          label: 'Mean BP (mmHg)',
+          type: 'calculated',
           dataSource: 'manual',
-          required: true
+          calculation: (values) => {
+            const systolic = parseFloat(values.bp_systolic) || 0;
+            const diastolic = parseFloat(values.bp_diastolic) || 0;
+            if (systolic > 0 && diastolic > 0) {
+              return Math.round((diastolic * 2 + systolic) / 3);
+            }
+            return '';
+          }
         },
         {
           id: 'respiratory_rate',
@@ -211,8 +233,9 @@ export function PhysicalTab({ onFieldChange, fieldValues }: PhysicalTabProps) {
         {
           id: 'mews_score',
           label: 'Total MEWS Score',
-          type: 'number',
-          dataSource: 'manual'
+          type: 'calculated',
+          dataSource: 'manual',
+          calculation: () => 0 // Placeholder for MEWS calculation
         }
       ]
     }

@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { TabNavigation } from "@/components/TabNavigation";
 import { GeneralTab } from "@/components/tabs/GeneralTab";
 import { PhysicalTab } from "@/components/tabs/PhysicalTab";
+import { SocialTab } from "@/components/tabs/SocialTab";
+import { RiskTab } from "@/components/tabs/RiskTab";
 import { TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -107,6 +109,10 @@ export function TabAssessmentSystem({ onFieldChange, fieldValues }: TabAssessmen
         return <GeneralTab onFieldChange={onFieldChange} fieldValues={fieldValues} />;
       case 'physical':
         return <PhysicalTab onFieldChange={onFieldChange} fieldValues={fieldValues} />;
+      case 'social':
+        return <SocialTab onFieldChange={onFieldChange} fieldValues={fieldValues} />;
+      case 'risk':
+        return <RiskTab onFieldChange={onFieldChange} fieldValues={fieldValues} />;
       default:
         return (
           <TabsContent value={sectionId} className="mt-0">

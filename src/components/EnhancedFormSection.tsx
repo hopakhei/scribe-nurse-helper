@@ -7,11 +7,14 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Plus, Calculator } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Plus, Calculator, CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import { format } from "date-fns";
 
-export type FieldType = 'text' | 'textarea' | 'select' | 'checkbox' | 'number' | 'radio' | 'date' | 'time' | 'calculated' | 'inline-group';
+export type FieldType = 'text' | 'textarea' | 'select' | 'checkbox' | 'number' | 'radio' | 'date' | 'time' | 'calculated' | 'inline-group' | 'datepicker' | 'multi-select';
 export type DataSource = 'pre-populated' | 'ai-filled' | 'manual';
 
 interface FormField {
@@ -196,6 +199,58 @@ export function EnhancedFormSection({
               <Calculator className="w-3 h-3 mr-1" />
               Auto
             </Badge>
+          </div>
+        );
+
+      case 'datepicker':
+        const dateValue = currentValue ? new Date(currentValue) : undefined;
+        return (
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-full justify-start text-left font-normal",
+                  !dateValue && "text-muted-foreground",
+                  fieldClass
+                )}
+                disabled={field.dataSource === 'pre-populated'}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {dateValue ? format(dateValue, "PPP") : <span>Pick a date</span>}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={dateValue}
+                onSelect={(date) => onFieldChange(field.id, date ? date.toISOString() : '')}
+                initialFocus
+                className="p-3 pointer-events-auto"
+              />
+            </PopoverContent>
+          </Popover>
+        );
+
+      case 'multi-select':
+        const selectedValues = Array.isArray(currentValue) ? currentValue : [];
+        return (
+          <div className="space-y-2">
+            {field.options?.map((option) => (
+              <div key={option} className="flex items-center space-x-2">
+                <Checkbox
+                  checked={selectedValues.includes(option)}
+                  onCheckedChange={(checked) => {
+                    const newValues = checked
+                      ? [...selectedValues, option]
+                      : selectedValues.filter(v => v !== option);
+                    onFieldChange(field.id, newValues);
+                  }}
+                  disabled={field.dataSource === 'pre-populated'}
+                />
+                <Label className="text-sm">{option}</Label>
+              </div>
+            ))}
           </div>
         );
 
