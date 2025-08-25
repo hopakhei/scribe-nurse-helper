@@ -187,12 +187,18 @@ export type Database = {
           admission_type: Database["public"]["Enums"]["admission_type"] | null
           age: number | null
           bed: string | null
+          bed_assigned_at: string | null
+          bed_assigned_by: string | null
           created_at: string | null
           dept: string | null
           hospital_no: string
           id: string
           id_no: string | null
           name: string
+          patient_status: Database["public"]["Enums"]["patient_status"] | null
+          robot_navigation_status:
+            | Database["public"]["Enums"]["robot_navigation_status"]
+            | null
           sex: string | null
           team: string | null
           updated_at: string | null
@@ -203,12 +209,18 @@ export type Database = {
           admission_type?: Database["public"]["Enums"]["admission_type"] | null
           age?: number | null
           bed?: string | null
+          bed_assigned_at?: string | null
+          bed_assigned_by?: string | null
           created_at?: string | null
           dept?: string | null
           hospital_no: string
           id?: string
           id_no?: string | null
           name: string
+          patient_status?: Database["public"]["Enums"]["patient_status"] | null
+          robot_navigation_status?:
+            | Database["public"]["Enums"]["robot_navigation_status"]
+            | null
           sex?: string | null
           team?: string | null
           updated_at?: string | null
@@ -219,12 +231,18 @@ export type Database = {
           admission_type?: Database["public"]["Enums"]["admission_type"] | null
           age?: number | null
           bed?: string | null
+          bed_assigned_at?: string | null
+          bed_assigned_by?: string | null
           created_at?: string | null
           dept?: string | null
           hospital_no?: string
           id?: string
           id_no?: string | null
           name?: string
+          patient_status?: Database["public"]["Enums"]["patient_status"] | null
+          robot_navigation_status?:
+            | Database["public"]["Enums"]["robot_navigation_status"]
+            | null
           sex?: string | null
           team?: string | null
           updated_at?: string | null
@@ -339,7 +357,17 @@ export type Database = {
       admission_type: "A&E" | "Elective" | "Transfer" | "Readmission"
       assessment_status: "in_progress" | "completed" | "submitted"
       data_source: "pre-populated" | "ai-filled" | "manual"
+      patient_status:
+        | "awaiting_bed"
+        | "bed_assigned"
+        | "assessment_in_progress"
+        | "assessment_completed"
       risk_level: "low" | "medium" | "high"
+      robot_navigation_status:
+        | "idle"
+        | "navigating_to_bed"
+        | "at_bedside"
+        | "assessment_active"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -470,7 +498,19 @@ export const Constants = {
       admission_type: ["A&E", "Elective", "Transfer", "Readmission"],
       assessment_status: ["in_progress", "completed", "submitted"],
       data_source: ["pre-populated", "ai-filled", "manual"],
+      patient_status: [
+        "awaiting_bed",
+        "bed_assigned",
+        "assessment_in_progress",
+        "assessment_completed",
+      ],
       risk_level: ["low", "medium", "high"],
+      robot_navigation_status: [
+        "idle",
+        "navigating_to_bed",
+        "at_bedside",
+        "assessment_active",
+      ],
     },
   },
 } as const

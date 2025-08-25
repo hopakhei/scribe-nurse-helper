@@ -43,7 +43,7 @@ export interface FormField {
   aiSourceText?: string;
 }
 
-export function usePatientAssessment() {
+export function usePatientAssessment(patientId?: string) {
   const { toast } = useToast();
   
   // Mock patient data (would come from EMR API)
@@ -81,12 +81,53 @@ export function usePatientAssessment() {
   const [assessmentId, setAssessmentId] = useState<string | null>(null);
   const [formFields, setFormFields] = useState<Record<string, FormField[]>>({});
 
-  // Initialize assessment on component mount - mock for development
+  // Initialize assessment on component mount or when patientId changes
   useEffect(() => {
-    // Mock initialization without database calls for development
-    setAssessmentId(crypto.randomUUID());
-    initializeMockData();
-  }, []);
+    if (patientId) {
+      initializeAssessment(patientId);
+    } else {
+      // Mock initialization for development when no patientId
+      setAssessmentId(crypto.randomUUID());
+      initializeMockData();
+    }
+  }, [patientId]);
+
+  const initializeAssessment = async (patientIdParam: string) => {
+    try {
+      // Create new assessment for the patient
+      const { data: assessment, error: assessmentError } = await supabase
+        .from('patient_assessments')
+        .insert({
+          patient_id: patientIdParam,
+          user_id: (await supabase.auth.getUser()).data.user?.id
+        })
+        .select()
+        .single();
+
+      if (assessmentError) {
+        // If assessment already exists, load it
+        const { data: existingAssessment, error: loadError } = await supabase
+          .from('patient_assessments')
+          .select('*')
+          .eq('patient_id', patientIdParam)
+          .eq('status', 'in_progress')
+          .single();
+
+        if (loadError) throw loadError;
+        setAssessmentId(existingAssessment.id);
+        await loadFormFields(existingAssessment.id);
+        await loadRiskScores();
+      } else {
+        setAssessmentId(assessment.id);
+        initializeMockData();
+      }
+    } catch (error) {
+      console.error('Error initializing assessment:', error);
+      // Fallback to mock data
+      setAssessmentId(crypto.randomUUID());
+      initializeMockData();
+    }
+  };
 
   const initializeMockData = () => {
     // Initialize form fields with default values for development

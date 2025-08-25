@@ -1,26 +1,34 @@
-
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useAuthState } from "@/hooks/useAuth";
+import { useLocalUserManager } from "@/hooks/useLocalUserManager";
+import { UserSelection } from "@/components/UserSelection";
+import { AndroidLayout } from "@/components/AndroidLayout";
 import { PatientHeader } from "@/components/PatientHeader";
 import { AudioRecordingControls } from "@/components/AudioRecordingControls";
-import { FormNavigation } from "@/components/FormNavigation";
 import { RiskScoreDisplay } from "@/components/RiskScoreDisplay";
+import { FormNavigation } from "@/components/FormNavigation";
 import { FormSection } from "@/components/FormSection";
-import { AndroidLayout } from "@/components/AndroidLayout";
-import { UserSelection } from "@/components/UserSelection";
 import { usePatientAssessment } from "@/hooks/usePatientAssessment";
-import { useAuthState } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Save, Send, Loader2, LogOut, User } from "lucide-react";
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-
+import { Card, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Loader2, LogOut, ArrowLeft } from "lucide-react";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
-  const { user, loading, profile, signOut } = useAuthState();
-  const [showNewUserAuth, setShowNewUserAuth] = useState(false);
-  
+  const { patientId } = useParams<{ patientId: string }>();
+  const navigate = useNavigate();
+  const { user, profile, loading: authLoading, signOut } = useAuthState();
+  const { quickSignIn } = useLocalUserManager();
+  const [showUserSelection, setShowUserSelection] = useState(false);
+  const [isSigningIn, setIsSigningIn] = useState(false);
+  const [patient, setPatient] = useState<any>(null);
+  const [loadingPatient, setLoadingPatient] = useState(true);
+
   const {
-    patient,
     sections,
     currentSection,
     setCurrentSection,
@@ -32,63 +40,96 @@ const Index = () => {
     handleRecordingStop,
     handleFieldChange,
     getFormFields,
-    submitAssessment
-  } = usePatientAssessment();
+    submitAssessment,
+    assessmentId
+  } = usePatientAssessment(patientId);
 
-  const currentSectionData = sections.find(s => s.id === currentSection);
-  const currentFields = getFormFields(currentSection);
+  useEffect(() => {
+    if (!user && !authLoading) {
+      setShowUserSelection(true);
+    } else if (user) {
+      setShowUserSelection(false);
+    }
+  }, [user, authLoading]);
 
-  const handleSubmit = async () => {
-    await submitAssessment();
+  useEffect(() => {
+    if (patientId && user) {
+      loadPatient();
+    }
+  }, [patientId, user]);
+
+  const loadPatient = async () => {
+    if (!patientId) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('patients')
+        .select('*')
+        .eq('id', patientId)
+        .single();
+
+      if (error) throw error;
+      setPatient(data);
+      
+      // Update patient status to assessment_in_progress if it's bed_assigned
+      if (data.patient_status === 'bed_assigned') {
+        await supabase
+          .from('patients')
+          .update({ patient_status: 'assessment_in_progress' })
+          .eq('id', patientId);
+      }
+    } catch (error: any) {
+      toast.error('Failed to load patient: ' + error.message);
+      navigate('/');
+    } finally {
+      setLoadingPatient(false);
+    }
   };
 
   const handleSignInComplete = () => {
-    window.location.href = '/';
+    setShowUserSelection(false);
   };
 
   const handleNewUserSignIn = () => {
-    window.location.href = '/auth';
+    navigate('/auth');
   };
 
   const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map(n => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
+    return name.split(' ').map(n => n[0]).join('').toUpperCase();
   };
 
   const getRoleBadgeColor = (role?: string) => {
     switch (role?.toLowerCase()) {
       case 'doctor':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
+        return 'bg-blue-100 text-blue-800 hover:bg-blue-200';
       case 'nurse':
-        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
+        return 'bg-green-100 text-green-800 hover:bg-green-200';
       case 'admin':
-        return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300';
+        return 'bg-purple-100 text-purple-800 hover:bg-purple-200';
       default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300';
+        return 'bg-gray-100 text-gray-800 hover:bg-gray-200';
     }
   };
 
-  if (loading) {
+  if (authLoading || loadingPatient) {
     return (
       <AndroidLayout>
-        <div className="min-h-screen bg-background flex items-center justify-center">
-          <div className="text-center space-y-4">
-            <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
-            <p className="text-muted-foreground">Loading...</p>
-          </div>
+        <div className="flex items-center justify-center min-h-screen">
+          <Loader2 className="h-8 w-8 animate-spin" />
         </div>
       </AndroidLayout>
     );
   }
 
-  if (!user) {
+  if (!patientId) {
+    navigate('/');
+    return null;
+  }
+
+  if (showUserSelection) {
     return (
       <AndroidLayout>
-        <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="flex items-center justify-center min-h-screen p-4">
           <UserSelection 
             onSignInComplete={handleSignInComplete}
             onNewUserSignIn={handleNewUserSignIn}
@@ -103,58 +144,48 @@ const Index = () => {
       <div className="min-h-screen bg-background">
         <div className="container mx-auto py-6 px-4 max-w-7xl">
           {/* Header */}
-          <div className="mb-8">
-            <div className="flex justify-between items-start">
-              <div>
-                <h1 className="text-3xl font-bold text-primary mb-2">
-                  Patient Admission Robot
-                </h1>
-                <p className="text-muted-foreground">
-                  AI-Assisted Patient Assessment Documentation System
-                </p>
-              </div>
-              
-              {/* User Info & Sign Out */}
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-3 bg-muted/50 rounded-lg p-3">
-                  <Avatar className="h-10 w-10">
-                    <AvatarFallback className="bg-primary text-primary-foreground">
-                      {getInitials(profile?.full_name || user?.email || 'User')}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="text-right">
-                    <div className="font-medium text-sm">
-                      {profile?.full_name || user?.email?.split('@')[0] || 'User'}
-                    </div>
-                    <div className="flex items-center gap-1">
-                      {profile?.role && (
-                        <Badge className={getRoleBadgeColor(profile.role)} variant="secondary">
-                          {profile.role}
-                        </Badge>
-                      )}
-                      {profile?.department && (
-                        <Badge variant="outline" className="text-xs">
-                          {profile.department}
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={signOut}
-                  className="flex items-center gap-2"
-                >
-                  <LogOut className="h-4 w-4" />
-                  Sign Out
-                </Button>
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => navigate('/')}
+              className="flex items-center gap-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to Patient List
+            </Button>
+            <div>
+              <h2 className="font-semibold">{profile?.full_name || profile?.email}</h2>
+              <div className="flex items-center gap-2">
+                <Badge variant="secondary" className={getRoleBadgeColor(profile?.role)}>
+                  {profile?.role || 'User'}
+                </Badge>
+                {profile?.department && (
+                  <span className="text-sm text-muted-foreground">
+                    {profile.department}
+                  </span>
+                )}
               </div>
             </div>
           </div>
+          <Button variant="outline" size="sm" onClick={signOut}>
+            <LogOut className="h-4 w-4 mr-2" />
+            Sign Out
+          </Button>
+        </div>
+
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold text-primary mb-2">
+              Patient Assessment
+            </h1>
+            <p className="text-muted-foreground">
+              AI-Assisted Patient Assessment Documentation System
+            </p>
+          </div>
 
           {/* Patient Information */}
-          <PatientHeader patient={patient} />
+        <PatientHeader patient={patient} />
 
           {/* Main Content */}
           <div className="max-w-4xl mx-auto mt-8">
@@ -179,27 +210,25 @@ const Index = () => {
 
               {/* Current Form Section */}
               <FormSection
-                title={currentSectionData?.title || 'Patient Assessment Form'}
-                description={`Complete the ${currentSectionData?.title} fields below. AI-filled data is highlighted in blue and shows source conversation.`}
-                fields={currentFields}
+                title={sections.find(s => s.id === currentSection)?.title || 'Assessment Form'}
+                description={`Complete the ${sections.find(s => s.id === currentSection)?.title} fields below. AI-filled data is highlighted in blue and shows source conversation.`}
+                fields={getFormFields(currentSection)}
                 onFieldChange={handleFieldChange}
               />
 
-              {/* Action Buttons - Optimized for touch */}
+              {/* Action Buttons */}
               <div className="flex justify-between gap-4">
                 <Button 
                   variant="outline" 
-                  className="flex items-center min-h-[56px] px-8 text-base touch-manipulation active:scale-95"
+                  className="flex items-center min-h-[48px] px-6"
                 >
-                  <Save className="h-5 w-5 mr-3" />
                   Save Draft
                 </Button>
                 
                 <Button 
-                  className="flex items-center bg-primary hover:bg-primary-hover min-h-[56px] px-8 text-base touch-manipulation active:scale-95"
-                  onClick={handleSubmit}
+                  onClick={submitAssessment}
+                  className="flex items-center min-h-[48px] px-6"
                 >
-                  <Send className="h-5 w-5 mr-3" />
                   Submit to EMR
                 </Button>
               </div>

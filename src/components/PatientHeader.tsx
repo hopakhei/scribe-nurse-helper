@@ -5,16 +5,19 @@ import { User, Calendar, MapPin, Clock } from "lucide-react";
 interface PatientHeaderProps {
   patient: {
     name: string;
-    hospitalNo: string;
+    hospital_no: string;
     age: number;
     sex: string;
-    admissionType: string;
+    admission_type: string;
     ward: string;
-    admissionDate: string;
-  };
+    admission_date: string;
+    bed?: string | null;
+  } | null;
 }
 
 export function PatientHeader({ patient }: PatientHeaderProps) {
+  if (!patient) return null;
+  
   return (
     <Card className="bg-medical-pre-populated border-l-4 border-l-primary p-6 mb-6">
       <div className="flex items-start justify-between">
@@ -25,12 +28,12 @@ export function PatientHeader({ patient }: PatientHeaderProps) {
           <div>
             <h1 className="text-2xl font-bold text-foreground">{patient.name}</h1>
             <p className="text-medical-pre-populated-foreground font-medium">
-              Hospital No: {patient.hospitalNo}
+              Hospital No: {patient.hospital_no}
             </p>
           </div>
         </div>
         <Badge variant="outline" className="bg-primary text-primary-foreground border-primary">
-          {patient.admissionType}
+          {patient.admission_type}
         </Badge>
       </div>
       
@@ -43,15 +46,15 @@ export function PatientHeader({ patient }: PatientHeaderProps) {
         </div>
         <div className="flex items-center space-x-2">
           <MapPin className="h-4 w-4 text-muted-foreground" />
-          <span className="text-sm">{patient.ward}</span>
+          <span className="text-sm">{patient.ward} {patient.bed && `- Bed ${patient.bed}`}</span>
         </div>
         <div className="flex items-center space-x-2">
           <Calendar className="h-4 w-4 text-muted-foreground" />
-          <span className="text-sm">{patient.admissionDate}</span>
+          <span className="text-sm">{new Date(patient.admission_date).toLocaleDateString()}</span>
         </div>
         <div className="flex items-center space-x-2">
           <Clock className="h-4 w-4 text-muted-foreground" />
-          <span className="text-sm">In Progress</span>
+          <span className="text-sm">Assessment Active</span>
         </div>
       </div>
     </Card>
