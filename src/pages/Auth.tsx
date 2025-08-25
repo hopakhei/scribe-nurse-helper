@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuthState } from '@/hooks/useAuth';
+import { useLocalUserManager } from '@/hooks/useLocalUserManager';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,12 +10,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Loader2, Shield, UserPlus, LogIn } from 'lucide-react';
 import { AndroidLayout } from '@/components/AndroidLayout';
+import { UserSelection } from '@/components/UserSelection';
 
 const Auth = () => {
   const { signIn, signUp, user, loading } = useAuthState();
+  const { storedUsers } = useLocalUserManager();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [showTraditionalAuth, setShowTraditionalAuth] = useState(false);
   
   const [signInData, setSignInData] = useState({ email: '', password: '' });
   const [signUpData, setSignUpData] = useState({ 
@@ -104,11 +108,35 @@ const Auth = () => {
     }
   };
 
+  const handleSignInComplete = () => {
+    // Redirect will be handled by the existing useEffect
+  };
+
+  const handleNewUserSignIn = () => {
+    setShowTraditionalAuth(true);
+    setError(null);
+    setMessage(null);
+  };
+
   if (loading) {
     return (
       <AndroidLayout>
         <div className="min-h-screen bg-background flex items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </AndroidLayout>
+    );
+  }
+
+  // Show UserSelection if we have stored users and not explicitly showing traditional auth
+  if (storedUsers.length > 0 && !showTraditionalAuth) {
+    return (
+      <AndroidLayout>
+        <div className="min-h-screen bg-background flex items-center justify-center p-4">
+          <UserSelection
+            onSignInComplete={handleSignInComplete}
+            onNewUserSignIn={handleNewUserSignIn}
+          />
         </div>
       </AndroidLayout>
     );
