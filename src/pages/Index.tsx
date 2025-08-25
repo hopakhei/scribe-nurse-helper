@@ -7,8 +7,7 @@ import { AndroidLayout } from "@/components/AndroidLayout";
 import { PatientHeader } from "@/components/PatientHeader";
 import { AudioRecordingControls } from "@/components/AudioRecordingControls";
 import { RiskScoreDisplay } from "@/components/RiskScoreDisplay";
-import { FormNavigation } from "@/components/FormNavigation";
-import { FormSection } from "@/components/FormSection";
+import { TabAssessmentSystem } from "@/components/TabAssessmentSystem";
 import { usePatientAssessment } from "@/hooks/usePatientAssessment";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -201,19 +200,10 @@ const Index = () => {
               {/* Risk Scores */}
               <RiskScoreDisplay scores={riskScores} />
 
-              {/* Form Navigation */}
-              <FormNavigation 
-                sections={sections}
-                currentSection={currentSection}
-                onSectionChange={setCurrentSection}
-              />
-
-              {/* Current Form Section */}
-              <FormSection
-                title={sections.find(s => s.id === currentSection)?.title || 'Assessment Form'}
-                description={`Complete the ${sections.find(s => s.id === currentSection)?.title} fields below. AI-filled data is highlighted in blue and shows source conversation.`}
-                fields={getFormFields(currentSection)}
+              {/* Enhanced Tab Assessment System */}
+              <TabAssessmentSystem
                 onFieldChange={handleFieldChange}
+                fieldValues={{}} // This would be populated from usePatientAssessment
               />
 
               {/* Action Buttons */}
