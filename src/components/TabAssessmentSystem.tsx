@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { TabNavigation } from "@/components/TabNavigation";
 import { GeneralTab } from "@/components/tabs/GeneralTab";
 import { PhysicalTab } from "@/components/tabs/PhysicalTab";
@@ -23,6 +23,12 @@ interface TabSection {
 
 export function TabAssessmentSystem({ onFieldChange, fieldValues }: TabAssessmentSystemProps) {
   const [currentSection, setCurrentSection] = useState('general');
+  const [localFieldValues, setLocalFieldValues] = useState<Record<string, any>>({});
+  const handleLocalFieldChange = useCallback((fieldId: string, value: any) => {
+    setLocalFieldValues(prev => ({ ...prev, [fieldId]: value }));
+    onFieldChange(fieldId, value);
+  }, [onFieldChange]);
+  const mergedFieldValues = { ...fieldValues, ...localFieldValues };
 
   const sections: TabSection[] = [
     {
@@ -106,13 +112,13 @@ export function TabAssessmentSystem({ onFieldChange, fieldValues }: TabAssessmen
   const renderTabContent = (sectionId: string) => {
     switch (sectionId) {
       case 'general':
-        return <GeneralTab onFieldChange={onFieldChange} fieldValues={fieldValues} />;
+        return <GeneralTab onFieldChange={handleLocalFieldChange} fieldValues={mergedFieldValues} />;
       case 'physical':
-        return <PhysicalTab onFieldChange={onFieldChange} fieldValues={fieldValues} />;
+        return <PhysicalTab onFieldChange={handleLocalFieldChange} fieldValues={mergedFieldValues} />;
       case 'social':
-        return <SocialTab onFieldChange={onFieldChange} fieldValues={fieldValues} />;
+        return <SocialTab onFieldChange={handleLocalFieldChange} fieldValues={mergedFieldValues} />;
       case 'risk':
-        return <RiskTab onFieldChange={onFieldChange} fieldValues={fieldValues} />;
+        return <RiskTab onFieldChange={handleLocalFieldChange} fieldValues={mergedFieldValues} />;
       default:
         return (
           <TabsContent value={sectionId} className="mt-0">
@@ -137,7 +143,7 @@ export function TabAssessmentSystem({ onFieldChange, fieldValues }: TabAssessmen
       currentSection={currentSection}
       onSectionChange={setCurrentSection}
     >
-      {sections.map(section => renderTabContent(section.id))}
+      {renderTabContent(currentSection)}
     </TabNavigation>
   );
 }
