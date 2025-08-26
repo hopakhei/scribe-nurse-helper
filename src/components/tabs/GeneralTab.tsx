@@ -10,40 +10,6 @@ interface GeneralTabProps {
 export function GeneralTab({ onFieldChange, fieldValues }: GeneralTabProps) {
   const cards: FormCard[] = [
     {
-      id: 'assessment-time',
-      title: 'Assessment Time',
-      fields: [
-        {
-          id: 'assessment_date',
-          label: 'Date of Assessment',
-          type: 'datepicker',
-          dataSource: 'manual',
-          required: true
-        },
-        {
-          id: 'assessment_time',
-          label: 'Time of Assessment',
-          type: 'time',
-          dataSource: 'manual',
-          required: true
-        }
-      ]
-    },
-    {
-      id: 'admission',
-      title: 'Admission',
-      fields: [
-        {
-          id: 'admission_type',
-          label: 'Type of Admission',
-          type: 'radio',
-          options: ['A&E', 'Baby born in own hospital', 'OPD', 'Other hospital', 'Other'],
-          dataSource: 'manual',
-          required: true
-        }
-      ]
-    },
-    {
       id: 'emergency-contact-1',
       title: 'Emergency Contact 1',
       fields: [
