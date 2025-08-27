@@ -15,25 +15,23 @@ export function NutritionSelfCareTab({ onFieldChange, fieldValues }: NutritionSe
       fields: [
         {
           id: 'malnutrition_screening_tools',
-          type: 'nested-tabs', // Custom type for the EnhancedFormSection to render tabs
+          label: 'Screening Tools',
+          type: 'nested-tabs',
+          dataSource: 'manual',
           tabs: [
             {
               id: 'must',
-              title: 'MUST',
-              totalScoreId: 'must_total',
-              maxScore: 5,
-              items: [
-                { id: 'must_q1', label: '1. Lost weight recently without trying?', type: 'radio', options: [{ label: 'No', value: 0 }, { label: 'Unsure', value: 2 }, { label: 'Yes', value: 1 }] },
-                { id: 'must_q2', label: '2. Been eating poorly due to decreased appetite?', type: 'radio', options: [{ label: 'No', value: 0 }, { label: 'Yes', value: 1 }] },
+              label: 'MUST',
+              fields: [
+                { id: 'must_q1', label: '1. Lost weight recently without trying?', type: 'radio', options: [{ label: 'No', value: 0 }, { label: 'Unsure', value: 2 }, { label: 'Yes', value: 1 }], dataSource: 'manual' },
+                { id: 'must_q2', label: '2. Been eating poorly due to decreased appetite?', type: 'radio', options: [{ label: 'No', value: 0 }, { label: 'Yes', value: 1 }], dataSource: 'manual' },
               ]
             },
             {
-              id: 'hk_chinese_must',
-              title: 'HK Chinese MUST',
-              totalScoreId: 'hk_chinese_must_total',
-              maxScore: 6,
-              items: [
-                // HK Chinese MUST items would be defined here
+              id: 'hk-must',
+              label: 'HK Chinese MUST',
+              fields: [
+                { id: 'hk_must_q1', label: 'HK Chinese MUST Q1', type: 'radio', options: [{ label: 'No', value: 0 }, { label: 'Yes', value: 1 }], dataSource: 'manual' }
               ]
             }
           ]
@@ -55,7 +53,7 @@ export function NutritionSelfCareTab({ onFieldChange, fieldValues }: NutritionSe
           type: 'radio',
           options: ['Nasogastric', 'PEG', 'Gastrostomy'],
           dataSource: 'manual',
-          displayCondition: { fieldId: 'tube_feeding_enabled', value: true }
+          displayCondition: 'tube_feeding_enabled === true'
         },
         {
           id: 'tube_feeding_schedule',
@@ -63,14 +61,14 @@ export function NutritionSelfCareTab({ onFieldChange, fieldValues }: NutritionSe
           type: 'radio',
           options: ['Intermittent', 'Continuous'],
           dataSource: 'manual',
-          displayCondition: { fieldId: 'tube_feeding_enabled', value: true }
+          displayCondition: 'tube_feeding_enabled === true'
         },
       ]
     },
     {
       id: 'self-care-status',
       title: 'Self Care',
-      gridColumns: 2, // Make this card span both columns
+      columns: 2, // Make this card span both columns
       fields: [
         { id: 'self_care', label: 'Self Care Status', type: 'radio', options: ['Independent', 'Assisted', 'Dependent'], dataSource: 'manual' },
       ]
@@ -83,7 +81,7 @@ export function NutritionSelfCareTab({ onFieldChange, fieldValues }: NutritionSe
         title="Nutrition & Self-Care"
         description="Assessment of patient's nutritional status and ability to perform self-care."
         cards={cards}
-        layout="double"
+        layout="two-column"
         onFieldChange={onFieldChange}
         fieldValues={fieldValues}
       />

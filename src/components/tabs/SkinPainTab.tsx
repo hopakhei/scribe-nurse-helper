@@ -19,15 +19,16 @@ export function SkinPainTab({ onFieldChange, fieldValues }: SkinPainTabProps) {
         {
           id: 'wounds',
           label: 'Wounds',
-          type: 'dynamic-group', // Custom type for adding/removing groups of fields
+          type: 'dynamic-group',
+          dataSource: 'manual',
           addButtonLabel: '+ Add Wound',
           itemSchema: [ // Defines the fields for each wound entry
-            { id: 'wound_type', label: 'Type', type: 'select', options: ['Pressure injury', 'Abrasion', 'Laceration', 'Ulcer', 'Suture wound', 'Burn'] },
-            { id: 'wound_location', label: 'Location / Site', type: 'text' },
-            { id: 'wound_size', label: 'Size (LxWxD, cm)', type: 'text' },
-            { id: 'wound_severity', label: 'Severity', type: 'select', options: ['Shallow', 'Deep', 'Stage 1', 'Stage 2', 'Stage 3', 'Stage 4', 'Unstageable'] },
-            { id: 'wound_discharge', label: 'Discharge', type: 'radio', options: ['Nil', 'Small amount', 'Profuse'] },
-            { id: 'wound_necrotic_tissue', label: 'Necrotic Tissue', type: 'radio', options: ['No', 'Yes'] },
+            { id: 'wound_type', label: 'Type', type: 'select', options: ['Pressure injury', 'Abrasion', 'Laceration', 'Ulcer', 'Suture wound', 'Burn'], dataSource: 'manual' },
+            { id: 'wound_location', label: 'Location / Site', type: 'text', dataSource: 'manual' },
+            { id: 'wound_size', label: 'Size (LxWxD, cm)', type: 'text', dataSource: 'manual' },
+            { id: 'wound_severity', label: 'Severity', type: 'select', options: ['Shallow', 'Deep', 'Stage 1', 'Stage 2', 'Stage 3', 'Stage 4', 'Unstageable'], dataSource: 'manual' },
+            { id: 'wound_discharge', label: 'Discharge', type: 'radio', options: ['Nil', 'Small amount', 'Profuse'], dataSource: 'manual' },
+            { id: 'wound_necrotic_tissue', label: 'Necrotic Tissue', type: 'radio', options: ['No', 'Yes'], dataSource: 'manual' },
           ]
         }
       ]
@@ -43,7 +44,7 @@ export function SkinPainTab({ onFieldChange, fieldValues }: SkinPainTabProps) {
           type: 'radio',
           options: ['Low', 'Medium', 'High'],
           dataSource: 'manual',
-          disabledCondition: { fieldId: 'pain_status', valueIsNot: 'Yes' }
+          disabledCondition: 'pain_status !== "Yes"'
         },
         {
           id: 'pain_location',
@@ -51,7 +52,7 @@ export function SkinPainTab({ onFieldChange, fieldValues }: SkinPainTabProps) {
           type: 'checkbox',
           options: ['Whole body', 'Head', 'Chest', 'Abdomen', 'Back', 'Upper limbs', 'Lower limbs'],
           dataSource: 'manual',
-          disabledCondition: { fieldId: 'pain_status', valueIsNot: 'Yes' }
+          disabledCondition: 'pain_status !== "Yes"'
         }
       ]
     }
@@ -63,7 +64,7 @@ export function SkinPainTab({ onFieldChange, fieldValues }: SkinPainTabProps) {
         title="Skin & Pain Assessment"
         description="Evaluation of skin integrity and patient-reported pain."
         cards={cards}
-        layout="double"
+        layout="two-column"
         onFieldChange={onFieldChange}
         fieldValues={fieldValues}
       />

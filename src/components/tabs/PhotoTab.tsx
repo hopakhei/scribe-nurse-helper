@@ -18,11 +18,10 @@ export function PhotoTab({ onFieldChange, fieldValues }: PhotoTabProps) {
         {
           id: 'patient_photos',
           label: 'Patient Photos',
-          type: 'file-upload', // Custom type for a dropzone/upload component
-          options: {
-            accept: 'image/*', // Specify accepted file types
-            multiple: true,
-          }
+          type: 'file',
+          dataSource: 'manual',
+          accept: 'image/*',
+          multiple: true
         }
       ]
     }

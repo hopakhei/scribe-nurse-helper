@@ -33,7 +33,6 @@ export function PhysicalTab({ onFieldChange, fieldValues }: PhysicalTabProps) {
     {
       id: 'gcs',
       title: 'Glasgow Coma Scale (GCS)',
-      layout: 'inline', // A hint for your renderer to place these fields horizontally
       fields: [
         {
           id: 'gcs_eye',
@@ -78,6 +77,7 @@ export function PhysicalTab({ onFieldChange, fieldValues }: PhysicalTabProps) {
           id: 'gcs_total',
           label: 'Total Score',
           type: 'calculated',
+          dataSource: 'ai-filled',
           subLabel: '/ 15',
           calculation: (values) => {
             const eye = Number(values.gcs_eye) || 0;
@@ -100,6 +100,7 @@ export function PhysicalTab({ onFieldChange, fieldValues }: PhysicalTabProps) {
           id: 'mean_bp',
           label: 'Mean BP',
           type: 'calculated',
+          dataSource: 'ai-filled',
           subLabel: 'mmHg',
           calculation: (values) => {
             const systolic = Number(values.bp_systolic) || 0;
@@ -115,7 +116,7 @@ export function PhysicalTab({ onFieldChange, fieldValues }: PhysicalTabProps) {
             label: 'Flow Rate (L/min)',
             type: 'number',
             dataSource: 'manual',
-            displayCondition: { fieldId: 'oxygen_therapy', value: 'Yes' }
+            displayCondition: 'oxygen_therapy === "Yes"'
         },
       ]
     },
@@ -129,6 +130,7 @@ export function PhysicalTab({ onFieldChange, fieldValues }: PhysicalTabProps) {
           id: 'bmi',
           label: 'BMI',
           type: 'calculated',
+          dataSource: 'ai-filled',
           subLabel: 'kg/m²',
           calculation: (values) => {
             const weight = Number(values.weight) || 0;
@@ -151,7 +153,7 @@ export function PhysicalTab({ onFieldChange, fieldValues }: PhysicalTabProps) {
         title="Physical Assessment"
         description="Comprehensive physical examination and vital signs"
         cards={cards}
-        layout="double" // Use a two-column layout
+        layout="two-column" // Use a two-column layout
         onFieldChange={onFieldChange}
         fieldValues={fieldValues}
       />

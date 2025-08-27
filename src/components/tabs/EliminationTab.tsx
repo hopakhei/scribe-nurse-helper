@@ -21,14 +21,14 @@ export function EliminationTab({ onFieldChange, fieldValues }: EliminationTabPro
           type: 'radio',
           options: ['Urethral', 'Suprapubic'],
           dataSource: 'manual',
-          displayCondition: { fieldId: 'urinary_aids', includes: 'Urinary catheter' }
+          displayCondition: 'urinary_aids.includes("Urinary catheter")'
         },
         {
           id: 'urinary_catheter_size',
           label: 'Catheter Size',
           type: 'text',
           dataSource: 'manual',
-          displayCondition: { fieldId: 'urinary_aids', includes: 'Urinary catheter' }
+          displayCondition: 'urinary_aids.includes("Urinary catheter")'
         },
         {
           id: 'urinary_catheter_type',
@@ -36,14 +36,14 @@ export function EliminationTab({ onFieldChange, fieldValues }: EliminationTabPro
           type: 'radio',
           options: ['Latex', 'Silicone'],
           dataSource: 'manual',
-          displayCondition: { fieldId: 'urinary_aids', includes: 'Urinary catheter' }
+          displayCondition: 'urinary_aids.includes("Urinary catheter")'
         },
         {
           id: 'urinary_catheter_renewal_date',
           label: 'Date of Last Renewal',
           type: 'datepicker',
           dataSource: 'manual',
-          displayCondition: { fieldId: 'urinary_aids', includes: 'Urinary catheter' }
+          displayCondition: 'urinary_aids.includes("Urinary catheter")'
         },
       ]
     },
@@ -64,7 +64,7 @@ export function EliminationTab({ onFieldChange, fieldValues }: EliminationTabPro
         title="Elimination Assessment"
         description="Patient's urinary and bowel function."
         cards={cards}
-        layout="double" // Use a two-column layout
+        layout="two-column" // Use a two-column layout
         onFieldChange={onFieldChange}
         fieldValues={fieldValues}
       />

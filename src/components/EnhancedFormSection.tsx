@@ -14,15 +14,20 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { format } from "date-fns";
 
-export type FieldType = 'text' | 'textarea' | 'select' | 'checkbox' | 'number' | 'radio' | 'date' | 'time' | 'calculated' | 'inline-group' | 'datepicker' | 'multi-select';
+export type FieldType = 'text' | 'textarea' | 'select' | 'checkbox' | 'number' | 'radio' | 'date' | 'time' | 'calculated' | 'inline-group' | 'datepicker' | 'multi-select' | 'file' | 'file-upload' | 'dynamic-group' | 'nested-tabs';
 export type DataSource = 'pre-populated' | 'ai-filled' | 'manual';
+
+interface OptionItem {
+  value: string | number;
+  label: string;
+}
 
 interface FormField {
   id: string;
   label: string;
   type: FieldType;
   value?: string | boolean | number;
-  options?: string[];
+  options?: string[] | OptionItem[];
   required?: boolean;
   dataSource: DataSource;
   aiSourceText?: string;
@@ -30,6 +35,15 @@ interface FormField {
   inlineFields?: FormField[];
   conditionalFields?: FormField[];
   showCondition?: (value: any) => boolean;
+  displayCondition?: string;
+  disabledCondition?: string;
+  subLabel?: string;
+  defaultValue?: string | number | boolean;
+  accept?: string;
+  multiple?: boolean;
+  tabs?: { id: string; label: string; fields: FormField[] }[];
+  addButtonLabel?: string;
+  itemSchema?: FormField[];
 }
 
 export interface FormCard {
@@ -38,13 +52,14 @@ export interface FormCard {
   description?: string;
   fields: FormField[];
   columns?: number;
+  gridColumns?: number; // alias for columns
 }
 
 interface EnhancedFormSectionProps {
   title: string;
   description?: string;
   cards: FormCard[];
-  layout?: 'single' | 'two-column' | 'three-column';
+  layout?: 'single' | 'two-column' | 'three-column' | 'double' | 'triple';
   onFieldChange: (fieldId: string, value: any) => void;
   fieldValues?: Record<string, any>;
 }
@@ -58,6 +73,45 @@ export function EnhancedFormSection({
   fieldValues = {}
 }: EnhancedFormSectionProps) {
   const [dynamicFields, setDynamicFields] = useState<Record<string, FormField[]>>({});
+
+  // Normalize layout aliases
+  const normalizedLayout = layout === 'double' ? 'two-column' : layout === 'triple' ? 'three-column' : layout;
+
+  // Evaluate display condition
+  const evaluateCondition = (condition: string, values: Record<string, any>): boolean => {
+    try {
+      // Handle includes condition for multi-select
+      if (condition.includes('includes')) {
+        const match = condition.match(/(\w+)\.includes\(['"]([^'"]+)['"]\)/);
+        if (match) {
+          const [, fieldId, value] = match;
+          const fieldValue = values[fieldId];
+          return Array.isArray(fieldValue) ? fieldValue.includes(value) : false;
+        }
+      }
+      
+      // Handle basic equality conditions
+      const match = condition.match(/(\w+)\s*===?\s*['"]([^'"]+)['"]/);
+      if (match) {
+        const [, fieldId, value] = match;
+        return values[fieldId] === value;
+      }
+      
+      return false;
+    } catch {
+      return false;
+    }
+  };
+
+  // Normalize options to support both string[] and OptionItem[]
+  const normalizeOptions = (options?: string[] | OptionItem[]): OptionItem[] => {
+    if (!options) return [];
+    return options.map(option => 
+      typeof option === 'string' 
+        ? { value: option, label: option }
+        : option
+    );
+  };
 
   const getFieldBackground = (dataSource: DataSource) => {
     const backgrounds = {
@@ -108,7 +162,19 @@ export function EnhancedFormSection({
       field.dataSource === 'ai-filled' && "border-primary/20",
     );
 
-    const currentValue = fieldValues[field.id] || field.value;
+    // Initialize with defaultValue if no current value exists
+    const currentValue = fieldValues[field.id] ?? field.value ?? field.defaultValue;
+    
+    // Check display condition
+    if (field.displayCondition && !evaluateCondition(field.displayCondition, fieldValues)) {
+      return null;
+    }
+    
+    // Check disabled condition
+    const isDisabled = field.dataSource === 'pre-populated' || 
+      (field.disabledCondition && evaluateCondition(field.disabledCondition, fieldValues));
+
+    const normalizedOptions = normalizeOptions(field.options);
 
     switch (field.type) {
       case 'text':
@@ -116,44 +182,59 @@ export function EnhancedFormSection({
       case 'date':
       case 'time':
         return (
-          <Input
-            type={field.type}
-            value={currentValue as string || ''}
-            onChange={(e) => onFieldChange(field.id, e.target.value)}
-            className={fieldClass}
-            disabled={field.dataSource === 'pre-populated'}
-          />
+          <div>
+            <Input
+              type={field.type}
+              value={currentValue as string || ''}
+              onChange={(e) => onFieldChange(field.id, e.target.value)}
+              className={fieldClass}
+              disabled={isDisabled}
+            />
+            {field.subLabel && (
+              <p className="text-xs text-muted-foreground mt-1">{field.subLabel}</p>
+            )}
+          </div>
         );
       
       case 'textarea':
         return (
-          <Textarea
-            value={currentValue as string || ''}
-            onChange={(e) => onFieldChange(field.id, e.target.value)}
-            className={fieldClass}
-            disabled={field.dataSource === 'pre-populated'}
-            rows={3}
-          />
+          <div>
+            <Textarea
+              value={currentValue as string || ''}
+              onChange={(e) => onFieldChange(field.id, e.target.value)}
+              className={fieldClass}
+              disabled={isDisabled}
+              rows={3}
+            />
+            {field.subLabel && (
+              <p className="text-xs text-muted-foreground mt-1">{field.subLabel}</p>
+            )}
+          </div>
         );
       
       case 'select':
         return (
-          <Select
-            value={currentValue as string || ''}
-            onValueChange={(value) => onFieldChange(field.id, value)}
-            disabled={field.dataSource === 'pre-populated'}
-          >
-            <SelectTrigger className={fieldClass}>
-              <SelectValue placeholder="Select option..." />
-            </SelectTrigger>
-            <SelectContent>
-              {field.options?.map((option) => (
-                <SelectItem key={option} value={option}>
-                  {option}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div>
+            <Select
+              value={currentValue as string || ''}
+              onValueChange={(value) => onFieldChange(field.id, value)}
+              disabled={isDisabled}
+            >
+              <SelectTrigger className={fieldClass}>
+                <SelectValue placeholder="Select option..." />
+              </SelectTrigger>
+              <SelectContent>
+                {normalizedOptions.map((option) => (
+                  <SelectItem key={option.value} value={String(option.value)}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {field.subLabel && (
+              <p className="text-xs text-muted-foreground mt-1">{field.subLabel}</p>
+            )}
+          </div>
         );
       
       case 'checkbox':
@@ -170,20 +251,25 @@ export function EnhancedFormSection({
 
       case 'radio':
         return (
-          <RadioGroup
-            value={currentValue as string || ''}
-            onValueChange={(value) => onFieldChange(field.id, value)}
-            disabled={field.dataSource === 'pre-populated'}
-          >
-            {field.options?.map((option) => (
-              <div key={option} className="flex items-center space-x-2">
-                <RadioGroupItem value={option} id={`${field.id}-${option}`} />
-                <Label htmlFor={`${field.id}-${option}`} className="text-sm">
-                  {option}
-                </Label>
-              </div>
-            ))}
-          </RadioGroup>
+          <div>
+            <RadioGroup
+              value={currentValue as string || ''}
+              onValueChange={(value) => onFieldChange(field.id, value)}
+              disabled={isDisabled}
+            >
+              {normalizedOptions.map((option) => (
+                <div key={option.value} className="flex items-center space-x-2">
+                  <RadioGroupItem value={String(option.value)} id={`${field.id}-${option.value}`} />
+                  <Label htmlFor={`${field.id}-${option.value}`} className="text-sm">
+                    {option.label}
+                  </Label>
+                </div>
+              ))}
+            </RadioGroup>
+            {field.subLabel && (
+              <p className="text-xs text-muted-foreground mt-1">{field.subLabel}</p>
+            )}
+          </div>
         );
 
       case 'calculated':
@@ -235,22 +321,27 @@ export function EnhancedFormSection({
       case 'multi-select':
         const selectedValues = Array.isArray(currentValue) ? currentValue : [];
         return (
-          <div className="space-y-2">
-            {field.options?.map((option) => (
-              <div key={option} className="flex items-center space-x-2">
-                <Checkbox
-                  checked={selectedValues.includes(option)}
-                  onCheckedChange={(checked) => {
-                    const newValues = checked
-                      ? [...selectedValues, option]
-                      : selectedValues.filter(v => v !== option);
-                    onFieldChange(field.id, newValues);
-                  }}
-                  disabled={field.dataSource === 'pre-populated'}
-                />
-                <Label className="text-sm">{option}</Label>
-              </div>
-            ))}
+          <div>
+            <div className="space-y-2">
+              {normalizedOptions.map((option) => (
+                <div key={option.value} className="flex items-center space-x-2">
+                  <Checkbox
+                    checked={selectedValues.includes(String(option.value))}
+                    onCheckedChange={(checked) => {
+                      const newValues = checked
+                        ? [...selectedValues, String(option.value)]
+                        : selectedValues.filter(v => v !== String(option.value));
+                      onFieldChange(field.id, newValues);
+                    }}
+                    disabled={isDisabled}
+                  />
+                  <Label className="text-sm">{option.label}</Label>
+                </div>
+              ))}
+            </div>
+            {field.subLabel && (
+              <p className="text-xs text-muted-foreground mt-1">{field.subLabel}</p>
+            )}
           </div>
         );
 
@@ -267,6 +358,86 @@ export function EnhancedFormSection({
             ))}
           </div>
         );
+
+      case 'file':
+      case 'file-upload':
+        return (
+          <div>
+            <Input
+              type="file"
+              accept={field.accept}
+              multiple={field.multiple}
+              onChange={(e) => {
+                const files = e.target.files;
+                if (files) {
+                  const fileArray = Array.from(files);
+                  onFieldChange(field.id, field.multiple ? fileArray : fileArray[0]);
+                }
+              }}
+              className={fieldClass}
+              disabled={isDisabled}
+            />
+            {field.subLabel && (
+              <p className="text-xs text-muted-foreground mt-1">{field.subLabel}</p>
+            )}
+          </div>
+        );
+
+      case 'dynamic-group':
+        const groupItems = Array.isArray(currentValue) ? currentValue : [];
+        return (
+          <div className="space-y-4">
+            {groupItems.map((item: any, index: number) => (
+              <div key={index} className="p-4 border rounded-lg">
+                <div className="flex justify-between items-center mb-2">
+                  <h4 className="font-medium">Item {index + 1}</h4>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const newItems = groupItems.filter((_, i) => i !== index);
+                      onFieldChange(field.id, newItems);
+                    }}
+                  >
+                    Remove
+                  </Button>
+                </div>
+                {field.itemSchema?.map((schemaField) => (
+                  <div key={schemaField.id} className="mb-3">
+                    <Label className="text-sm font-medium mb-1 block">
+                      {schemaField.label}
+                    </Label>
+                    {renderField({
+                      ...schemaField,
+                      id: `${field.id}_${index}_${schemaField.id}`,
+                      value: item[schemaField.id]
+                    })}
+                  </div>
+                ))}
+              </div>
+            ))}
+            <Button
+              variant="outline"
+              onClick={() => {
+                const newItem = {};
+                const newItems = [...groupItems, newItem];
+                onFieldChange(field.id, newItems);
+              }}
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              {field.addButtonLabel || 'Add Item'}
+            </Button>
+          </div>
+        );
+
+      case 'nested-tabs':
+        return (
+          <div className="border rounded-lg p-4">
+            <p className="text-sm text-muted-foreground">
+              Nested tabs feature coming soon...
+            </p>
+          </div>
+        );
       
       default:
         return null;
@@ -276,6 +447,9 @@ export function EnhancedFormSection({
   const renderCard = (card: FormCard) => {
     const cardDynamicFields = dynamicFields[card.id] || [];
     const allFields = [...card.fields, ...cardDynamicFields];
+    
+    // Support gridColumns as alias for columns
+    const columns = card.gridColumns || card.columns;
 
     return (
       <Card key={card.id} className="h-fit">
@@ -288,8 +462,8 @@ export function EnhancedFormSection({
         <CardContent>
           <div className={cn(
             "space-y-4",
-            card.columns === 2 && "grid grid-cols-2 gap-4 space-y-0",
-            card.columns === 3 && "grid grid-cols-3 gap-4 space-y-0"
+            columns === 2 && "grid grid-cols-2 gap-4 space-y-0",
+            columns === 3 && "grid grid-cols-3 gap-4 space-y-0"
           )}>
             {allFields.map((field) => {
               // Check if field should be shown based on conditions
@@ -368,7 +542,7 @@ export function EnhancedFormSection({
   };
 
   const getLayoutClass = () => {
-    switch (layout) {
+    switch (normalizedLayout) {
       case 'two-column':
         return 'grid grid-cols-1 lg:grid-cols-2 gap-6';
       case 'three-column':

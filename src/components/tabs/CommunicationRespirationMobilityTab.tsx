@@ -16,9 +16,9 @@ export function CommunicationRespirationMobilityTab({ onFieldChange, fieldValues
         { id: 'vision_left', label: 'Vision (Left Eye)', type: 'select', options: ['Normal', 'Cataract', 'Glaucoma', 'Blurred vision', 'Blindness', 'Other'], dataSource: 'manual' },
         { id: 'vision_right', label: 'Vision (Right Eye)', type: 'select', options: ['Normal', 'Cataract', 'Glaucoma', 'Blurred vision', 'Blindness', 'Other'], dataSource: 'manual' },
         { id: 'hearing_left', label: 'Hearing (Left Ear)', type: 'select', options: ['Normal', 'Impaired', 'Deaf'], dataSource: 'manual' },
-        { id: 'hearing_left_aids', label: 'Hearing aids', type: 'checkbox', displayCondition: { fieldId: 'hearing_left', value: 'Impaired' } },
+        { id: 'hearing_left_aids', label: 'Hearing aids', type: 'checkbox', dataSource: 'manual', displayCondition: 'hearing_left === "Impaired"' },
         { id: 'hearing_right', label: 'Hearing (Right Ear)', type: 'select', options: ['Normal', 'Impaired', 'Deaf'], dataSource: 'manual' },
-        { id: 'hearing_right_aids', label: 'Hearing aids', type: 'checkbox', displayCondition: { fieldId: 'hearing_right', value: 'Impaired' } },
+        { id: 'hearing_right_aids', label: 'Hearing aids', type: 'checkbox', dataSource: 'manual', displayCondition: 'hearing_right === "Impaired"' },
         { id: 'language_dialect', label: 'Language / Dialect', type: 'select', options: ['Cantonese', 'English', 'Mandarin', 'Other'], dataSource: 'manual' },
         { id: 'speech', label: 'Speech', type: 'select', options: ['Clear', 'Slurring', 'Dysphasia', 'Incomprehensible sounds'], dataSource: 'manual' },
         { id: 'denture_upper', label: 'Denture (Upper Jaw)', type: 'select', options: ['Nil', 'Fixed', 'Removable'], dataSource: 'manual' },
@@ -54,7 +54,7 @@ export function CommunicationRespirationMobilityTab({ onFieldChange, fieldValues
         title="Communication, Respiration & Mobility"
         description="Assessment of functional status."
         cards={cards}
-        layout="triple" // Use a three-column layout
+        layout="three-column" // Use a three-column layout
         onFieldChange={onFieldChange}
         fieldValues={fieldValues}
       />
