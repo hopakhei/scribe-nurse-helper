@@ -10,7 +10,7 @@ interface PhysicalTabProps {
 export function PhysicalTab({ onFieldChange, fieldValues }: PhysicalTabProps) {
   const cards: FormCard[] = [
     {
-      id: 'complaint-consciousness',
+      id: 'clinical-status',
       title: 'Complaint & Consciousness',
       fields: [
         {
@@ -24,51 +24,65 @@ export function PhysicalTab({ onFieldChange, fieldValues }: PhysicalTabProps) {
           id: 'level_of_consciousness',
           label: 'Level of Consciousness',
           type: 'radio',
-          options: ['Alert', 'Confused', 'Drowsy', 'Unconscious'],
+          options: ['Alert', 'Response to Voice', 'Response to Pain', 'Unresponsive'],
           dataSource: 'manual',
           required: true
         }
       ]
     },
     {
-      id: 'glasgow-coma-scale',
+      id: 'gcs',
       title: 'Glasgow Coma Scale (GCS)',
+      layout: 'inline', // A hint for your renderer to place these fields horizontally
       fields: [
         {
-          id: 'gcs_inline',
-          label: 'GCS Components',
-          type: 'inline-group',
+          id: 'gcs_eye',
+          label: 'Eye',
+          type: 'select',
           dataSource: 'manual',
-          inlineFields: [
-            {
-              id: 'gcs_eye',
-              label: 'Eye (1-4)',
-              type: 'number',
-              dataSource: 'manual'
-            },
-            {
-              id: 'gcs_verbal',
-              label: 'Verbal (1-5)',
-              type: 'number',
-              dataSource: 'manual'
-            },
-            {
-              id: 'gcs_motor',
-              label: 'Motor (1-6)',
-              type: 'number',
-              dataSource: 'manual'
-            }
+          options: [
+            { value: 4, label: 'Spontaneously (4)' },
+            { value: 3, label: 'To speech (3)' },
+            { value: 2, label: 'To pain (2)' },
+            { value: 1, label: 'None (1)' },
+          ]
+        },
+        {
+          id: 'gcs_verbal',
+          label: 'Verbal',
+          type: 'select',
+          dataSource: 'manual',
+          options: [
+            { value: 5, label: 'Oriented (5)' },
+            { value: 4, label: 'Confused (4)' },
+            { value: 3, label: 'Inappropriate words (3)' },
+            { value: 2, label: 'Incomprehensible sounds (2)' },
+            { value: 1, label: 'None (1)' },
+          ]
+        },
+        {
+          id: 'gcs_motor',
+          label: 'Motor',
+          type: 'select',
+          dataSource: 'manual',
+          options: [
+            { value: 6, label: 'Obeys commands (6)' },
+            { value: 5, label: 'Localizes to pain (5)' },
+            { value: 4, label: 'Flexion withdrawal (4)' },
+            { value: 3, label: 'Abnormal flexion (3)' },
+            { value: 2, label: 'Abnormal extension (2)' },
+            { value: 1, label: 'None (1)' },
           ]
         },
         {
           id: 'gcs_total',
-          label: 'Total GCS Score',
+          label: 'Total Score',
           type: 'calculated',
-          dataSource: 'manual',
+          subLabel: '/ 15',
           calculation: (values) => {
-            const eye = parseInt(values.gcs_eye) || 0;
-            const verbal = parseInt(values.gcs_verbal) || 0;
-            const motor = parseInt(values.gcs_motor) || 0;
+            const eye = Number(values.gcs_eye) || 0;
+            const verbal = Number(values.gcs_verbal) || 0;
+            const motor = Number(values.gcs_motor) || 0;
             return eye + verbal + motor;
           }
         }
@@ -77,168 +91,58 @@ export function PhysicalTab({ onFieldChange, fieldValues }: PhysicalTabProps) {
     {
       id: 'vital-signs',
       title: 'Vital Signs & Observations',
-      columns: 3,
       fields: [
-        {
-          id: 'temperature',
-          label: 'Temperature (°C)',
-          type: 'number',
-          dataSource: 'manual',
-          required: true
-        },
-        {
-          id: 'pulse',
-          label: 'Pulse (bpm)',
-          type: 'number',
-          dataSource: 'manual',
-          required: true
-        },
-        {
-          id: 'blood_pressure',
-          label: 'Blood Pressure',
-          type: 'inline-group',
-          dataSource: 'manual',
-          inlineFields: [
-            {
-              id: 'bp_systolic',
-              label: 'Systolic',
-              type: 'number',
-              dataSource: 'manual',
-              required: true
-            },
-            {
-              id: 'bp_diastolic',
-              label: 'Diastolic',
-              type: 'number',
-              dataSource: 'manual',
-              required: true
-            }
-          ]
-        },
+        { id: 'temperature', label: 'Temperature', type: 'number', subLabel: '°C', dataSource: 'manual', required: true },
+        { id: 'pulse', label: 'Pulse', type: 'number', subLabel: 'bpm', dataSource: 'manual', required: true },
+        { id: 'bp_systolic', label: 'Systolic', type: 'number', subLabel: 'mmHg', dataSource: 'manual', required: true },
+        { id: 'bp_diastolic', label: 'Diastolic', type: 'number', subLabel: 'mmHg', dataSource: 'manual', required: true },
         {
           id: 'mean_bp',
-          label: 'Mean BP (mmHg)',
+          label: 'Mean BP',
           type: 'calculated',
-          dataSource: 'manual',
+          subLabel: 'mmHg',
           calculation: (values) => {
-            const systolic = parseFloat(values.bp_systolic) || 0;
-            const diastolic = parseFloat(values.bp_diastolic) || 0;
-            if (systolic > 0 && diastolic > 0) {
-              return Math.round((diastolic * 2 + systolic) / 3);
-            }
-            return '';
+            const systolic = Number(values.bp_systolic) || 0;
+            const diastolic = Number(values.bp_diastolic) || 0;
+            return systolic > 0 && diastolic > 0 ? Math.round((diastolic * 2 + systolic) / 3) : 0;
           }
         },
+        { id: 'respiratory_rate', label: 'RR', type: 'number', subLabel: 'breaths/min', dataSource: 'manual', required: true },
+        { id: 'spo2', label: 'SpO2', type: 'number', subLabel: '%', dataSource: 'manual', required: true },
+        { id: 'oxygen_therapy', label: 'Oxygen Therapy', type: 'radio', options: ['Yes', 'No'], dataSource: 'manual', defaultValue: 'No' },
         {
-          id: 'respiratory_rate',
-          label: 'RR (breaths/min)',
-          type: 'number',
-          dataSource: 'manual',
-          required: true
+            id: 'oxygen_flow_rate',
+            label: 'Flow Rate (L/min)',
+            type: 'number',
+            dataSource: 'manual',
+            displayCondition: { fieldId: 'oxygen_therapy', value: 'Yes' }
         },
-        {
-          id: 'spo2',
-          label: 'SpO2 (%)',
-          type: 'number',
-          dataSource: 'manual',
-          required: true
-        },
-        {
-          id: 'oxygen_therapy',
-          label: 'Oxygen Therapy',
-          type: 'select',
-          options: ['None', 'Nasal Cannula', 'Face Mask', 'Non-rebreather', 'Ventilator'],
-          dataSource: 'manual',
-          conditionalFields: [
-            {
-              id: 'oxygen_flow_rate',
-              label: 'Flow Rate (L/min)',
-              type: 'number',
-              dataSource: 'manual',
-              showCondition: (value) => value && value !== 'None'
-            }
-          ]
-        }
       ]
     },
     {
       id: 'body-measurements',
       title: 'Body & Other Measurements',
       fields: [
-        {
-          id: 'body_measurements',
-          label: 'Body Measurements',
-          type: 'inline-group',
-          dataSource: 'manual',
-          inlineFields: [
-            {
-              id: 'weight',
-              label: 'Weight (kg)',
-              type: 'number',
-              dataSource: 'manual'
-            },
-            {
-              id: 'height',
-              label: 'Height (cm)',
-              type: 'number',
-              dataSource: 'manual'
-            }
-          ]
-        },
+        { id: 'weight', label: 'Weight (kg)', type: 'number', dataSource: 'manual' },
+        { id: 'height', label: 'Height (cm)', type: 'number', dataSource: 'manual' },
         {
           id: 'bmi',
           label: 'BMI',
           type: 'calculated',
-          dataSource: 'manual',
+          subLabel: 'kg/m²',
           calculation: (values) => {
-            const weight = parseFloat(values.weight) || 0;
-            const height = parseFloat(values.height) || 0;
+            const weight = Number(values.weight) || 0;
+            const height = Number(values.height) || 0;
             if (weight > 0 && height > 0) {
               const heightInMeters = height / 100;
               return (weight / (heightInMeters * heightInMeters)).toFixed(1);
             }
-            return '';
+            return 0;
           }
         },
-        {
-          id: 'gender_specific',
-          label: 'Gender-Specific Information',
-          type: 'select',
-          options: ['Not Applicable', 'Last Menstrual Period', 'Pregnancy Test'],
-          dataSource: 'manual',
-          conditionalFields: [
-            {
-              id: 'lmp_date',
-              label: 'Last Menstrual Period Date',
-              type: 'date',
-              dataSource: 'manual',
-              showCondition: (value) => value === 'Last Menstrual Period'
-            },
-            {
-              id: 'pregnancy_test',
-              label: 'Pregnancy Test Result',
-              type: 'select',
-              options: ['Positive', 'Negative', 'Not Done'],
-              dataSource: 'manual',
-              showCondition: (value) => value === 'Pregnancy Test'
-            }
-          ]
-        }
+        { id: 'blood_glucose', label: 'Blood Glucose', type: 'number', subLabel: 'mmol/L', dataSource: 'manual' },
       ]
     },
-    {
-      id: 'mews',
-      title: 'Modified Early Warning Score (MEWS)',
-      fields: [
-        {
-          id: 'mews_score',
-          label: 'Total MEWS Score',
-          type: 'calculated',
-          dataSource: 'manual',
-          calculation: () => 0 // Placeholder for MEWS calculation
-        }
-      ]
-    }
   ];
 
   return (
@@ -247,7 +151,7 @@ export function PhysicalTab({ onFieldChange, fieldValues }: PhysicalTabProps) {
         title="Physical Assessment"
         description="Comprehensive physical examination and vital signs"
         cards={cards}
-        layout="two-column"
+        layout="double" // Use a two-column layout
         onFieldChange={onFieldChange}
         fieldValues={fieldValues}
       />
