@@ -10,6 +10,8 @@ import { CommunicationRespirationMobilityTab } from "@/components/tabs/Communica
 import { EliminationTab } from "@/components/tabs/EliminationTab";
 import { NutritionSelfCareTab } from "@/components/tabs/NutritionSelfCareTab";
 import { SkinPainTab } from "@/components/tabs/SkinPainTab";
+import { EmotionRemarkTab } from "@/components/tabs/EmotionRemarkTab";
+import { PhotoTab } from "@/components/tabs/PhotoTab";
 
 interface TabAssessmentSystemProps {
   onFieldChange: (fieldId: string, value: any) => void;
@@ -27,9 +29,7 @@ interface TabSection {
 
 export function TabAssessmentSystem({ onFieldChange, fieldValues }: TabAssessmentSystemProps) {
   const [currentSection, setCurrentSection] = useState('general');
-  const [localFieldValues, setLocalFieldValues] = useState<Record<string, any>>({
-    patient_gender: 'Female' // Default for testing conditional fields
-  });
+  const [localFieldValues, setLocalFieldValues] = useState<Record<string, any>>({});
   
   const handleLocalFieldChange = useCallback((fieldId: string, value: any) => {
     setLocalFieldValues(prev => ({ ...prev, [fieldId]: value }));
@@ -47,7 +47,9 @@ export function TabAssessmentSystem({ onFieldChange, fieldValues }: TabAssessmen
     { id: 'communication', title: 'Communication/Respiration/Mobility', completed: false, fieldsCount: 18, completedFields: 0 },
     { id: 'elimination', title: 'Elimination', completed: false, fieldsCount: 10, completedFields: 0 },
     { id: 'nutrition', title: 'Nutrition/Self-Care', completed: false, fieldsCount: 14, completedFields: 0 },
-    { id: 'skin-pain', title: 'Skin/Pain', completed: false, fieldsCount: 12, completedFields: 0 }
+    { id: 'skin-pain', title: 'Skin/Pain', completed: false, fieldsCount: 12, completedFields: 0 },
+    { id: 'emotion-remark', title: 'Emotion/Remark', completed: false, fieldsCount: 2, completedFields: 0 },
+    { id: 'photo', title: 'Photo', completed: false, fieldsCount: 1, completedFields: 0 }
   ];
 
   // Update completion status based on field values
@@ -73,6 +75,10 @@ export function TabAssessmentSystem({ onFieldChange, fieldValues }: TabAssessmen
         return <NutritionSelfCareTab onFieldChange={handleLocalFieldChange} fieldValues={mergedFieldValues} />;
       case 'skin-pain':
         return <SkinPainTab onFieldChange={handleLocalFieldChange} fieldValues={mergedFieldValues} />;
+      case 'emotion-remark':
+        return <EmotionRemarkTab onFieldChange={handleLocalFieldChange} fieldValues={mergedFieldValues} />;
+      case 'photo':
+        return <PhotoTab onFieldChange={handleLocalFieldChange} fieldValues={mergedFieldValues} />;
 
       // The default case now correctly handles any unexpected issues.
       default:
