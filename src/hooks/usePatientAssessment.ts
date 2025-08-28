@@ -1919,8 +1919,8 @@ export function usePatientAssessment(patientId?: string) {
       if (error) throw error;
 
       toast({
-        title: "Assessment Submitted",
-        description: "Assessment successfully submitted to EMR system. Redirecting to patient list...",
+        title: "Assessment Submitted", 
+        description: "Assessment successfully submitted to History system. Redirecting to patient list...",
       });
 
       // Redirect to patient list after successful submission

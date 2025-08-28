@@ -219,7 +219,7 @@ const Index = () => {
                   onClick={() => submitAssessment(navigate)}
                   className="flex items-center min-h-[48px] px-6"
                 >
-                  Submit to EMR
+                  Submit to History
                 </Button>
               </div>
             </div>

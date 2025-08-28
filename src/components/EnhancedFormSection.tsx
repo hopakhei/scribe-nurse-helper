@@ -124,9 +124,9 @@ export function EnhancedFormSection({
 
   const getDataSourceBadge = (dataSource: DataSource) => {
     const labels = {
-      'pre-populated': 'EMR Data',
+      'pre-populated': 'History',
       'ai-filled': 'AI Filled',
-      'manual': 'Manual Entry'
+      'manual': ''
     };
     const variants = {
       'pre-populated': 'secondary',
