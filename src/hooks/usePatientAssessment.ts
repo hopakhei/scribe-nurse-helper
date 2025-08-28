@@ -52,7 +52,7 @@ export function usePatientAssessment(patientId?: string) {
     hospitalNo: "12345678",
     idNo: "A123456(7)",
     age: 82,
-    sex: "M",
+    sex: "F",
     dept: "Medicine",
     team: "Team A",
     ward: "Medical Ward 3A",

@@ -28,6 +28,7 @@ const Index = () => {
   const [loadingPatient, setLoadingPatient] = useState(true);
 
   const {
+    patient: patientFromHook,
     sections,
     currentSection,
     setCurrentSection,
@@ -203,7 +204,9 @@ const Index = () => {
               {/* Enhanced Tab Assessment System */}
               <TabAssessmentSystem
                 onFieldChange={handleFieldChange}
-                fieldValues={{}} // This would be populated from usePatientAssessment
+                fieldValues={{
+                  patient_gender: patientFromHook?.sex === 'F' ? 'Female' : 'Male'
+                }}
               />
 
               {/* Action Buttons */}
