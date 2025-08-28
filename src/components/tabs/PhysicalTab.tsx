@@ -104,40 +104,55 @@ export function PhysicalTab({ onFieldChange, fieldValues }: PhysicalTabProps) {
           type: 'calculated', 
           dataSource: 'manual',
           calculation: (values) => {
+            // Only calculate if we have the essential vital signs
+            const systolic = Number(values.bp_systolic) || 0;
+            const pulse = Number(values.pulse) || 0;
+            const rr = Number(values.respiratory_rate) || 0;
+            const temp = Number(values.temperature) || 0;
+            
+            // Return empty if no vital signs are entered
+            if (!systolic && !pulse && !rr && !temp) {
+              return '';
+            }
+            
             let score = 0;
             
-            // Systolic Blood Pressure scoring
-            const systolic = Number(values.bp_systolic) || 0;
-            if (systolic <= 70) score += 3;
-            else if (systolic >= 71 && systolic <= 80) score += 2;
-            else if (systolic >= 81 && systolic <= 100) score += 1;
-            else if (systolic >= 101 && systolic <= 199) score += 0;
-            else if (systolic >= 200) score += 2;
+            // Systolic Blood Pressure scoring (only if value exists)
+            if (systolic > 0) {
+              if (systolic <= 70) score += 3;
+              else if (systolic >= 71 && systolic <= 80) score += 2;
+              else if (systolic >= 81 && systolic <= 100) score += 1;
+              else if (systolic >= 101 && systolic <= 199) score += 0;
+              else if (systolic >= 200) score += 2;
+            }
             
-            // Heart/Pulse Rate scoring
-            const pulse = Number(values.pulse) || 0;
-            if (pulse <= 40) score += 3;
-            else if (pulse >= 41 && pulse <= 50) score += 2;
-            else if (pulse >= 51 && pulse <= 100) score += 1;
-            else if (pulse >= 101 && pulse <= 110) score += 0;
-            else if (pulse >= 111 && pulse <= 129) score += 1;
-            else if (pulse >= 130) score += 2;
+            // Heart/Pulse Rate scoring (only if value exists)
+            if (pulse > 0) {
+              if (pulse <= 40) score += 3;
+              else if (pulse >= 41 && pulse <= 50) score += 2;
+              else if (pulse >= 51 && pulse <= 100) score += 1;
+              else if (pulse >= 101 && pulse <= 110) score += 0;
+              else if (pulse >= 111 && pulse <= 129) score += 1;
+              else if (pulse >= 130) score += 2;
+            }
             
-            // Respiratory Rate scoring
-            const rr = Number(values.respiratory_rate) || 0;
-            if (rr <= 8) score += 3;
-            else if (rr >= 9 && rr <= 14) score += 1;
-            else if (rr >= 15 && rr <= 20) score += 0;
-            else if (rr >= 21 && rr <= 29) score += 1;
-            else if (rr >= 30) score += 2;
+            // Respiratory Rate scoring (only if value exists)
+            if (rr > 0) {
+              if (rr <= 8) score += 3;
+              else if (rr >= 9 && rr <= 14) score += 1;
+              else if (rr >= 15 && rr <= 20) score += 0;
+              else if (rr >= 21 && rr <= 29) score += 1;
+              else if (rr >= 30) score += 2;
+            }
             
-            // Temperature scoring
-            const temp = Number(values.temperature) || 0;
-            if (temp <= 35) score += 3;
-            else if (temp >= 35.1 && temp <= 36) score += 2;
-            else if (temp >= 36.1 && temp <= 38) score += 1;
-            else if (temp >= 38.1 && temp <= 38.5) score += 0;
-            else if (temp >= 38.6) score += 1;
+            // Temperature scoring (only if value exists)
+            if (temp > 0) {
+              if (temp <= 35) score += 3;
+              else if (temp >= 35.1 && temp <= 36) score += 2;
+              else if (temp >= 36.1 && temp <= 38) score += 1;
+              else if (temp >= 38.1 && temp <= 38.5) score += 0;
+              else if (temp >= 38.6) score += 1;
+            }
             
             // Level of Consciousness scoring
             const consciousness = values.level_of_consciousness;
@@ -146,12 +161,14 @@ export function PhysicalTab({ onFieldChange, fieldValues }: PhysicalTabProps) {
             else if (consciousness === 'Response to Pain') score += 2;
             else if (consciousness === 'Unresponsive') score += 3;
             
-            // GCS scoring
-            const gcsTotal = Number(values.gcs_total) || 15;
-            if (gcsTotal === 15) score += 0;
-            else if (gcsTotal === 14) score += 1;
-            else if (gcsTotal >= 9 && gcsTotal <= 13) score += 2;
-            else if (gcsTotal <= 8) score += 3;
+            // GCS scoring (only if GCS values are entered)
+            const gcsTotal = Number(values.gcs_total);
+            if (gcsTotal > 0) {
+              if (gcsTotal === 15) score += 0;
+              else if (gcsTotal === 14) score += 1;
+              else if (gcsTotal >= 9 && gcsTotal <= 13) score += 2;
+              else if (gcsTotal <= 8) score += 3;
+            }
             
             return score;
           }
