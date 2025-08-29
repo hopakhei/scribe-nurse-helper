@@ -1,10 +1,11 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { FileText, Clock, ChevronDown, ChevronUp, Bot } from 'lucide-react';
+import { FileText, Clock, ChevronDown, ChevronUp, Bot, RefreshCw } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
 
@@ -19,6 +20,14 @@ interface ScribeEntry {
   expires_at: string;
 }
 
+interface FormFieldValue {
+  field_id: string;
+  field_label: string;
+  value: string;
+  data_source: string;
+  ai_source_text?: string;
+}
+
 interface ScribeDataDisplayProps {
   assessmentId: string;
   currentFieldValues: Record<string, any>;
@@ -30,8 +39,10 @@ const ScribeDataDisplay: React.FC<ScribeDataDisplayProps> = ({
 }) => {
   const { toast } = useToast();
   const [scribeHistory, setScribeHistory] = useState<ScribeEntry[]>([]);
+  const [aiFilledFields, setAiFilledFields] = useState<FormFieldValue[]>([]);
   const [isExpanded, setIsExpanded] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   const loadScribeHistory = async () => {
     try {
@@ -49,19 +60,90 @@ const ScribeDataDisplay: React.FC<ScribeDataDisplayProps> = ({
       setScribeHistory(data || []);
     } catch (error) {
       console.error('Error loading scribe history:', error);
-    } finally {
-      setLoading(false);
     }
+  };
+
+  const loadAiFilledFields = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('form_field_values')
+        .select('*')
+        .eq('assessment_id', assessmentId)
+        .eq('data_source', 'ai-filled');
+
+      if (error) {
+        console.error('Error loading AI filled fields:', error);
+        return;
+      }
+
+      setAiFilledFields(data || []);
+    } catch (error) {
+      console.error('Error loading AI filled fields:', error);
+    }
+  };
+
+  const refreshData = async () => {
+    setRefreshing(true);
+    await Promise.all([loadScribeHistory(), loadAiFilledFields()]);
+    setRefreshing(false);
   };
 
   useEffect(() => {
     if (assessmentId) {
-      loadScribeHistory();
+      const loadData = async () => {
+        setLoading(true);
+        await Promise.all([loadScribeHistory(), loadAiFilledFields()]);
+        setLoading(false);
+      };
+      loadData();
     }
+  }, [assessmentId]);
+
+  // Set up real-time subscription for updates
+  useEffect(() => {
+    if (!assessmentId) return;
+
+    const channel = supabase
+      .channel('scribe-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'audio_transcripts',
+          filter: `assessment_id=eq.${assessmentId}`
+        },
+        () => {
+          loadScribeHistory();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'form_field_values',
+          filter: `assessment_id=eq.${assessmentId}`
+        },
+        () => {
+          loadAiFilledFields();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [assessmentId]);
 
   const getFieldDisplayName = (fieldName: string) => {
     const fieldMap: Record<string, string> = {
+      'morse_history_falling': 'Fall History',
+      'morse_secondary_diagnosis': 'Secondary Diagnosis',
+      'morse_ambulatory_aid': 'Ambulatory Aid',
+      'morse_iv_heparin': 'IV/Heparin Lock',
+      'morse_gait': 'Gait/Transferring',
+      'morse_mental_status': 'Mental Status',
       'chief_complaint': 'Chief Complaint',
       'systolic_bp': 'Systolic BP',
       'diastolic_bp': 'Diastolic BP',
@@ -91,34 +173,6 @@ const ScribeDataDisplay: React.FC<ScribeDataDisplayProps> = ({
     });
   };
 
-  const getAIFilledFields = () => {
-    const filledFields: Array<{field: string, value: any, source: string}> = [];
-    
-    // Get fields that have been filled by AI
-    Object.entries(currentFieldValues).forEach(([field, value]) => {
-      if (value && field !== 'patient_gender') {
-        // Check if this field was filled by recent scribe sessions
-        const recentScribe = scribeHistory.find(entry => 
-          entry.extracted_fields?.some((extractedField: any) => 
-            extractedField.field_name === field
-          )
-        );
-        
-        if (recentScribe || field.includes('_')) {
-          filledFields.push({
-            field,
-            value,
-            source: recentScribe ? 'AI Scribe' : 'Manual Entry'
-          });
-        }
-      }
-    });
-    
-    return filledFields;
-  };
-
-  const aiFilledFields = getAIFilledFields();
-
   if (loading) {
     return (
       <Card className="w-full">
@@ -142,31 +196,44 @@ const ScribeDataDisplay: React.FC<ScribeDataDisplayProps> = ({
               <Bot className="h-5 w-5 text-primary" />
               AI-Filled Data
             </CardTitle>
-            <Badge variant="secondary" className="text-xs">
-              {aiFilledFields.length} fields filled
-            </Badge>
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary" className="text-xs">
+                {aiFilledFields.length} fields filled
+              </Badge>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={refreshData}
+                disabled={refreshing}
+                className="p-1"
+              >
+                <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
           {aiFilledFields.length > 0 ? (
             <ScrollArea className="h-48 w-full">
               <div className="space-y-3">
-                {aiFilledFields.map(({ field, value, source }, index) => (
+                {aiFilledFields.map((field, index) => (
                   <div key={index} className="space-y-1">
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium text-primary">
-                        {getFieldDisplayName(field)}
+                        {field.field_label || getFieldDisplayName(field.field_id)}
                       </span>
-                      <Badge 
-                        variant={source === 'AI Scribe' ? 'default' : 'outline'} 
-                        className="text-xs"
-                      >
-                        {source}
+                      <Badge variant="default" className="text-xs">
+                        AI Scribe
                       </Badge>
                     </div>
                     <p className="text-sm text-foreground bg-muted p-2 rounded">
-                      {typeof value === 'string' ? value : JSON.stringify(value)}
+                      {field.value}
                     </p>
+                    {field.ai_source_text && (
+                      <p className="text-xs text-muted-foreground italic">
+                        Source: "{field.ai_source_text}"
+                      </p>
+                    )}
                   </div>
                 ))}
               </div>
@@ -239,7 +306,7 @@ const ScribeDataDisplay: React.FC<ScribeDataDisplayProps> = ({
                           <span className="font-medium">Fields extracted:</span>{' '}
                           {entry.extracted_fields.map((field: any, i: number) => (
                             <span key={i}>
-                              {getFieldDisplayName(field.field_name)}
+                              {field.field_label || getFieldDisplayName(field.field_name)}
                               {i < entry.extracted_fields.length - 1 && ', '}
                             </span>
                           ))}

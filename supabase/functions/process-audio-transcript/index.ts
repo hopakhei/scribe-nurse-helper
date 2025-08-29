@@ -1,3 +1,4 @@
+
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
@@ -100,7 +101,7 @@ serve(async (req) => {
     
     console.log('Extracted fields:', extractedFields.length);
 
-    // Store extracted fields in the database
+    // Store extracted fields in the database and update transcript with extracted fields
     if (extractedFields.length > 0) {
       for (const field of extractedFields) {
         const { error: upsertError } = await supabase
@@ -119,16 +120,33 @@ serve(async (req) => {
           console.error('Error upserting field:', field.fieldId, upsertError);
         }
       }
-    }
 
-    // Mark transcript as processed
-    const { error: updateError } = await supabase
-      .from('audio_transcripts')
-      .update({ processed: true })
-      .eq('id', transcript.id);
+      // Update transcript with extracted fields
+      const { error: updateTranscriptError } = await supabase
+        .from('audio_transcripts')
+        .update({ 
+          processed: true,
+          extracted_fields: extractedFields.map(f => ({
+            field_name: f.fieldId,
+            field_label: f.fieldLabel,
+            value: f.value
+          }))
+        })
+        .eq('id', transcript.id);
 
-    if (updateError) {
-      console.error('Error updating transcript:', updateError);
+      if (updateTranscriptError) {
+        console.error('Error updating transcript with fields:', updateTranscriptError);
+      }
+    } else {
+      // Mark transcript as processed even if no fields extracted
+      const { error: updateError } = await supabase
+        .from('audio_transcripts')
+        .update({ processed: true })
+        .eq('id', transcript.id);
+
+      if (updateError) {
+        console.error('Error updating transcript:', updateError);
+      }
     }
 
     return new Response(
@@ -159,35 +177,32 @@ async function extractFieldsWithAI(transcriptText: string, apiKey: string): Prom
   try {
     const systemPrompt = `You are a medical AI assistant helping nurses extract patient information from conversation transcripts to fill out patient assessment forms.
 
-FORM SECTIONS AND FIELDS:
-1. general-physical: emergency-contact-1-name, emergency-contact-1-relationship, current-complaint, temperature, temperature-method, pulse, bp-systolic, bp-diastolic, respiratory-rate, spo2, coughing, sputum, sputum-colour
-2. social: marital-status, religion, education, employment-status, household-members, accommodation, smoking-status, drinking-status
-3. risk: cpe-screening, morse-history-falling, morse-secondary-diagnosis, morse-ambulatory-aid, morse-iv-therapy, morse-gait, morse-mental-status
-4. functional: vision-left, vision-right, hearing-left, hearing-right, communication, mobility, activities-daily-living
-5. elimination-nutrition: bowel-pattern, bladder-pattern, appetite, dietary-restrictions, swallowing-difficulty
-6. skin: skin-condition, pressure-areas, wound-presence
-7. pain-emotional: pain-score, pain-location, anxiety-level, mood-assessment
+EXACT FORM FIELD IDs (use these exactly):
+- morse_history_falling: "No (0)" or "Yes (25)"
+- morse_secondary_diagnosis: "No (0)" or "Yes (15)" 
+- morse_ambulatory_aid: "None/bed rest/nurse assist (0)" or "Crutches/cane/walker (15)" or "Furniture (30)"
+- morse_iv_heparin: "No (0)" or "Yes (20)"
+- morse_gait: "Normal/bed rest/immobile (0)" or "Weak (10)" or "Impaired (20)"
+- morse_mental_status: "Oriented to own ability (0)" or "Forgets limitations (15)"
 
-Extract relevant information and map it to specific form fields. Return JSON array of field mappings with:
-- fieldId: exact field ID from above list
-- sectionId: section name 
+SECTION MAPPING:
+- All morse_* fields belong to section "risk"
+
+CRITICAL RULES:
+1. Use EXACT field IDs from the list above
+2. Use EXACT option values in parentheses
+3. Only extract information explicitly mentioned or clearly implied
+4. For fall history: if patient mentions falling, use "Yes (25)"
+5. For gait: if mentions walking problems/instability, use "Impaired (20)"
+6. For mental status: if mentions forgetting limitations/confusion, use "Forgets limitations (15)"
+
+Return JSON array with:
+- fieldId: exact field ID from list
+- sectionId: "risk" 
 - fieldLabel: human readable label
-- value: extracted value (use exact option values for select fields)
+- value: exact option value with score
 - aiSourceText: relevant quote from transcript
-- confidenceScore: 0.0-1.0 confidence level
-
-SELECT FIELD VALUES (use exact text):
-- coughing: ["Yes", "No"]
-- sputum: ["Yes", "No"] 
-- sputum-colour: ["Clear", "White", "Yellow", "Green", "Cream colour", "Coffee/Rusty", "Blood-stained"]
-- morse-history-falling: ["No (0 points)", "Yes (25 points)"]
-- morse-secondary-diagnosis: ["No (0 points)", "Yes (15 points)"]
-- morse-ambulatory-aid: ["None/Bed rest/Nurse assist (0 points)", "Crutches/Cane/Walkers (15 points)", "Furniture (30 points)"]
-- morse-iv-therapy: ["No (0 points)", "Yes (20 points)"]
-- morse-gait: ["Normal/Bed rest/Wheelchair (0 points)", "Weak (10 points)", "Impaired (20 points)"]
-- morse-mental-status: ["Oriented to own ability (0 points)", "Overestimates/Forgets limitations (15 points)"]
-
-Only extract information that is explicitly mentioned or clearly implied. Use medical terminology when appropriate.`;
+- confidenceScore: 0.0-1.0`;
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
