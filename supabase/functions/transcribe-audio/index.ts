@@ -42,12 +42,6 @@ serve(async (req) => {
   }
 
   try {
-    const { audio } = await req.json();
-    
-    if (!audio) {
-      throw new Error('No audio data provided');
-    }
-
     const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
     if (!openAIApiKey) {
       throw new Error('OpenAI API key not configured');
@@ -55,15 +49,19 @@ serve(async (req) => {
 
     console.log('Processing audio transcription...');
 
-    // Process audio in chunks
-    const binaryAudio = processBase64Chunks(audio);
+    // Get FormData from request
+    const formData = await req.formData();
+    const audioFile = formData.get('audio') as File;
     
-    // Prepare form data
-    const formData = new FormData();
-    const blob = new Blob([binaryAudio], { type: 'audio/webm' });
-    formData.append('file', blob, 'audio.webm');
-    formData.append('model', 'whisper-1');
-    formData.append('language', 'en');
+    if (!audioFile) {
+      throw new Error('No audio file provided');
+    }
+
+    // Prepare form data for OpenAI
+    const openAIFormData = new FormData();
+    openAIFormData.append('file', audioFile, 'audio.webm');
+    openAIFormData.append('model', 'whisper-1');
+    openAIFormData.append('language', 'en');
 
     // Send to OpenAI Whisper API
     const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
@@ -71,7 +69,7 @@ serve(async (req) => {
       headers: {
         'Authorization': `Bearer ${openAIApiKey}`,
       },
-      body: formData,
+      body: openAIFormData,
     });
 
     if (!response.ok) {
@@ -84,7 +82,7 @@ serve(async (req) => {
     console.log('Transcription successful:', result.text?.substring(0, 100) + '...');
 
     return new Response(
-      JSON.stringify({ text: result.text }),
+      JSON.stringify({ transcript: result.text }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
       }

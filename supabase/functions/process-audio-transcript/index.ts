@@ -121,21 +121,14 @@ serve(async (req) => {
         }
       }
 
-      // Update transcript with extracted fields
+      // Update transcript as processed
       const { error: updateTranscriptError } = await supabase
         .from('audio_transcripts')
-        .update({ 
-          processed: true,
-          extracted_fields: extractedFields.map(f => ({
-            field_name: f.fieldId,
-            field_label: f.fieldLabel,
-            value: f.value
-          }))
-        })
+        .update({ processed: true })
         .eq('id', transcript.id);
 
       if (updateTranscriptError) {
-        console.error('Error updating transcript with fields:', updateTranscriptError);
+        console.error('Error updating transcript:', updateTranscriptError);
       }
     } else {
       // Mark transcript as processed even if no fields extracted
