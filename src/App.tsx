@@ -1,16 +1,20 @@
 
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import React from 'react';
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { navItems } from "./nav-items";
+import { Toaster } from "@/components/ui/toaster";
+
+const router = createBrowserRouter(
+  navItems.map(({ to, page }) => ({
+    path: to,
+    element: page,
+  }))
+);
 
 const App = () => (
   <div id="app-root">
-    <BrowserRouter>
-      <Routes>
-        {navItems.map(({ to, page }) => (
-          <Route key={to} path={to} element={page} />
-        ))}
-      </Routes>
-    </BrowserRouter>
+    <RouterProvider router={router} />
+    <Toaster />
   </div>
 );
 
