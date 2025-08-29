@@ -1949,6 +1949,38 @@ export function usePatientAssessment(patientId?: string) {
     isRecording,
     isProcessingAudio,
     lastTranscript,
+    fieldValues: formFields,
+    handleRecordingStart,
+    handleRecordingStop,
+    handleFieldChange,
+    getFormFields,
+    submitAssessment,
+    assessmentId
+  };
+
+  // Helper function to get flattened field values
+  const getFieldValues = (): Record<string, any> => {
+    const values: Record<string, any> = {};
+    Object.values(formFields).forEach(sectionFields => {
+      sectionFields.forEach(field => {
+        if (field.value !== undefined && field.value !== '') {
+          values[field.id] = field.value;
+        }
+      });
+    });
+    return values;
+  };
+
+  return {
+    patient,
+    sections,
+    currentSection,
+    setCurrentSection,
+    riskScores,
+    isRecording,
+    isProcessingAudio,
+    lastTranscript,
+    fieldValues: getFieldValues(),
     handleRecordingStart,
     handleRecordingStop,
     handleFieldChange,

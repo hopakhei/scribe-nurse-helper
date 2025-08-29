@@ -6,6 +6,8 @@ import { UserSelection } from "@/components/UserSelection";
 import { AndroidLayout } from "@/components/AndroidLayout";
 import { PatientHeader } from "@/components/PatientHeader";
 import { AudioRecordingControls } from "@/components/AudioRecordingControls";
+import { ImprovedAudioRecording } from "@/components/ImprovedAudioRecording";
+import ScribeDataDisplay from "@/components/ScribeDataDisplay";
 import { RiskScoreDisplay } from "@/components/RiskScoreDisplay";
 import { TabAssessmentSystem } from "@/components/TabAssessmentSystem";
 import { usePatientAssessment } from "@/hooks/usePatientAssessment";
@@ -36,6 +38,7 @@ const Index = () => {
     isRecording,
     isProcessingAudio,
     lastTranscript,
+    fieldValues,
     handleRecordingStart,
     handleRecordingStop,
     handleFieldChange,
@@ -188,42 +191,56 @@ const Index = () => {
         <PatientHeader patient={patient} />
 
           {/* Main Content */}
-          <div className="max-w-4xl mx-auto mt-8">
-            <div className="space-y-6">
-              {/* Audio Recording Controls */}
-              <AudioRecordingControls 
-                onRecordingStart={handleRecordingStart}
-                onRecordingStop={handleRecordingStop}
-                transcriptText={lastTranscript}
-                isProcessing={isProcessingAudio}
-              />
+          <div className="max-w-7xl mx-auto mt-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Left Column - Main Assessment */}
+              <div className="lg:col-span-2 space-y-6">
+                {/* Audio Recording Controls */}
+                <ImprovedAudioRecording 
+                  onRecordingStart={handleRecordingStart}
+                  onRecordingStop={handleRecordingStop}
+                  transcriptText={lastTranscript}
+                  isProcessing={isProcessingAudio}
+                />
 
-              {/* Risk Scores */}
-              <RiskScoreDisplay scores={riskScores} />
+                {/* Risk Scores */}
+                <RiskScoreDisplay scores={riskScores} />
 
-              {/* Enhanced Tab Assessment System */}
-              <TabAssessmentSystem
-                onFieldChange={handleFieldChange}
-                fieldValues={{
-                  patient_gender: patientFromHook?.sex === 'F' ? 'Female' : 'Male'
-                }}
-              />
+                {/* Enhanced Tab Assessment System */}
+                <TabAssessmentSystem
+                  onFieldChange={handleFieldChange}
+                  fieldValues={{
+                    patient_gender: patientFromHook?.sex === 'F' ? 'Female' : 'Male',
+                    ...fieldValues
+                  }}
+                />
 
-              {/* Action Buttons */}
-              <div className="flex justify-between gap-4">
-                <Button 
-                  variant="outline" 
-                  className="flex items-center min-h-[48px] px-6"
-                >
-                  Save Draft
-                </Button>
-                
-                <Button 
-                  onClick={() => submitAssessment(navigate)}
-                  className="flex items-center min-h-[48px] px-6"
-                >
-                  Submit to History
-                </Button>
+                {/* Action Buttons */}
+                <div className="flex justify-between gap-4">
+                  <Button 
+                    variant="outline" 
+                    className="flex items-center min-h-[48px] px-6"
+                  >
+                    Save Draft
+                  </Button>
+                  
+                  <Button 
+                    onClick={() => submitAssessment(navigate)}
+                    className="flex items-center min-h-[48px] px-6"
+                  >
+                    Submit to History
+                  </Button>
+                </div>
+              </div>
+
+              {/* Right Column - Scribe Data & History */}
+              <div className="lg:col-span-1">
+                <div className="sticky top-4">
+                  <ScribeDataDisplay
+                    assessmentId={assessmentId || ''}
+                    currentFieldValues={fieldValues}
+                  />
+                </div>
               </div>
             </div>
           </div>
