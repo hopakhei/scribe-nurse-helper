@@ -204,7 +204,29 @@ const Index = () => {
                 />
 
                 {/* Risk Scores */}
-                <RiskScoreDisplay scores={riskScores} />
+                <RiskScoreDisplay scores={[
+                  {
+                    name: 'Morse Fall Scale',
+                    score: riskScores.morseScore,
+                    maxScore: 125,
+                    level: riskScores.morseScore >= 45 ? 'high' : riskScores.morseScore >= 25 ? 'medium' : 'low',
+                    description: 'Fall risk assessment score'
+                  },
+                  {
+                    name: 'MST Score',
+                    score: riskScores.mstScore,
+                    maxScore: 5,
+                    level: riskScores.mstScore >= 2 ? 'high' : 'low',
+                    description: 'Malnutrition screening tool'
+                  },
+                  {
+                    name: 'MEWS Score', 
+                    score: riskScores.mewsScore,
+                    maxScore: 14,
+                    level: riskScores.mewsScore >= 5 ? 'high' : riskScores.mewsScore >= 3 ? 'medium' : 'low',
+                    description: 'Modified early warning score'
+                  }
+                ]} />
 
                 {/* Enhanced Tab Assessment System */}
                 <TabAssessmentSystem

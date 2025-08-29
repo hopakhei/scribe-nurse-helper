@@ -173,6 +173,8 @@ export const usePatientAssessment = (patientId?: string) => {
           .upsert({
             assessment_id: assessmentId,
             field_id: fieldId,
+            field_label: fieldId, // Use field_id as label fallback
+            section_id: 'general', // Default section
             value: value,
             data_source: 'manual'
           });
@@ -193,12 +195,30 @@ export const usePatientAssessment = (patientId?: string) => {
     console.log('Recording started');
   };
 
-  const handleRecordingStop = (transcript: string) => {
+  const handleRecordingStop = async (audioBlob?: Blob) => {
     setIsRecording(false);
-    setLastTranscript(transcript);
     
-    if (transcript && assessmentId) {
-      processTranscript(transcript);
+    if (audioBlob && assessmentId) {
+      try {
+        // Convert audio blob to transcript using Supabase edge function
+        const formData = new FormData();
+        formData.append('audio', audioBlob);
+        
+        const { data, error } = await supabase.functions.invoke('transcribe-audio', {
+          body: formData
+        });
+        
+        if (error) throw error;
+        
+        const transcript = data?.transcript || '';
+        setLastTranscript(transcript);
+        
+        if (transcript) {
+          processTranscript(transcript);
+        }
+      } catch (error: any) {
+        console.error('Error transcribing audio:', error);
+      }
     }
   };
 
