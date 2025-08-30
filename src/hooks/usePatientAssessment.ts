@@ -67,9 +67,19 @@ export const usePatientAssessment = (patientId?: string) => {
         )
         .subscribe();
 
+      // Load initial field values after setting up subscription
+      loadFieldValues();
+
       return () => {
         supabase.removeChannel(channel);
       };
+    }
+  }, [assessmentId]);
+
+  // Also load field values when component mounts and assessment is available
+  useEffect(() => {
+    if (assessmentId && Object.keys(fieldValues).length === 0) {
+      setTimeout(() => loadFieldValues(), 1000); // Small delay to ensure data is ready
     }
   }, [assessmentId]);
 
@@ -133,9 +143,13 @@ export const usePatientAssessment = (patientId?: string) => {
   };
 
   const loadFieldValues = async () => {
-    if (!assessmentId) return;
+    if (!assessmentId) {
+      console.log('No assessment ID available for loading field values');
+      return;
+    }
 
     try {
+      console.log('Loading field values for assessment:', assessmentId);
       const { data, error } = await supabase
         .from('form_field_values')
         .select('*')
