@@ -113,7 +113,8 @@ const ScribeDataDisplay: React.FC<ScribeDataDisplayProps> = ({
           table: 'audio_transcripts',
           filter: `assessment_id=eq.${assessmentId}`
         },
-        () => {
+        (payload) => {
+          console.log('Audio transcript updated:', payload);
           loadScribeHistory();
         }
       )
@@ -125,7 +126,8 @@ const ScribeDataDisplay: React.FC<ScribeDataDisplayProps> = ({
           table: 'form_field_values',
           filter: `assessment_id=eq.${assessmentId}`
         },
-        () => {
+        (payload) => {
+          console.log('Form field value updated:', payload);
           loadAiFilledFields();
         }
       )

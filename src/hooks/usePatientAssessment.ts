@@ -47,8 +47,6 @@ export const usePatientAssessment = (patientId?: string) => {
   // Load existing field values when assessment is ready
   useEffect(() => {
     if (assessmentId) {
-      loadFieldValues();
-      
       // Set up real-time subscription for field value updates
       const channel = supabase
         .channel('field-value-updates')
@@ -76,12 +74,6 @@ export const usePatientAssessment = (patientId?: string) => {
     }
   }, [assessmentId]);
 
-  // Also load field values when component mounts and assessment is available
-  useEffect(() => {
-    if (assessmentId && Object.keys(fieldValues).length === 0) {
-      setTimeout(() => loadFieldValues(), 1000); // Small delay to ensure data is ready
-    }
-  }, [assessmentId]);
 
   const loadPatient = async () => {
     if (!patientId) return;
@@ -252,9 +244,12 @@ export const usePatientAssessment = (patientId?: string) => {
       if (error) throw error;
 
       console.log('Transcript processed:', data);
-      toast.success('Audio processed successfully');
+      toast.success(`Audio processed successfully - ${data?.fieldsExtracted || 0} fields extracted`);
       
-      // Field values will be updated automatically via real-time subscription
+      // Force reload field values after processing to ensure immediate update
+      setTimeout(() => {
+        loadFieldValues();
+      }, 500);
       
     } catch (error: any) {
       console.error('Error processing transcript:', error);
