@@ -250,12 +250,12 @@ export function RiskTab({ onFieldChange, fieldValues }: RiskTabProps) {
         <TabsTrigger value="braden">Braden Scale</TabsTrigger>
       </TabsList>
       
-      <InnerTabsContent value="norton" className="space-y-4">
-        <div className="space-y-3">
+      <InnerTabsContent value="norton" className="space-y-3">
+        <div className="space-y-2">
           <div>
-            <label className="text-sm font-medium">Physical Condition</label>
+            <label className="text-xs font-medium">Physical Condition</label>
             <select 
-              className="w-full mt-1 p-2 border rounded"
+              className="w-full mt-1 p-1.5 border rounded text-sm"
               value={fieldValues.norton_physical || ''}
               onChange={(e) => onFieldChange('norton_physical', e.target.value)}
             >
@@ -267,9 +267,9 @@ export function RiskTab({ onFieldChange, fieldValues }: RiskTabProps) {
             </select>
           </div>
           <div>
-            <label className="text-sm font-medium">Mental Condition</label>
+            <label className="text-xs font-medium">Mental Condition</label>
             <select 
-              className="w-full mt-1 p-2 border rounded"
+              className="w-full mt-1 p-1.5 border rounded text-sm"
               value={fieldValues.norton_mental || ''}
               onChange={(e) => onFieldChange('norton_mental', e.target.value)}
             >
@@ -281,9 +281,9 @@ export function RiskTab({ onFieldChange, fieldValues }: RiskTabProps) {
             </select>
           </div>
           <div>
-            <label className="text-sm font-medium">Activity</label>
+            <label className="text-xs font-medium">Activity</label>
             <select 
-              className="w-full mt-1 p-2 border rounded"
+              className="w-full mt-1 p-1.5 border rounded text-sm"
               value={fieldValues.norton_activity || ''}
               onChange={(e) => onFieldChange('norton_activity', e.target.value)}
             >
@@ -295,9 +295,9 @@ export function RiskTab({ onFieldChange, fieldValues }: RiskTabProps) {
             </select>
           </div>
           <div>
-            <label className="text-sm font-medium">Mobility</label>
+            <label className="text-xs font-medium">Mobility</label>
             <select 
-              className="w-full mt-1 p-2 border rounded"
+              className="w-full mt-1 p-1.5 border rounded text-sm"
               value={fieldValues.norton_mobility || ''}
               onChange={(e) => onFieldChange('norton_mobility', e.target.value)}
             >
@@ -309,9 +309,9 @@ export function RiskTab({ onFieldChange, fieldValues }: RiskTabProps) {
             </select>
           </div>
           <div>
-            <label className="text-sm font-medium">Incontinent</label>
+            <label className="text-xs font-medium">Incontinent</label>
             <select 
-              className="w-full mt-1 p-2 border rounded"
+              className="w-full mt-1 p-1.5 border rounded text-sm"
               value={fieldValues.norton_incontinent || ''}
               onChange={(e) => onFieldChange('norton_incontinent', e.target.value)}
             >
@@ -323,8 +323,8 @@ export function RiskTab({ onFieldChange, fieldValues }: RiskTabProps) {
             </select>
           </div>
           <div className="pt-2 border-t">
-            <span className="text-sm font-medium">Total Score: </span>
-            <Badge variant="secondary">
+            <span className="text-xs font-medium">Total Score: </span>
+            <Badge variant="secondary" className="text-xs">
               {(parseInt(fieldValues.norton_physical || '0') + 
                 parseInt(fieldValues.norton_mental || '0') + 
                 parseInt(fieldValues.norton_activity || '0') + 
@@ -335,12 +335,12 @@ export function RiskTab({ onFieldChange, fieldValues }: RiskTabProps) {
         </div>
       </InnerTabsContent>
       
-      <InnerTabsContent value="braden" className="space-y-4">
-        <div className="space-y-3">
+      <InnerTabsContent value="braden" className="space-y-3">
+        <div className="space-y-2">
           <div>
-            <label className="text-sm font-medium">Sensory Perception</label>
+            <label className="text-xs font-medium">Sensory Perception</label>
             <select 
-              className="w-full mt-1 p-2 border rounded"
+              className="w-full mt-1 p-1.5 border rounded text-sm"
               value={fieldValues.braden_sensory || ''}
               onChange={(e) => onFieldChange('braden_sensory', e.target.value)}
             >
@@ -352,9 +352,9 @@ export function RiskTab({ onFieldChange, fieldValues }: RiskTabProps) {
             </select>
           </div>
           <div>
-            <label className="text-sm font-medium">Moisture</label>
+            <label className="text-xs font-medium">Moisture</label>
             <select 
-              className="w-full mt-1 p-2 border rounded"
+              className="w-full mt-1 p-1.5 border rounded text-sm"
               value={fieldValues.braden_moisture || ''}
               onChange={(e) => onFieldChange('braden_moisture', e.target.value)}
             >
@@ -366,9 +366,9 @@ export function RiskTab({ onFieldChange, fieldValues }: RiskTabProps) {
             </select>
           </div>
           <div>
-            <label className="text-sm font-medium">Activity</label>
+            <label className="text-xs font-medium">Activity</label>
             <select 
-              className="w-full mt-1 p-2 border rounded"
+              className="w-full mt-1 p-1.5 border rounded text-sm"
               value={fieldValues.braden_activity || ''}
               onChange={(e) => onFieldChange('braden_activity', e.target.value)}
             >
@@ -380,9 +380,9 @@ export function RiskTab({ onFieldChange, fieldValues }: RiskTabProps) {
             </select>
           </div>
           <div>
-            <label className="text-sm font-medium">Mobility</label>
+            <label className="text-xs font-medium">Mobility</label>
             <select 
-              className="w-full mt-1 p-2 border rounded"
+              className="w-full mt-1 p-1.5 border rounded text-sm"
               value={fieldValues.braden_mobility || ''}
               onChange={(e) => onFieldChange('braden_mobility', e.target.value)}
             >
@@ -394,9 +394,9 @@ export function RiskTab({ onFieldChange, fieldValues }: RiskTabProps) {
             </select>
           </div>
           <div>
-            <label className="text-sm font-medium">Nutrition</label>
+            <label className="text-xs font-medium">Nutrition</label>
             <select 
-              className="w-full mt-1 p-2 border rounded"
+              className="w-full mt-1 p-1.5 border rounded text-sm"
               value={fieldValues.braden_nutrition || ''}
               onChange={(e) => onFieldChange('braden_nutrition', e.target.value)}
             >
@@ -408,9 +408,9 @@ export function RiskTab({ onFieldChange, fieldValues }: RiskTabProps) {
             </select>
           </div>
           <div>
-            <label className="text-sm font-medium">Friction & Shear</label>
+            <label className="text-xs font-medium">Friction & Shear</label>
             <select 
-              className="w-full mt-1 p-2 border rounded"
+              className="w-full mt-1 p-1.5 border rounded text-sm"
               value={fieldValues.braden_friction || ''}
               onChange={(e) => onFieldChange('braden_friction', e.target.value)}
             >
@@ -421,8 +421,8 @@ export function RiskTab({ onFieldChange, fieldValues }: RiskTabProps) {
             </select>
           </div>
           <div className="pt-2 border-t">
-            <span className="text-sm font-medium">Total Score: </span>
-            <Badge variant="secondary">
+            <span className="text-xs font-medium">Total Score: </span>
+            <Badge variant="secondary" className="text-xs">
               {(parseInt(fieldValues.braden_sensory || '0') + 
                 parseInt(fieldValues.braden_moisture || '0') + 
                 parseInt(fieldValues.braden_activity || '0') + 
@@ -447,10 +447,10 @@ export function RiskTab({ onFieldChange, fieldValues }: RiskTabProps) {
         fieldValues={fieldValues}
       />
       
-      {/* Custom Pressure Injury Risk Section */}
+      {/* Custom Pressure Injury Risk Section - Integrated */}
       <div className="mt-6">
-        <div className="bg-card rounded-lg border p-6">
-          <h3 className="text-lg font-semibold mb-4">Pressure Injury Risk Assessment</h3>
+        <div className="bg-card rounded-lg border p-4 max-w-md">
+          <h3 className="text-base font-semibold mb-3">Pressure Injury Risk Assessment</h3>
           <PressureInjuryRiskTabs />
         </div>
       </div>
