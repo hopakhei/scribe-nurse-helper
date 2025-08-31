@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calculator } from "lucide-react";
 import type { FormCard } from "@/components/EnhancedFormSection";
+import { useState } from "react";
 
 interface RiskTabProps {
   onFieldChange: (fieldId: string, value: any) => void;
@@ -12,6 +13,7 @@ interface RiskTabProps {
 }
 
 export function RiskTab({ onFieldChange, fieldValues }: RiskTabProps) {
+  const [pressureInjuryTab, setPressureInjuryTab] = useState("norton");
   const calculateMorseScore = () => {
     const scores = {
       history_falling: fieldValues.morse_history_falling === 'Yes' ? 25 : 0,
@@ -226,19 +228,6 @@ export function RiskTab({ onFieldChange, fieldValues }: RiskTabProps) {
       ]
     },
     {
-      id: 'pressure-injury-risk',
-      title: 'Pressure Injury Risk',
-      fields: [
-        {
-          id: 'pressure_injury_tabs',
-          label: 'Risk Assessment Scale',
-          type: 'inline-group',
-          dataSource: 'manual',
-          inlineFields: [] // This will be handled with custom rendering
-        }
-      ]
-    },
-    {
       id: 'missing-risk',
       title: 'Missing Risk',
       fields: [
@@ -255,7 +244,7 @@ export function RiskTab({ onFieldChange, fieldValues }: RiskTabProps) {
 
   // Custom pressure injury risk component
   const PressureInjuryRiskTabs = () => (
-    <Tabs defaultValue="norton" className="w-full">
+    <Tabs value={pressureInjuryTab} onValueChange={setPressureInjuryTab} className="w-full">
       <TabsList className="grid w-full grid-cols-2">
         <TabsTrigger value="norton">Norton Scale</TabsTrigger>
         <TabsTrigger value="braden">Braden Scale</TabsTrigger>
@@ -453,7 +442,7 @@ export function RiskTab({ onFieldChange, fieldValues }: RiskTabProps) {
         title="Risk Assessment"
         description="Comprehensive risk evaluation including infection, suicide, fall, and pressure injury risks"
         cards={cards}
-        layout="two-column"
+        layout="double"
         onFieldChange={onFieldChange}
         fieldValues={fieldValues}
       />
