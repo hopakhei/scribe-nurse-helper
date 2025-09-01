@@ -26,7 +26,9 @@ export const usePatientAssessment = (patientId?: string) => {
     mstScore: 0,
     mewsScore: 0
   });
-  const [currentTranscript, setCurrentTranscript] = useState('');
+  const [isRecording, setIsRecording] = useState(false);
+  const [isProcessingAudio, setIsProcessingAudio] = useState(false);
+  const [lastTranscript, setLastTranscript] = useState('');
 
   // Load patient data
   useEffect(() => {
@@ -194,17 +196,42 @@ export const usePatientAssessment = (patientId?: string) => {
     return () => clearTimeout(timeoutId);
   }, [assessmentId]);
 
-  const onTranscriptUpdate = useCallback((transcript: string) => {
-    setCurrentTranscript(transcript);
+  const handleRecordingStart = () => {
+    setIsRecording(true);
+    console.log('Recording started');
+  };
+
+  const handleRecordingStop = async (audioBlob?: Blob) => {
+    setIsRecording(false);
     
-    // Process the transcript when it's finalized (you could add a debounce here if needed)
-    if (transcript.trim() && assessmentId) {
-      processTranscript(transcript);
+    if (audioBlob && assessmentId) {
+      try {
+        // Convert audio blob to transcript using Supabase edge function
+        const formData = new FormData();
+        formData.append('audio', audioBlob);
+        
+        const { data, error } = await supabase.functions.invoke('transcribe-audio', {
+          body: formData
+        });
+        
+        if (error) throw error;
+        
+        const transcript = data?.transcript || '';
+        setLastTranscript(transcript);
+        
+        if (transcript) {
+          processTranscript(transcript);
+        }
+      } catch (error: any) {
+        console.error('Error transcribing audio:', error);
+      }
     }
-  }, [assessmentId]);
+  };
 
   const processTranscript = async (transcriptText: string) => {
     if (!assessmentId) return;
+
+    setIsProcessingAudio(true);
     
     try {
       const { data, error } = await supabase.functions.invoke('process-audio-transcript', {
@@ -227,6 +254,8 @@ export const usePatientAssessment = (patientId?: string) => {
     } catch (error: any) {
       console.error('Error processing transcript:', error);
       toast.error('Failed to process audio transcript');
+    } finally {
+      setIsProcessingAudio(false);
     }
   };
 
@@ -277,8 +306,11 @@ export const usePatientAssessment = (patientId?: string) => {
     assessmentId,
     fieldValues,
     riskScores,
-    currentTranscript,
-    onTranscriptUpdate,
+    isRecording,
+    isProcessingAudio,
+    lastTranscript,
+    handleRecordingStart,
+    handleRecordingStop,
     handleFieldChange,
     submitAssessment,
     sections: [], // Add if needed
