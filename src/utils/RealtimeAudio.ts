@@ -92,7 +92,7 @@ export class RealtimeTranscription {
     try {
       this.onStatusChange('Connecting to transcription service...');
       
-      // Always use the Supabase functions URL for WebSocket connections
+      // Use the correct WebSocket URL format for Supabase edge functions
       const wsUrl = `wss://liuimkjmebgliurclubd.functions.supabase.co/realtime-transcription`;
 
       console.log('Connecting to WebSocket:', wsUrl);

@@ -5,8 +5,7 @@ import { useLocalUserManager } from "@/hooks/useLocalUserManager";
 import { UserSelection } from "@/components/UserSelection";
 import { AndroidLayout } from "@/components/AndroidLayout";
 import { PatientHeader } from "@/components/PatientHeader";
-import { AudioRecordingControls } from "@/components/AudioRecordingControls";
-import { ImprovedAudioRecording } from "@/components/ImprovedAudioRecording";
+import RealtimeTranscriptionPanel from "@/components/RealtimeTranscriptionPanel";
 import ScribeDataDisplay from "@/components/ScribeDataDisplay";
 import { RiskScoreDisplay } from "@/components/RiskScoreDisplay";
 import { TabAssessmentSystem } from "@/components/TabAssessmentSystem";
@@ -35,12 +34,8 @@ const Index = () => {
     currentSection,
     setCurrentSection,
     riskScores,
-    isRecording,
-    isProcessingAudio,
-    lastTranscript,
     fieldValues,
-    handleRecordingStart,
-    handleRecordingStop,
+    onTranscriptUpdate,
     handleFieldChange,
     getFormFields,
     submitAssessment,
@@ -195,12 +190,9 @@ const Index = () => {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Left Column - Main Assessment */}
               <div className="lg:col-span-2 space-y-6">
-                {/* Audio Recording Controls */}
-                <ImprovedAudioRecording 
-                  onRecordingStart={handleRecordingStart}
-                  onRecordingStop={handleRecordingStop}
-                  transcriptText={lastTranscript}
-                  isProcessing={isProcessingAudio}
+                {/* Real-time Audio Transcription */}
+                <RealtimeTranscriptionPanel 
+                  onTranscriptUpdate={onTranscriptUpdate}
                 />
 
                 {/* Risk Scores */}
