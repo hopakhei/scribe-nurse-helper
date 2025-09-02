@@ -11,6 +11,7 @@ import ScribeDataDisplay from "@/components/ScribeDataDisplay";
 import { RiskScoreDisplay } from "@/components/RiskScoreDisplay";
 import { TabAssessmentSystem } from "@/components/TabAssessmentSystem";
 import { usePatientAssessment } from "@/hooks/usePatientAssessment";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -26,8 +27,15 @@ const Index = () => {
   const { quickSignIn } = useLocalUserManager();
   const [showUserSelection, setShowUserSelection] = useState(false);
   const [isSigningIn, setIsSigningIn] = useState(false);
-  const [patient, setPatient] = useState<any>(null);
-  const [loadingPatient, setLoadingPatient] = useState(true);
+  const [loadingError, setLoadingError] = useState<string | null>(null);
+
+  console.log('Index render:', { 
+    patientId, 
+    user: !!user, 
+    authLoading, 
+    showUserSelection,
+    userEmail: user?.email 
+  });
 
   const {
     patient: patientFromHook,
@@ -49,47 +57,23 @@ const Index = () => {
     assessmentId
   } = usePatientAssessment(patientId);
 
+  console.log('Hook data:', {
+    patient: !!patientFromHook,
+    assessmentId,
+    fieldValuesCount: Object.keys(fieldValues || {}).length,
+    riskScores
+  });
+
   useEffect(() => {
+    console.log('Auth effect:', { user: !!user, authLoading });
     if (!user && !authLoading) {
+      console.log('Setting showUserSelection to true');
       setShowUserSelection(true);
     } else if (user) {
+      console.log('User authenticated, hiding user selection');
       setShowUserSelection(false);
     }
   }, [user, authLoading]);
-
-  useEffect(() => {
-    if (patientId && user) {
-      loadPatient();
-    }
-  }, [patientId, user]);
-
-  const loadPatient = async () => {
-    if (!patientId) return;
-    
-    try {
-      const { data, error } = await supabase
-        .from('patients')
-        .select('*')
-        .eq('id', patientId)
-        .single();
-
-      if (error) throw error;
-      setPatient(data);
-      
-      // Update patient status to assessment_in_progress if it's bed_assigned
-      if (data.patient_status === 'bed_assigned') {
-        await supabase
-          .from('patients')
-          .update({ patient_status: 'assessment_in_progress' })
-          .eq('id', patientId);
-      }
-    } catch (error: any) {
-      toast.error('Failed to load patient: ' + error.message);
-      navigate('/');
-    } finally {
-      setLoadingPatient(false);
-    }
-  };
 
   const handleSignInComplete = () => {
     setShowUserSelection(false);
@@ -116,161 +100,207 @@ const Index = () => {
     }
   };
 
-  if (authLoading || loadingPatient) {
+  if (loadingError) {
+    return (
+      <AndroidLayout>
+        <ErrorBoundary>
+          <div className="flex items-center justify-center min-h-screen p-4">
+            <Card className="w-full max-w-md text-center">
+              <CardContent className="p-6">
+                <h2 className="text-lg font-semibold mb-2">Loading Error</h2>
+                <p className="text-muted-foreground mb-4">{loadingError}</p>
+                <Button onClick={() => window.location.reload()}>
+                  Retry
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </ErrorBoundary>
+      </AndroidLayout>
+    );
+  }
+
+  if (authLoading) {
+    console.log('Showing auth loading spinner');
     return (
       <AndroidLayout>
         <div className="flex items-center justify-center min-h-screen">
-          <Loader2 className="h-8 w-8 animate-spin" />
+          <div className="text-center space-y-4">
+            <Loader2 className="h-8 w-8 animate-spin mx-auto" />
+            <p className="text-sm text-muted-foreground">Loading authentication...</p>
+          </div>
         </div>
       </AndroidLayout>
     );
   }
 
   if (!patientId) {
+    console.log('No patientId, redirecting to home');
     navigate('/');
     return null;
   }
 
   if (showUserSelection) {
+    console.log('Showing user selection');
     return (
       <AndroidLayout>
-        <div className="flex items-center justify-center min-h-screen p-4">
-          <UserSelection 
-            onSignInComplete={handleSignInComplete}
-            onNewUserSignIn={handleNewUserSignIn}
-          />
+        <ErrorBoundary>
+          <div className="flex items-center justify-center min-h-screen p-4">
+            <UserSelection 
+              onSignInComplete={handleSignInComplete}
+              onNewUserSignIn={handleNewUserSignIn}
+            />
+          </div>
+        </ErrorBoundary>
+      </AndroidLayout>
+    );
+  }
+
+  if (!patientFromHook && !assessmentId) {
+    console.log('Patient or assessment still loading');
+    return (
+      <AndroidLayout>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center space-y-4">
+            <Loader2 className="h-8 w-8 animate-spin mx-auto" />
+            <p className="text-sm text-muted-foreground">Loading patient assessment...</p>
+          </div>
         </div>
       </AndroidLayout>
     );
   }
 
+  console.log('Rendering main assessment interface');
+  
   return (
     <AndroidLayout>
-      <div className="min-h-screen bg-background">
-        <div className="container mx-auto py-6 px-4 max-w-7xl">
-          {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => navigate('/')}
-              className="flex items-center gap-2"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Back to Patient List
+      <ErrorBoundary>
+        <div className="min-h-screen bg-background">
+          <div className="container mx-auto py-6 px-4 max-w-7xl">
+            {/* Header */}
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => navigate('/')}
+                className="flex items-center gap-2"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Back to Patient List
+              </Button>
+              <div>
+                <h2 className="font-semibold">{profile?.full_name || profile?.email}</h2>
+                <div className="flex items-center gap-2">
+                  <Badge variant="secondary" className={getRoleBadgeColor(profile?.role)}>
+                    {profile?.role || 'User'}
+                  </Badge>
+                  {profile?.department && (
+                    <span className="text-sm text-muted-foreground">
+                      {profile.department}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+            <Button variant="outline" size="sm" onClick={signOut}>
+              <LogOut className="h-4 w-4 mr-2" />
+              Sign Out
             </Button>
-            <div>
-              <h2 className="font-semibold">{profile?.full_name || profile?.email}</h2>
-              <div className="flex items-center gap-2">
-                <Badge variant="secondary" className={getRoleBadgeColor(profile?.role)}>
-                  {profile?.role || 'User'}
-                </Badge>
-                {profile?.department && (
-                  <span className="text-sm text-muted-foreground">
-                    {profile.department}
-                  </span>
-                )}
-              </div>
+          </div>
+
+            <div className="mb-6">
+              <h1 className="text-2xl font-bold text-primary mb-2">
+                Patient Assessment
+              </h1>
+              <p className="text-muted-foreground">
+                AI-Assisted Patient Assessment Documentation System
+              </p>
             </div>
-          </div>
-          <Button variant="outline" size="sm" onClick={signOut}>
-            <LogOut className="h-4 w-4 mr-2" />
-            Sign Out
-          </Button>
-        </div>
 
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold text-primary mb-2">
-              Patient Assessment
-            </h1>
-            <p className="text-muted-foreground">
-              AI-Assisted Patient Assessment Documentation System
-            </p>
-          </div>
+            {/* Patient Information */}
+          <PatientHeader patient={patientFromHook} />
 
-          {/* Patient Information */}
-        <PatientHeader patient={patient} />
-
-          {/* Main Content */}
-          <div className="max-w-7xl mx-auto mt-8">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Left Column - Main Assessment */}
-              <div className="lg:col-span-2 space-y-6">
-                {/* Audio Recording Controls */}
-                <ImprovedAudioRecording 
-                  onRecordingStart={handleRecordingStart}
-                  onRecordingStop={handleRecordingStop}
-                  transcriptText={lastTranscript}
-                  isProcessing={isProcessingAudio}
-                />
-
-                {/* Risk Scores */}
-                <RiskScoreDisplay scores={[
-                  {
-                    name: 'Morse Fall Scale',
-                    score: riskScores.morseScore,
-                    maxScore: 125,
-                    level: riskScores.morseScore >= 45 ? 'high' : riskScores.morseScore >= 25 ? 'medium' : 'low',
-                    description: 'Fall risk assessment score'
-                  },
-                  {
-                    name: 'MST Score',
-                    score: riskScores.mstScore,
-                    maxScore: 5,
-                    level: riskScores.mstScore >= 2 ? 'high' : 'low',
-                    description: 'Malnutrition screening tool'
-                  },
-                  {
-                    name: 'MEWS Score', 
-                    score: riskScores.mewsScore,
-                    maxScore: 14,
-                    level: riskScores.mewsScore >= 5 ? 'high' : riskScores.mewsScore >= 3 ? 'medium' : 'low',
-                    description: 'Modified early warning score'
-                  }
-                ]} />
-
-                {/* Enhanced Tab Assessment System */}
-                <TabAssessmentSystem
-                  onFieldChange={handleFieldChange}
-                  fieldValues={{
-                    patient_gender: patientFromHook?.sex === 'F' ? 'Female' : 'Male',
-                    ...fieldValues
-                  }}
-                />
-
-                {/* Action Buttons */}
-                <div className="flex justify-between gap-4">
-                  <Button 
-                    variant="outline" 
-                    onClick={saveDraft}
-                    className="flex items-center min-h-[48px] px-6"
-                  >
-                    Save Draft
-                  </Button>
-                  
-                  <Button 
-                    onClick={() => submitAssessment(navigate)}
-                    className="flex items-center min-h-[48px] px-6"
-                  >
-                    Submit Assessment
-                  </Button>
-                </div>
-              </div>
-
-              {/* Right Column - Scribe Data & History */}
-              <div className="lg:col-span-1">
-                <div className="sticky top-4">
-                  <ScribeDataDisplay
-                    assessmentId={assessmentId || ''}
-                    currentFieldValues={fieldValues}
+            {/* Main Content */}
+            <div className="max-w-7xl mx-auto mt-8">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Left Column - Main Assessment */}
+                <div className="lg:col-span-2 space-y-6">
+                  {/* Audio Recording Controls */}
+                  <ImprovedAudioRecording 
+                    onRecordingStart={handleRecordingStart}
+                    onRecordingStop={handleRecordingStop}
+                    transcriptText={lastTranscript}
+                    isProcessing={isProcessingAudio}
                   />
+
+                  {/* Risk Scores */}
+                  <RiskScoreDisplay scores={[
+                    {
+                      name: 'Morse Fall Scale',
+                      score: riskScores.morseScore,
+                      maxScore: 125,
+                      level: riskScores.morseScore >= 45 ? 'high' : riskScores.morseScore >= 25 ? 'medium' : 'low',
+                      description: 'Fall risk assessment score'
+                    },
+                    {
+                      name: 'MST Score',
+                      score: riskScores.mstScore,
+                      maxScore: 5,
+                      level: riskScores.mstScore >= 2 ? 'high' : 'low',
+                      description: 'Malnutrition screening tool'
+                    },
+                    {
+                      name: 'MEWS Score', 
+                      score: riskScores.mewsScore,
+                      maxScore: 14,
+                      level: riskScores.mewsScore >= 5 ? 'high' : riskScores.mewsScore >= 3 ? 'medium' : 'low',
+                      description: 'Modified early warning score'
+                    }
+                  ]} />
+
+                  {/* Enhanced Tab Assessment System */}
+                  <TabAssessmentSystem
+                    onFieldChange={handleFieldChange}
+                    fieldValues={{
+                      patient_gender: patientFromHook?.sex === 'F' ? 'Female' : 'Male',
+                      ...fieldValues
+                    }}
+                  />
+
+                  {/* Action Buttons */}
+                  <div className="flex justify-between gap-4">
+                    <Button 
+                      variant="outline" 
+                      onClick={saveDraft}
+                      className="flex items-center min-h-[48px] px-6"
+                    >
+                      Save Draft
+                    </Button>
+                    
+                    <Button 
+                      onClick={() => submitAssessment(navigate)}
+                      className="flex items-center min-h-[48px] px-6"
+                    >
+                      Submit Assessment
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Right Column - Scribe Data & History */}
+                <div className="lg:col-span-1">
+                  <div className="sticky top-4">
+                    <ScribeDataDisplay
+                      assessmentId={assessmentId || ''}
+                      currentFieldValues={fieldValues}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </ErrorBoundary>
     </AndroidLayout>
   );
 };

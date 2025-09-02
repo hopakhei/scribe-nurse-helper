@@ -103,46 +103,63 @@ export const usePatientAssessment = (patientId?: string) => {
   };
 
   const createOrLoadAssessment = async () => {
-    if (!patientId || !user) return;
+    if (!patientId || !user) {
+      console.log('createOrLoadAssessment: Missing patientId or user', { patientId: !!patientId, user: !!user });
+      return;
+    }
+
+    console.log('createOrLoadAssessment: Starting for patient', patientId, 'user', user.id);
 
     try {
-      // Try to find latest existing assessment for today
+      // First check if there's ANY assessment for this patient and user today
       const today = new Date().toISOString().split('T')[0];
-      const { data: existingList, error: searchError } = await supabase
+      console.log('Looking for assessments on date:', today);
+      
+      const { data: allAssessments, error: searchError } = await supabase
         .from('patient_assessments')
-        .select('id, created_at')
+        .select('id, status, created_at')
         .eq('patient_id', patientId)
         .eq('user_id', user.id)
         .eq('assessment_date', today)
-        .eq('status', 'in_progress')
-        .order('created_at', { ascending: false })
-        .limit(1);
+        .order('created_at', { ascending: false });
 
       if (searchError) {
-        console.error('Error searching for assessment:', searchError);
+        console.error('Error searching for assessments:', searchError);
+        throw searchError;
       }
 
-      const existingAssessment = existingList && existingList.length > 0 ? existingList[0] : null;
+      console.log('Found assessments:', allAssessments);
 
-      if (existingAssessment) {
-        setAssessmentId(existingAssessment.id);
+      // Use the latest assessment regardless of status
+      const latestAssessment = allAssessments && allAssessments.length > 0 ? allAssessments[0] : null;
+
+      if (latestAssessment) {
+        console.log('Using existing assessment:', latestAssessment.id, 'status:', latestAssessment.status);
+        setAssessmentId(latestAssessment.id);
       } else {
+        console.log('Creating new assessment for patient', patientId);
         // Create new assessment
         const { data: newAssessment, error: createError } = await supabase
           .from('patient_assessments')
           .insert({
             patient_id: patientId,
-            user_id: user.id
+            user_id: user.id,
+            status: 'in_progress'
           })
           .select()
           .single();
 
-        if (createError) throw createError;
+        if (createError) {
+          console.error('Error creating new assessment:', createError);
+          throw createError;
+        }
+        
+        console.log('Created new assessment:', newAssessment.id);
         setAssessmentId(newAssessment.id);
       }
     } catch (error: any) {
-      console.error('Error creating/loading assessment:', error);
-      toast.error('Failed to initialize assessment');
+      console.error('Error in createOrLoadAssessment:', error);
+      toast.error('Failed to initialize assessment: ' + error.message);
     }
   };
 
