@@ -14,8 +14,8 @@ export function PhysicalTab({ onFieldChange, fieldValues }: PhysicalTabProps) {
       id: 'clinical-status',
       title: 'Complaint & Consciousness',
       fields: [
-        { id: 'current_complaint', label: 'Current Complaint / Problem', type: 'textarea', dataSource: 'manual', required: true },
-        { id: 'level_of_consciousness', label: 'Level of Consciousness', type: 'radio', options: ['Alert', 'Response to Voice', 'Response to Pain', 'Unresponsive'], dataSource: 'manual', required: true }
+        { id: 'current_complaint', label: 'Current Complaint / Problem', type: 'textarea', required: true },
+        { id: 'level_of_consciousness', label: 'Level of Consciousness', type: 'radio', options: ['Alert', 'Response to Voice', 'Response to Pain', 'Unresponsive'], required: true }
       ]
     },
     // --- CARD 2: GCS (Existing & Correct) ---
@@ -23,10 +23,10 @@ export function PhysicalTab({ onFieldChange, fieldValues }: PhysicalTabProps) {
       id: 'gcs',
       title: 'Glasgow Coma Scale (GCS)',
       fields: [
-        { id: 'gcs_eye', label: 'Eye', type: 'select', dataSource: 'manual', options: [ { value: 4, label: 'Spontaneously (4)' }, { value: 3, label: 'To speech (3)' }, { value: 2, label: 'To pain (2)' }, { value: 1, label: 'None (1)' } ] },
-        { id: 'gcs_verbal', label: 'Verbal', type: 'select', dataSource: 'manual', options: [ { value: 5, label: 'Oriented (5)' }, { value: 4, label: 'Confused (4)' }, { value: 3, label: 'Inappropriate words (3)' }, { value: 2, label: 'Incomprehensible sounds (2)' }, { value: 1, label: 'None (1)' } ] },
-        { id: 'gcs_motor', label: 'Motor', type: 'select', dataSource: 'manual', options: [ { value: 6, label: 'Obeys commands (6)' }, { value: 5, label: 'Localizes to pain (5)' }, { value: 4, label: 'Flexion withdrawal (4)' }, { value: 3, label: 'Abnormal flexion (3)' }, { value: 2, label: 'Abnormal extension (2)' }, { value: 1, label: 'None (1)' } ] },
-        { id: 'gcs_total', label: 'Total Score', type: 'calculated', subLabel: '/ 15', dataSource: 'manual', calculation: (values) => (Number(values.gcs_eye) || 0) + (Number(values.gcs_verbal) || 0) + (Number(values.gcs_motor) || 0) }
+        { id: 'gcs_eye', label: 'Eye', type: 'select', options: [ { value: 4, label: 'Spontaneously (4)' }, { value: 3, label: 'To speech (3)' }, { value: 2, label: 'To pain (2)' }, { value: 1, label: 'None (1)' } ] },
+        { id: 'gcs_verbal', label: 'Verbal', type: 'select', options: [ { value: 5, label: 'Oriented (5)' }, { value: 4, label: 'Confused (4)' }, { value: 3, label: 'Inappropriate words (3)' }, { value: 2, label: 'Incomprehensible sounds (2)' }, { value: 1, label: 'None (1)' } ] },
+        { id: 'gcs_motor', label: 'Motor', type: 'select', options: [ { value: 6, label: 'Obeys commands (6)' }, { value: 5, label: 'Localizes to pain (5)' }, { value: 4, label: 'Flexion withdrawal (4)' }, { value: 3, label: 'Abnormal flexion (3)' }, { value: 2, label: 'Abnormal extension (2)' }, { value: 1, label: 'None (1)' } ] },
+        { id: 'gcs_total', label: 'Total Score', type: 'calculated', subLabel: '/ 15', calculation: (values) => (Number(values.gcs_eye) || 0) + (Number(values.gcs_verbal) || 0) + (Number(values.gcs_motor) || 0) }
       ]
     },
     // --- CARD 3: Vital Signs (Revised & Expanded) ---

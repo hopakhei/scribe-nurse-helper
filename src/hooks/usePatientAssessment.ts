@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuthState } from './useAuth';
 import { toast } from 'sonner';
+import { getFieldSection, validateSectionCompletion, isRequiredField } from '@/utils/fieldRegistry';
 
 interface RiskScores {
   morseScore: number;
@@ -174,19 +175,22 @@ export const usePatientAssessment = (patientId?: string) => {
       if (!assessmentId) return;
 
       try {
+        // Get the correct section for this field
+        const sectionId = getFieldSection(fieldId);
+        
         const { error } = await supabase
           .from('form_field_values')
           .upsert({
             assessment_id: assessmentId,
             field_id: fieldId,
-            field_label: fieldId, // Use field_id as label fallback
-            section_id: 'general', // Default section
-            value: value,
-            data_source: 'manual'
+            field_label: fieldId.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), // Convert field_id to readable label
+            section_id: sectionId,
+            value: value
+            // Remove data_source assignment - let database handle defaults
           });
 
         if (error) throw error;
-        console.log(`Updated field ${fieldId} with value:`, value);
+        console.log(`Updated field ${fieldId} in section ${sectionId} with value:`, value);
       } catch (error: any) {
         console.error('Error updating field:', error);
         toast.error('Failed to save field value');
@@ -259,8 +263,68 @@ export const usePatientAssessment = (patientId?: string) => {
     }
   };
 
+  const saveDraft = async () => {
+    if (!assessmentId) {
+      toast.error('No assessment found to save');
+      return;
+    }
+
+    try {
+      // Update assessment status to in_progress (since draft is not a valid status)
+      const { error } = await supabase
+        .from('patient_assessments')
+        .update({ 
+          status: 'in_progress',
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', assessmentId);
+
+      if (error) throw error;
+
+      toast.success('Assessment saved successfully');
+    } catch (error: any) {
+      console.error('Error saving draft:', error);
+      toast.error('Failed to save draft');
+    }
+  };
+
+  const validateAssessment = () => {
+    const sections = ['general', 'physical', 'social', 'risk', 'communication', 'elimination', 'nutrition', 'skin-pain', 'emotion-remark', 'photo'];
+    const validationResults = sections.map(sectionId => ({
+      sectionId,
+      ...validateSectionCompletion(sectionId, fieldValues)
+    }));
+
+    const missingRequiredFields = validationResults
+      .filter(result => !result.isValid)
+      .map(result => ({
+        section: result.sectionId,
+        fields: result.missingFields
+      }));
+
+    return {
+      isValid: missingRequiredFields.length === 0,
+      missingRequiredFields,
+      validationResults
+    };
+  };
+
   const submitAssessment = async (navigate: any) => {
-    if (!assessmentId) return;
+    if (!assessmentId) {
+      toast.error('No assessment found to submit');
+      return;
+    }
+
+    // Validate assessment before submission
+    const validation = validateAssessment();
+    if (!validation.isValid) {
+      const missingFieldsText = validation.missingRequiredFields
+        .map(section => `${section.section}: ${section.fields.join(', ')}`)
+        .join('\n');
+      
+      toast.error(`Please complete required fields:\n${missingFieldsText}`);
+      return;
+    }
 
     try {
       const { error } = await supabase.functions.invoke('submit-assessment', {
@@ -313,6 +377,8 @@ export const usePatientAssessment = (patientId?: string) => {
     handleRecordingStop,
     handleFieldChange,
     submitAssessment,
+    saveDraft,
+    validateAssessment,
     sections: [], // Add if needed
     currentSection: '', // Add if needed
     setCurrentSection: () => {}, // Add if needed

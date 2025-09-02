@@ -22,14 +22,14 @@ interface OptionItem {
   label: string;
 }
 
-interface FormField {
+export interface FormField {
   id: string;
   label: string;
   type: FieldType;
   value?: string | boolean | number;
   options?: string[] | OptionItem[];
   required?: boolean;
-  dataSource: DataSource;
+  dataSource?: DataSource; // Make dataSource optional
   aiSourceText?: string;
   calculation?: (values: Record<string, any>) => string | number;
   inlineFields?: FormField[];
@@ -113,16 +113,19 @@ export function EnhancedFormSection({
     );
   };
 
-  const getFieldBackground = (dataSource: DataSource) => {
+  const getFieldBackground = (dataSource?: DataSource) => {
+    if (!dataSource) return '';
     const backgrounds = {
       'pre-populated': 'bg-medical-pre-populated',
       'ai-filled': 'bg-medical-ai-filled',
-      'manual': 'bg-medical-manual-entry'
+      'manual': ''
     };
     return backgrounds[dataSource];
   };
 
-  const getDataSourceBadge = (dataSource: DataSource) => {
+  const getDataSourceBadge = (dataSource?: DataSource) => {
+    if (!dataSource || dataSource === 'manual') return null;
+    
     const labels = {
       'pre-populated': 'History',
       'ai-filled': 'AI Filled',
@@ -144,8 +147,8 @@ export function EnhancedFormSection({
   const addDynamicField = (cardId: string, templateField: FormField) => {
     const newField = {
       ...templateField,
-      id: `${templateField.id}_${Date.now()}`,
-      dataSource: 'manual' as DataSource
+      id: `${templateField.id}_${Date.now()}`
+      // Remove dataSource assignment - let it be undefined for normal fields
     };
     
     setDynamicFields(prev => ({
@@ -482,7 +485,7 @@ export function EnhancedFormSection({
                         {field.label}
                         {field.required && <span className="text-destructive ml-1">*</span>}
                       </Label>
-                      {getDataSourceBadge(field.dataSource)}
+                      {field.dataSource && getDataSourceBadge(field.dataSource)}
                     </div>
                   )}
                   
@@ -494,15 +497,15 @@ export function EnhancedFormSection({
                       return null;
                     }
                     return (
-                      <div key={conditionalField.id} className="ml-4 mt-2 p-3 bg-muted/50 rounded">
-                        <div className="flex items-center justify-between mb-2">
-                          <Label className="text-sm font-medium">
-                            {conditionalField.label}
-                          </Label>
-                          {getDataSourceBadge(conditionalField.dataSource)}
-                        </div>
-                        {renderField(conditionalField)}
-                      </div>
+                       <div key={conditionalField.id} className="ml-4 mt-2 p-3 bg-muted/50 rounded">
+                         <div className="flex items-center justify-between mb-2">
+                           <Label className="text-sm font-medium">
+                             {conditionalField.label}
+                           </Label>
+                           {conditionalField.dataSource && getDataSourceBadge(conditionalField.dataSource)}
+                         </div>
+                         {renderField(conditionalField)}
+                       </div>
                     );
                   })}
                   
@@ -526,7 +529,6 @@ export function EnhancedFormSection({
                   id: 'wound_detail',
                   label: 'Wound Details',
                   type: 'textarea',
-                  dataSource: 'manual',
                   required: false
                 })}
                 className="flex items-center gap-2"

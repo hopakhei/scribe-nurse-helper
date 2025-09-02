@@ -44,6 +44,8 @@ const Index = () => {
     handleFieldChange,
     getFormFields,
     submitAssessment,
+    saveDraft,
+    validateAssessment,
     assessmentId
   } = usePatientAssessment(patientId);
 
@@ -241,6 +243,7 @@ const Index = () => {
                 <div className="flex justify-between gap-4">
                   <Button 
                     variant="outline" 
+                    onClick={saveDraft}
                     className="flex items-center min-h-[48px] px-6"
                   >
                     Save Draft
@@ -250,7 +253,7 @@ const Index = () => {
                     onClick={() => submitAssessment(navigate)}
                     className="flex items-center min-h-[48px] px-6"
                   >
-                    Submit to History
+                    Submit Assessment
                   </Button>
                 </div>
               </div>

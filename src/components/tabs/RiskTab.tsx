@@ -44,7 +44,6 @@ export function RiskTab({ onFieldChange, fieldValues }: RiskTabProps) {
           label: 'Infection Risk Status',
           type: 'radio',
           options: ['At risk', 'Not at risk', 'Unknown'],
-          dataSource: 'manual'
         },
         {
           id: 'clinical_criteria',
