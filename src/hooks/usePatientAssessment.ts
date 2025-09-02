@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuthState } from './useAuth';
 import { toast } from 'sonner';
@@ -30,6 +30,8 @@ export const usePatientAssessment = (patientId?: string) => {
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessingAudio, setIsProcessingAudio] = useState(false);
   const [lastTranscript, setLastTranscript] = useState('');
+  const creatingRef = useRef(false);
+  const initializedRef = useRef(false);
 
   // Load patient data
   useEffect(() => {
@@ -40,9 +42,15 @@ export const usePatientAssessment = (patientId?: string) => {
 
   // Create or load assessment
   useEffect(() => {
-    if (patientId && user) {
-      createOrLoadAssessment();
-    }
+    if (!patientId || !user) return;
+    if (initializedRef.current || creatingRef.current) return;
+    creatingRef.current = true;
+    createOrLoadAssessment()
+      .catch((e) => console.error('createOrLoadAssessment error:', e))
+      .finally(() => {
+        creatingRef.current = false;
+        initializedRef.current = true;
+      });
   }, [patientId, user]);
 
   // Load existing field values when assessment is ready
