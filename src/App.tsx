@@ -2,7 +2,7 @@
 import React from 'react';
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { navItems } from "./nav-items";
-import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from "@/components/ui/sonner";
 
 const router = createBrowserRouter(
   navItems.map(({ to, page }) => ({

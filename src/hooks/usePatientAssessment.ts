@@ -98,20 +98,23 @@ export const usePatientAssessment = (patientId?: string) => {
     if (!patientId || !user) return;
 
     try {
-      // Try to find existing assessment for today
+      // Try to find latest existing assessment for today
       const today = new Date().toISOString().split('T')[0];
-      const { data: existingAssessment, error: searchError } = await supabase
+      const { data: existingList, error: searchError } = await supabase
         .from('patient_assessments')
-        .select('id')
+        .select('id, created_at')
         .eq('patient_id', patientId)
         .eq('user_id', user.id)
         .eq('assessment_date', today)
         .eq('status', 'in_progress')
-        .maybeSingle();
+        .order('created_at', { ascending: false })
+        .limit(1);
 
       if (searchError) {
         console.error('Error searching for assessment:', searchError);
       }
+
+      const existingAssessment = existingList && existingList.length > 0 ? existingList[0] : null;
 
       if (existingAssessment) {
         setAssessmentId(existingAssessment.id);
@@ -180,14 +183,16 @@ export const usePatientAssessment = (patientId?: string) => {
         
         const { error } = await supabase
           .from('form_field_values')
-          .upsert({
-            assessment_id: assessmentId,
-            field_id: fieldId,
-            field_label: fieldId.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), // Convert field_id to readable label
-            section_id: sectionId,
-            value: value
-            // Remove data_source assignment - let database handle defaults
-          });
+          .upsert(
+            {
+              assessment_id: assessmentId,
+              field_id: fieldId,
+              field_label: fieldId.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), // Convert field_id to readable label
+              section_id: sectionId,
+              value: value
+            },
+            { onConflict: 'assessment_id,field_id' }
+          );
 
         if (error) throw error;
         console.log(`Updated field ${fieldId} in section ${sectionId} with value:`, value);
