@@ -16,20 +16,17 @@ export function GeneralTab({ onFieldChange, fieldValues }: GeneralTabProps) {
         {
           id: 'emergency_contact_1_name',
           label: 'Full Name',
-          type: 'text',
-          required: true
+          type: 'text'
         },
         {
           id: 'emergency_contact_1_relationship',
           label: 'Relationship',
-          type: 'text',
-          required: true
+          type: 'text'
         },
         {
           id: 'emergency_contact_1_phone',
           label: 'Phone Number',
-          type: 'text',
-          required: true
+          type: 'text'
         }
       ]
     },

@@ -14,8 +14,8 @@ export function PhysicalTab({ onFieldChange, fieldValues }: PhysicalTabProps) {
       id: 'clinical-status',
       title: 'Complaint & Consciousness',
       fields: [
-        { id: 'current_complaint', label: 'Current Complaint / Problem', type: 'textarea', required: true },
-        { id: 'level_of_consciousness', label: 'Level of Consciousness', type: 'radio', options: ['Alert', 'Response to Voice', 'Response to Pain', 'Unresponsive'], required: true }
+        { id: 'current_complaint', label: 'Current Complaint / Problem', type: 'textarea' },
+        { id: 'level_of_consciousness', label: 'Level of Consciousness', type: 'radio', options: ['Alert', 'Response to Voice', 'Response to Pain', 'Unresponsive'] }
       ]
     },
     // --- CARD 2: GCS (Existing & Correct) ---
@@ -34,18 +34,18 @@ export function PhysicalTab({ onFieldChange, fieldValues }: PhysicalTabProps) {
       id: 'vital-signs',
       title: 'Vital Signs & Observations',
       fields: [
-        { id: 'temperature', label: 'Temperature', type: 'number', subLabel: '°C', dataSource: 'manual', required: true },
+        { id: 'temperature', label: 'Temperature', type: 'number', subLabel: '°C', dataSource: 'manual' },
         { id: 'temp_method', label: 'Temp Method', type: 'select', options: ['Oral', 'Tympanic', 'Axilla', 'Rectal', 'Skin'], dataSource: 'manual' },
-        { id: 'pulse', label: 'Pulse', type: 'number', subLabel: 'bpm', dataSource: 'manual', required: true },
+        { id: 'pulse', label: 'Pulse', type: 'number', subLabel: 'bpm', dataSource: 'manual' },
         { id: 'pulse_location', label: 'Pulse Location', type: 'select', options: ['Radial', 'Apical', 'Carotid', 'Brachial', 'Femoral', 'Popliteal', 'Dorsalis pedis', 'Other'], dataSource: 'manual' },
         { id: 'pulse_pattern', label: 'Pulse Pattern', type: 'radio', options: ['Regular', 'Irregular'], dataSource: 'manual' },
-        { id: 'bp_systolic', label: 'Systolic', type: 'number', subLabel: 'mmHg', dataSource: 'manual', required: true },
-        { id: 'bp_diastolic', label: 'Diastolic', type: 'number', subLabel: 'mmHg', dataSource: 'manual', required: true },
+        { id: 'bp_systolic', label: 'Systolic', type: 'number', subLabel: 'mmHg', dataSource: 'manual' },
+        { id: 'bp_diastolic', label: 'Diastolic', type: 'number', subLabel: 'mmHg', dataSource: 'manual' },
         { id: 'bp_position', label: 'BP Position', type: 'select', options: ['Sitting', 'Standing', 'Lying', 'Other'], dataSource: 'manual' },
         { id: 'mean_bp', label: 'Mean BP', type: 'calculated', subLabel: 'mmHg', dataSource: 'manual', calculation: (values) => { const s = Number(values.bp_systolic) || 0, d = Number(values.bp_diastolic) || 0; return s > 0 && d > 0 ? Math.round((d * 2 + s) / 3) : 0; } },
-        { id: 'respiratory_rate', label: 'RR', type: 'number', subLabel: 'breaths/min', dataSource: 'manual', required: true },
+        { id: 'respiratory_rate', label: 'RR', type: 'number', subLabel: 'breaths/min', dataSource: 'manual' },
         { id: 'respiration_status', label: 'Respiration', type: 'radio', options: ['Normal', 'Dyspnoea'], dataSource: 'manual' },
-        { id: 'spo2', label: 'SpO2', type: 'number', subLabel: '%', dataSource: 'manual', required: true },
+        { id: 'spo2', label: 'SpO2', type: 'number', subLabel: '%', dataSource: 'manual' },
       ]
     },
     // --- CARD 4: Additional Vitals (New) ---
