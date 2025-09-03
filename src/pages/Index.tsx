@@ -263,14 +263,7 @@ const Index = () => {
                       maxScore: 23,
                       level: (riskScores.bradenScore <= 12 ? 'high' : riskScores.bradenScore <= 18 ? 'medium' : 'low') as 'high' | 'medium' | 'low',
                       description: 'Pressure injury risk assessment'
-                    }] : []),
-                    {
-                      name: 'MEWS Score', 
-                      score: riskScores.mewsScore,
-                      maxScore: 14,
-                      level: (riskScores.mewsScore >= 5 ? 'high' : riskScores.mewsScore >= 3 ? 'medium' : 'low') as 'high' | 'medium' | 'low',
-                      description: 'Modified early warning score'
-                    }
+                     }] : [])
                   ]} />
 
                   {/* Enhanced Tab Assessment System */}
