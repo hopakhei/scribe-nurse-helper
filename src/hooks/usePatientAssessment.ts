@@ -421,12 +421,19 @@ export const usePatientAssessment = (patientId?: string) => {
                       parseInt(fieldValues.braden_friction || '0'));
       }
 
+      // MEWS Score calculation - read from pre-calculated value or calculate fallback
+      let mewsScore = 0;
+      if (fieldValues.mews_total !== undefined && fieldValues.mews_total !== null && fieldValues.mews_total !== '') {
+        mewsScore = Number(fieldValues.mews_total);
+      }
+
       setRiskScores(prev => ({
         ...prev,
         morseScore,
         mstScore,
         nortonScore,
-        bradenScore
+        bradenScore,
+        mewsScore
       }));
     };
 

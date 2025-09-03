@@ -130,17 +130,17 @@ export function PhysicalTab({ onFieldChange, fieldValues }: PhysicalTabProps) {
               else if (systolic >= 71 && systolic <= 80) score += 2;
               else if (systolic >= 81 && systolic <= 100) score += 1;
               else if (systolic >= 101 && systolic <= 199) score += 0;
-              else if (systolic >= 200) score += 2;
+              else if (systolic >= 200) score += 3;
             }
             
             // Heart/Pulse Rate scoring (only if value exists)
             if (pulse > 0) {
               if (pulse <= 40) score += 3;
               else if (pulse >= 41 && pulse <= 50) score += 2;
-              else if (pulse >= 51 && pulse <= 100) score += 1;
+              else if (pulse >= 51 && pulse <= 100) score += 0;
               else if (pulse >= 101 && pulse <= 110) score += 0;
               else if (pulse >= 111 && pulse <= 129) score += 1;
-              else if (pulse >= 130) score += 2;
+              else if (pulse >= 130) score += 3;
             }
             
             // Respiratory Rate scoring (only if value exists)
@@ -158,7 +158,7 @@ export function PhysicalTab({ onFieldChange, fieldValues }: PhysicalTabProps) {
               else if (temp >= 35.1 && temp <= 36) score += 2;
               else if (temp >= 36.1 && temp <= 38) score += 1;
               else if (temp >= 38.1 && temp <= 38.5) score += 0;
-              else if (temp >= 38.6) score += 1;
+              else if (temp >= 38.6) score += 2;
             }
             
             // Level of Consciousness scoring
