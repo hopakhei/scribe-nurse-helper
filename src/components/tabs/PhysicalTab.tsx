@@ -13,6 +13,7 @@ export function PhysicalTab({ onFieldChange, fieldValues }: PhysicalTabProps) {
     {
       id: 'clinical-status',
       title: 'Complaint & Consciousness',
+      column: 'left',
       fields: [
         { id: 'current_complaint', label: 'Current Complaint / Problem', type: 'textarea' },
         { id: 'level_of_consciousness', label: 'Level of Consciousness', type: 'radio', options: ['Alert', 'Response to Voice', 'Response to Pain', 'Unresponsive'] }
@@ -22,6 +23,7 @@ export function PhysicalTab({ onFieldChange, fieldValues }: PhysicalTabProps) {
     {
       id: 'gcs',
       title: 'Glasgow Coma Scale (GCS)',
+      column: 'left',
       fields: [
         { id: 'gcs_eye', label: 'Eye', type: 'select', options: [ { value: 4, label: 'Spontaneously (4)' }, { value: 3, label: 'To speech (3)' }, { value: 2, label: 'To pain (2)' }, { value: 1, label: 'None (1)' } ] },
         { id: 'gcs_verbal', label: 'Verbal', type: 'select', options: [ { value: 5, label: 'Oriented (5)' }, { value: 4, label: 'Confused (4)' }, { value: 3, label: 'Inappropriate words (3)' }, { value: 2, label: 'Incomprehensible sounds (2)' }, { value: 1, label: 'None (1)' } ] },
@@ -33,6 +35,7 @@ export function PhysicalTab({ onFieldChange, fieldValues }: PhysicalTabProps) {
     {
       id: 'vital-signs',
       title: 'Vital Signs & Observations',
+      column: 'right',
       fields: [
         { id: 'temperature', label: 'Temperature', type: 'number', subLabel: '°C', dataSource: 'manual' },
         { id: 'temp_method', label: 'Temp Method', type: 'select', options: ['Oral', 'Tympanic', 'Axilla', 'Rectal', 'Skin'], dataSource: 'manual' },
@@ -52,6 +55,7 @@ export function PhysicalTab({ onFieldChange, fieldValues }: PhysicalTabProps) {
     {
       id: 'additional-vitals',
       title: 'Additional Vitals & Observations',
+      column: 'right',
       fields: [
         { id: 'cvp', label: 'CVP', type: 'number', subLabel: 'mmHg/cmH2O', dataSource: 'manual' },
         { id: 'cvp_level', label: 'CVP Level', type: 'radio', options: ['Swing', 'Not swing'], dataSource: 'manual' },
@@ -69,6 +73,7 @@ export function PhysicalTab({ onFieldChange, fieldValues }: PhysicalTabProps) {
     {
       id: 'body-measurements',
       title: 'Body & Other Measurements',
+      column: 'left',
       fields: [
         { id: 'weight', label: 'Weight (kg)', type: 'number', dataSource: 'manual' },
         { id: 'height', label: 'Height (cm)', type: 'number', dataSource: 'manual' },
@@ -83,6 +88,7 @@ export function PhysicalTab({ onFieldChange, fieldValues }: PhysicalTabProps) {
     {
       id: 'urinalysis',
       title: 'Urinalysis',
+      column: 'right',
       fields: [
         { id: 'urinalysis_sugar', label: 'Sugar', type: 'select', options: ['Negative', 'Trace', '+', '++', '+++ or above'], dataSource: 'manual' },
         { id: 'urinalysis_albumin', label: 'Albumin', type: 'select', options: ['Negative', 'Trace', '+', '++', '+++ or above'], dataSource: 'manual' },
@@ -97,6 +103,7 @@ export function PhysicalTab({ onFieldChange, fieldValues }: PhysicalTabProps) {
     {
       id: 'mews',
       title: 'Modified Early Warning Score (MEWS)',
+      column: 'left',
       fields: [
         { 
           id: 'mews_total', 
