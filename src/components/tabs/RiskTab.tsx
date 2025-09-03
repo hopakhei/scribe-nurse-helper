@@ -117,111 +117,6 @@ export function RiskTab({ onFieldChange, fieldValues }: RiskTabProps) {
       ]
     },
     {
-      id: 'fall-risk',
-      title: 'Fall Risk Assessment',
-      fields: [
-        {
-          id: 'fall_risk_level',
-          label: 'Fall Risk Level',
-          type: 'radio',
-          options: ['High risk', 'Low to moderate risk'],
-          dataSource: 'manual'
-        },
-        {
-          id: 'morse_history_falling',
-          label: 'History of Falling',
-          type: 'radio',
-          options: ['No (0)', 'Yes (25)'],
-          dataSource: 'manual'
-        },
-        {
-          id: 'morse_secondary_diagnosis',
-          label: 'Secondary Diagnosis',
-          type: 'radio',
-          options: ['No (0)', 'Yes (15)'],
-          dataSource: 'manual'
-        },
-        {
-          id: 'morse_ambulatory_aid',
-          label: 'Ambulatory Aid',
-          type: 'radio',
-          options: ['None/bed rest/nurse assist (0)', 'Crutches/cane/walker (15)', 'Furniture (30)'],
-          dataSource: 'manual'
-        },
-        {
-          id: 'morse_iv_therapy',
-          label: 'Intravenous Therapy / Saline Lock',
-          type: 'radio',
-          options: ['No (0)', 'Yes (20)'],
-          dataSource: 'manual'
-        },
-        {
-          id: 'morse_gait',
-          label: 'Gait',
-          type: 'radio',
-          options: ['Normal / Bed rest / Wheelchair (0)', 'Weak (10)', 'Impaired (20)'],
-          dataSource: 'manual'
-        },
-        {
-          id: 'morse_mental_status',
-          label: 'Mental Status',
-          type: 'radio',
-          options: ['Oriented to own ability (0)', 'Overestimates / Forgets limitations (15)'],
-          dataSource: 'manual'
-        },
-        {
-          id: 'morse_total_score',
-          label: 'Total Score /125',
-          type: 'calculated',
-          dataSource: 'manual',
-          calculation: (values) => {
-            const scores = {
-              history: values.morse_history_falling?.includes('25') ? 25 : 0,
-              secondary: values.morse_secondary_diagnosis?.includes('15') ? 15 : 0,
-              aid: values.morse_ambulatory_aid?.includes('30') ? 30 : values.morse_ambulatory_aid?.includes('15') ? 15 : 0,
-              iv: values.morse_iv_therapy?.includes('20') ? 20 : 0,
-              gait: values.morse_gait?.includes('20') ? 20 : values.morse_gait?.includes('10') ? 10 : 0,
-              mental: values.morse_mental_status?.includes('15') ? 15 : 0
-            };
-            return Object.values(scores).reduce((sum, score) => sum + score, 0);
-          }
-        },
-        {
-          id: 'fall_remarks',
-          label: 'Remarks',
-          type: 'textarea',
-          dataSource: 'manual'
-        }
-      ]
-    },
-    {
-      id: 'suicide-risk',
-      title: 'Suicide Risk Assessment',
-      fields: [
-        {
-          id: 'suicide_admitted_attempt',
-          label: 'Patient was admitted because of suicidal attempt or idea',
-          type: 'radio',
-          options: ['Yes', 'No'],
-          dataSource: 'manual'
-        },
-        {
-          id: 'suicide_expresses_idea',
-          label: 'Patient expresses suicidal idea or self-harm behaviour',
-          type: 'radio',
-          options: ['Yes', 'No'],
-          dataSource: 'manual'
-        },
-        {
-          id: 'suicide_disclosure_relatives',
-          label: 'Disclosure by relatives / friends that patient has suicidal inclination',
-          type: 'radio',
-          options: ['Yes', 'No', 'Not applicable'],
-          dataSource: 'manual'
-        }
-      ]
-    },
-    {
       id: 'pressure-injury-risk',
       title: 'Pressure Injury Risk Assessment',
       fields: [
@@ -403,6 +298,111 @@ export function RiskTab({ onFieldChange, fieldValues }: RiskTabProps) {
                     parseInt(values.braden_friction || '0'));
           },
           displayCondition: 'pressure_scale_type == "Braden Scale"'
+        }
+      ]
+    },
+    {
+      id: 'fall-risk',
+      title: 'Fall Risk Assessment',
+      fields: [
+        {
+          id: 'fall_risk_level',
+          label: 'Fall Risk Level',
+          type: 'radio',
+          options: ['High risk', 'Low to moderate risk'],
+          dataSource: 'manual'
+        },
+        {
+          id: 'morse_history_falling',
+          label: 'History of Falling',
+          type: 'radio',
+          options: ['No (0)', 'Yes (25)'],
+          dataSource: 'manual'
+        },
+        {
+          id: 'morse_secondary_diagnosis',
+          label: 'Secondary Diagnosis',
+          type: 'radio',
+          options: ['No (0)', 'Yes (15)'],
+          dataSource: 'manual'
+        },
+        {
+          id: 'morse_ambulatory_aid',
+          label: 'Ambulatory Aid',
+          type: 'radio',
+          options: ['None/bed rest/nurse assist (0)', 'Crutches/cane/walker (15)', 'Furniture (30)'],
+          dataSource: 'manual'
+        },
+        {
+          id: 'morse_iv_therapy',
+          label: 'Intravenous Therapy / Saline Lock',
+          type: 'radio',
+          options: ['No (0)', 'Yes (20)'],
+          dataSource: 'manual'
+        },
+        {
+          id: 'morse_gait',
+          label: 'Gait',
+          type: 'radio',
+          options: ['Normal / Bed rest / Wheelchair (0)', 'Weak (10)', 'Impaired (20)'],
+          dataSource: 'manual'
+        },
+        {
+          id: 'morse_mental_status',
+          label: 'Mental Status',
+          type: 'radio',
+          options: ['Oriented to own ability (0)', 'Overestimates / Forgets limitations (15)'],
+          dataSource: 'manual'
+        },
+        {
+          id: 'morse_total_score',
+          label: 'Total Score /125',
+          type: 'calculated',
+          dataSource: 'manual',
+          calculation: (values) => {
+            const scores = {
+              history: values.morse_history_falling?.includes('25') ? 25 : 0,
+              secondary: values.morse_secondary_diagnosis?.includes('15') ? 15 : 0,
+              aid: values.morse_ambulatory_aid?.includes('30') ? 30 : values.morse_ambulatory_aid?.includes('15') ? 15 : 0,
+              iv: values.morse_iv_therapy?.includes('20') ? 20 : 0,
+              gait: values.morse_gait?.includes('20') ? 20 : values.morse_gait?.includes('10') ? 10 : 0,
+              mental: values.morse_mental_status?.includes('15') ? 15 : 0
+            };
+            return Object.values(scores).reduce((sum, score) => sum + score, 0);
+          }
+        },
+        {
+          id: 'fall_remarks',
+          label: 'Remarks',
+          type: 'textarea',
+          dataSource: 'manual'
+        }
+      ]
+    },
+    {
+      id: 'suicide-risk',
+      title: 'Suicide Risk Assessment',
+      fields: [
+        {
+          id: 'suicide_admitted_attempt',
+          label: 'Patient was admitted because of suicidal attempt or idea',
+          type: 'radio',
+          options: ['Yes', 'No'],
+          dataSource: 'manual'
+        },
+        {
+          id: 'suicide_expresses_idea',
+          label: 'Patient expresses suicidal idea or self-harm behaviour',
+          type: 'radio',
+          options: ['Yes', 'No'],
+          dataSource: 'manual'
+        },
+        {
+          id: 'suicide_disclosure_relatives',
+          label: 'Disclosure by relatives / friends that patient has suicidal inclination',
+          type: 'radio',
+          options: ['Yes', 'No', 'Not applicable'],
+          dataSource: 'manual'
         }
       ]
     },
