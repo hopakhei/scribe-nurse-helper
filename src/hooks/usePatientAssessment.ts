@@ -1,6 +1,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { computeMews } from '@/utils/mews';
 import { useAuthState } from './useAuth';
 import { toast } from 'sonner';
 import { getFieldSection, validateSectionCompletion, isRequiredField } from '@/utils/fieldRegistry';
@@ -421,11 +422,8 @@ export const usePatientAssessment = (patientId?: string) => {
                       parseInt(fieldValues.braden_friction || '0'));
       }
 
-      // MEWS Score calculation - read from pre-calculated value or calculate fallback
-      let mewsScore = 0;
-      if (fieldValues.mews_total !== undefined && fieldValues.mews_total !== null && fieldValues.mews_total !== '') {
-        mewsScore = Number(fieldValues.mews_total);
-      }
+      // MEWS Score calculation using centralized utility
+      const mewsScore = computeMews(fieldValues) ?? 0;
 
       setRiskScores(prev => ({
         ...prev,
