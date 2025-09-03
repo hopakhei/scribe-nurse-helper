@@ -386,9 +386,19 @@ export const usePatientAssessment = (patientId?: string) => {
       else if (fieldValues.morse_gait?.includes('10')) morseScore += 10;
       if (fieldValues.morse_mental_status?.includes('15')) morseScore += 15;
 
+      // MST Score calculation
+      let mstScore = 0;
+      if (fieldValues.mst_q1 === '0') mstScore += 0;
+      else if (fieldValues.mst_q1 === '2') mstScore += 2;
+      else if (fieldValues.mst_q1 === 'yes') {
+        mstScore += parseInt(fieldValues.mst_q1_weight_amount || '0');
+      }
+      mstScore += parseInt(fieldValues.mst_q2 || '0');
+
       setRiskScores(prev => ({
         ...prev,
-        morseScore
+        morseScore,
+        mstScore
       }));
     };
 

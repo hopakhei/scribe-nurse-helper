@@ -9,7 +9,7 @@ interface NutritionSelfCareTabProps {
 }
 
 export function NutritionSelfCareTab({ onFieldChange, fieldValues }: NutritionSelfCareTabProps) {
-  const getMustRiskLevel = (score: number) => {
+  const getMstRiskLevel = (score: number) => {
     if (score >= 2) return { level: 'High Risk', color: 'destructive' };
     if (score === 1) return { level: 'Medium Risk', color: 'secondary' };
     return { level: 'Low Risk', color: 'default' };
@@ -17,36 +17,38 @@ export function NutritionSelfCareTab({ onFieldChange, fieldValues }: NutritionSe
 
   const cards: FormCard[] = [
     {
-      id: 'must-screening',
-      title: 'Malnutrition Universal Screening Tool (MUST)',
+      id: 'mst-screening',
+      title: 'Malnutrition Screening Tool (MST)',
       column: 'left',
       fields: [
         {
-          id: 'must_q1',
+          id: 'mst_q1',
           label: '1. Have you/the patient lost weight recently without trying?',
           type: 'radio',
           options: [
             { label: 'No (0)', value: '0' },
             { label: 'Unsure (2)', value: '2' },
-            { label: 'Yes (1)', value: '1' }
+            { label: 'Yes, how much (kg)?', value: 'yes' }
           ],
           dataSource: 'manual'
         },
         {
-          id: 'must_q1_weight_amount',
-          label: 'How much weight?',
+          id: 'mst_q1_weight_amount',
+          label: 'Weight loss amount:',
           type: 'radio',
           options: [
-            { label: '<3kg (1)', value: '1' },
-            { label: '3-5kg (1)', value: '1' },
-            { label: '>5kg (2)', value: '2' }
+            { label: '1-5 (1)', value: '1' },
+            { label: '6-10 (2)', value: '2' },
+            { label: '11-15 (3)', value: '3' },
+            { label: '>15 (4)', value: '4' },
+            { label: 'Unsure (2)', value: '2' }
           ],
           dataSource: 'manual',
-          displayCondition: 'must_q1 === "1"'
+          displayCondition: 'mst_q1 === "yes"'
         },
         {
-          id: 'must_q2',
-          label: '2. Have you/the patient been eating poorly because of decreased appetite?',
+          id: 'mst_q2',
+          label: '2. Have you/the patient been eating poorly because of a decreased appetite?',
           type: 'radio',
           options: [
             { label: 'No (0)', value: '0' },
@@ -55,14 +57,18 @@ export function NutritionSelfCareTab({ onFieldChange, fieldValues }: NutritionSe
           dataSource: 'manual'
         },
         {
-          id: 'must_total_score',
-          label: 'Total MUST Score /5',
+          id: 'mst_total_score',
+          label: 'Total MST Score /5',
           type: 'calculated',
           calculation: (values) => {
-            const q1Score = parseInt(values.must_q1 || '0');
-            const weightScore = values.must_q1 === '1' ? parseInt(values.must_q1_weight_amount || '0') : 0;
-            const q2Score = parseInt(values.must_q2 || '0');
-            return q1Score + weightScore + q2Score;
+            let q1Score = 0;
+            if (values.mst_q1 === '0') q1Score = 0;
+            else if (values.mst_q1 === '2') q1Score = 2;
+            else if (values.mst_q1 === 'yes') {
+              q1Score = parseInt(values.mst_q1_weight_amount || '0');
+            }
+            const q2Score = parseInt(values.mst_q2 || '0');
+            return q1Score + q2Score;
           },
           dataSource: 'manual'
         }
@@ -325,13 +331,13 @@ export function NutritionSelfCareTab({ onFieldChange, fieldValues }: NutritionSe
         fieldValues={fieldValues}
       />
       
-      {/* MUST Score Display */}
-      {fieldValues.must_total_score !== undefined && (
+      {/* MST Score Display */}
+      {fieldValues.mst_total_score !== undefined && (
         <div className="mt-4 p-4 bg-muted rounded-lg">
           <div className="flex items-center justify-between">
-            <span className="font-medium">MUST Risk Level:</span>
-            <Badge variant={getMustRiskLevel(fieldValues.must_total_score).color as any}>
-              {getMustRiskLevel(fieldValues.must_total_score).level}
+            <span className="font-medium">MST Risk Level:</span>
+            <Badge variant={getMstRiskLevel(fieldValues.mst_total_score).color as any}>
+              {getMstRiskLevel(fieldValues.mst_total_score).level}
             </Badge>
           </div>
         </div>
