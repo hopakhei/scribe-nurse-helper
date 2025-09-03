@@ -53,6 +53,7 @@ export interface FormCard {
   fields: FormField[];
   columns?: number;
   gridColumns?: number; // alias for columns
+  column?: 'left' | 'right'; // explicit column assignment
 }
 
 interface EnhancedFormSectionProps {
@@ -557,6 +558,9 @@ export function EnhancedFormSection({
     }
   };
 
+  // Check if any cards have column assignments
+  const hasColumnAssignments = cards.some(card => card.column);
+
   return (
     <div className="space-y-6">
       <div>
@@ -566,9 +570,23 @@ export function EnhancedFormSection({
         )}
       </div>
 
-      <div className={getLayoutClass()}>
-        {cards.map(renderCard)}
-      </div>
+      {hasColumnAssignments ? (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Left Column */}
+          <div className="space-y-6">
+            {cards.filter(card => card.column === 'left').map(renderCard)}
+          </div>
+          
+          {/* Right Column */}
+          <div className="space-y-6">
+            {cards.filter(card => card.column === 'right').map(renderCard)}
+          </div>
+        </div>
+      ) : (
+        <div className={getLayoutClass()}>
+          {cards.map(renderCard)}
+        </div>
+      )}
     </div>
   );
 }

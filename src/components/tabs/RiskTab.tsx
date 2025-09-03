@@ -33,6 +33,7 @@ export function RiskTab({ onFieldChange, fieldValues }: RiskTabProps) {
     {
       id: 'infection-isolation',
       title: 'Infection & Isolation',
+      column: 'left',
       fields: [
         {
           id: 'infection_risk_status',
@@ -119,6 +120,7 @@ export function RiskTab({ onFieldChange, fieldValues }: RiskTabProps) {
     {
       id: 'pressure-injury-risk',
       title: 'Pressure Injury Risk Assessment',
+      column: 'right',
       fields: [
         {
           id: 'pressure_scale_type',
@@ -304,6 +306,7 @@ export function RiskTab({ onFieldChange, fieldValues }: RiskTabProps) {
     {
       id: 'fall-risk',
       title: 'Fall Risk Assessment',
+      column: 'right',
       fields: [
         {
           id: 'fall_risk_level',
@@ -382,6 +385,7 @@ export function RiskTab({ onFieldChange, fieldValues }: RiskTabProps) {
     {
       id: 'suicide-risk',
       title: 'Suicide Risk Assessment',
+      column: 'right',
       fields: [
         {
           id: 'suicide_admitted_attempt',
@@ -409,6 +413,7 @@ export function RiskTab({ onFieldChange, fieldValues }: RiskTabProps) {
     {
       id: 'missing-risk',
       title: 'Missing Risk',
+      column: 'left',
       fields: [
         {
           id: 'missing_risk_status',
