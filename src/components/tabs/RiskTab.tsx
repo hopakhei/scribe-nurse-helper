@@ -1,11 +1,7 @@
 import { TabsContent } from "@/components/ui/tabs";
-import { Tabs, TabsList, TabsTrigger, TabsContent as InnerTabsContent } from "@/components/ui/tabs";
 import { EnhancedFormSection } from "@/components/EnhancedFormSection";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Calculator } from "lucide-react";
 import type { FormCard } from "@/components/EnhancedFormSection";
-import { useState } from "react";
 
 interface RiskTabProps {
   onFieldChange: (fieldId: string, value: any) => void;
@@ -13,7 +9,6 @@ interface RiskTabProps {
 }
 
 export function RiskTab({ onFieldChange, fieldValues }: RiskTabProps) {
-  const [pressureInjuryTab, setPressureInjuryTab] = useState("norton");
   const calculateMorseScore = () => {
     const scores = {
       history_falling: fieldValues.morse_history_falling === 'Yes' ? 25 : 0,
@@ -238,202 +233,177 @@ export function RiskTab({ onFieldChange, fieldValues }: RiskTabProps) {
           dataSource: 'manual'
         }
       ]
+    },
+    {
+      id: 'norton-scale',
+      title: 'Norton Scale - Pressure Injury Risk',
+      fields: [
+        {
+          id: 'norton_physical',
+          label: 'Physical Condition',
+          type: 'select',
+          options: [
+            { value: '4', label: 'Good (4)' },
+            { value: '3', label: 'Fair (3)' },
+            { value: '2', label: 'Poor (2)' },
+            { value: '1', label: 'Very bad (1)' }
+          ],
+          dataSource: 'manual'
+        },
+        {
+          id: 'norton_mental',
+          label: 'Mental Condition',
+          type: 'select',
+          options: [
+            { value: '4', label: 'Alert (4)' },
+            { value: '3', label: 'Apathetic (3)' },
+            { value: '2', label: 'Confused (2)' },
+            { value: '1', label: 'Stuporous (1)' }
+          ],
+          dataSource: 'manual'
+        },
+        {
+          id: 'norton_activity',
+          label: 'Activity',
+          type: 'select',
+          options: [
+            { value: '4', label: 'Ambulant (4)' },
+            { value: '3', label: 'Walk with help (3)' },
+            { value: '2', label: 'Chairfast (2)' },
+            { value: '1', label: 'Bedfast (1)' }
+          ],
+          dataSource: 'manual'
+        },
+        {
+          id: 'norton_mobility',
+          label: 'Mobility',
+          type: 'select',
+          options: [
+            { value: '4', label: 'Full (4)' },
+            { value: '3', label: 'Slightly limited (3)' },
+            { value: '2', label: 'Very limited (2)' },
+            { value: '1', label: 'Immobile (1)' }
+          ],
+          dataSource: 'manual'
+        },
+        {
+          id: 'norton_incontinent',
+          label: 'Incontinent',
+          type: 'select',
+          options: [
+            { value: '4', label: 'Not (4)' },
+            { value: '3', label: 'Occasionally (3)' },
+            { value: '2', label: 'Usually (2)' },
+            { value: '1', label: 'Doubly (1)' }
+          ],
+          dataSource: 'manual'
+        },
+        {
+          id: 'norton_total',
+          label: 'Total Score /20',
+          type: 'calculated',
+          calculation: (values) => {
+            return (parseInt(values.norton_physical || '0') + 
+                    parseInt(values.norton_mental || '0') + 
+                    parseInt(values.norton_activity || '0') + 
+                    parseInt(values.norton_mobility || '0') + 
+                    parseInt(values.norton_incontinent || '0'));
+          }
+        }
+      ]
+    },
+    {
+      id: 'braden-scale',
+      title: 'Braden Scale - Pressure Injury Risk',
+      fields: [
+        {
+          id: 'braden_sensory',
+          label: 'Sensory Perception',
+          type: 'select',
+          options: [
+            { value: '1', label: 'Completely limited (1)' },
+            { value: '2', label: 'Very limited (2)' },
+            { value: '3', label: 'Slightly limited (3)' },
+            { value: '4', label: 'No impairment (4)' }
+          ],
+          dataSource: 'manual'
+        },
+        {
+          id: 'braden_moisture',
+          label: 'Moisture',
+          type: 'select',
+          options: [
+            { value: '1', label: 'Constantly moist (1)' },
+            { value: '2', label: 'Very moist (2)' },
+            { value: '3', label: 'Occasionally moist (3)' },
+            { value: '4', label: 'Rarely moist (4)' }
+          ],
+          dataSource: 'manual'
+        },
+        {
+          id: 'braden_activity',
+          label: 'Activity',
+          type: 'select',
+          options: [
+            { value: '1', label: 'Bedfast (1)' },
+            { value: '2', label: 'Chairfast (2)' },
+            { value: '3', label: 'Walks occasionally (3)' },
+            { value: '4', label: 'Walks frequently (4)' }
+          ],
+          dataSource: 'manual'
+        },
+        {
+          id: 'braden_mobility',
+          label: 'Mobility',
+          type: 'select',
+          options: [
+            { value: '1', label: 'Completely immobile (1)' },
+            { value: '2', label: 'Very limited (2)' },
+            { value: '3', label: 'Slightly limited (3)' },
+            { value: '4', label: 'No limitation (4)' }
+          ],
+          dataSource: 'manual'
+        },
+        {
+          id: 'braden_nutrition',
+          label: 'Nutrition',
+          type: 'select',
+          options: [
+            { value: '1', label: 'Very Poor (1)' },
+            { value: '2', label: 'Probably inadequate (2)' },      
+            { value: '3', label: 'Adequate (3)' },
+            { value: '4', label: 'Excellent (4)' }
+          ],
+          dataSource: 'manual'
+        },
+        {
+          id: 'braden_friction',
+          label: 'Friction & Shear',
+          type: 'select',
+          options: [
+            { value: '1', label: 'Problem (1)' },
+            { value: '2', label: 'Potential problem (2)' },
+            { value: '3', label: 'No apparent problem (3)' }
+          ],
+          dataSource: 'manual'
+        },
+        {
+          id: 'braden_total',
+          label: 'Total Score /23',
+          type: 'calculated',
+          calculation: (values) => {
+            return (parseInt(values.braden_sensory || '0') + 
+                    parseInt(values.braden_moisture || '0') + 
+                    parseInt(values.braden_activity || '0') + 
+                    parseInt(values.braden_mobility || '0') + 
+                    parseInt(values.braden_nutrition || '0') + 
+                    parseInt(values.braden_friction || '0'));
+          }
+        }
+      ]
     }
   ];
 
-  // Custom pressure injury risk component
-  const PressureInjuryRiskTabs = () => (
-    <Tabs value={pressureInjuryTab} onValueChange={setPressureInjuryTab} className="w-full">
-      <TabsList className="grid w-full grid-cols-2">
-        <TabsTrigger value="norton">Norton Scale</TabsTrigger>
-        <TabsTrigger value="braden">Braden Scale</TabsTrigger>
-      </TabsList>
-      
-      <InnerTabsContent value="norton" className="space-y-3">
-        <div className="space-y-2">
-          <div>
-            <label className="text-xs font-medium">Physical Condition</label>
-            <select 
-              className="w-full mt-1 p-1.5 border rounded text-sm"
-              value={fieldValues.norton_physical || ''}
-              onChange={(e) => onFieldChange('norton_physical', e.target.value)}
-            >
-              <option value="">Select...</option>
-              <option value="4">Good (4)</option>
-              <option value="3">Fair (3)</option>
-              <option value="2">Poor (2)</option>
-              <option value="1">Very bad (1)</option>
-            </select>
-          </div>
-          <div>
-            <label className="text-xs font-medium">Mental Condition</label>
-            <select 
-              className="w-full mt-1 p-1.5 border rounded text-sm"
-              value={fieldValues.norton_mental || ''}
-              onChange={(e) => onFieldChange('norton_mental', e.target.value)}
-            >
-              <option value="">Select...</option>
-              <option value="4">Alert (4)</option>
-              <option value="3">Apathetic (3)</option>
-              <option value="2">Confused (2)</option>
-              <option value="1">Stuporous (1)</option>
-            </select>
-          </div>
-          <div>
-            <label className="text-xs font-medium">Activity</label>
-            <select 
-              className="w-full mt-1 p-1.5 border rounded text-sm"
-              value={fieldValues.norton_activity || ''}
-              onChange={(e) => onFieldChange('norton_activity', e.target.value)}
-            >
-              <option value="">Select...</option>
-              <option value="4">Ambulant (4)</option>
-              <option value="3">Walk with help (3)</option>
-              <option value="2">Chairfast (2)</option>
-              <option value="1">Bedfast (1)</option>
-            </select>
-          </div>
-          <div>
-            <label className="text-xs font-medium">Mobility</label>
-            <select 
-              className="w-full mt-1 p-1.5 border rounded text-sm"
-              value={fieldValues.norton_mobility || ''}
-              onChange={(e) => onFieldChange('norton_mobility', e.target.value)}
-            >
-              <option value="">Select...</option>
-              <option value="4">Full (4)</option>
-              <option value="3">Slightly limited (3)</option>
-              <option value="2">Very limited (2)</option>
-              <option value="1">Immobile (1)</option>
-            </select>
-          </div>
-          <div>
-            <label className="text-xs font-medium">Incontinent</label>
-            <select 
-              className="w-full mt-1 p-1.5 border rounded text-sm"
-              value={fieldValues.norton_incontinent || ''}
-              onChange={(e) => onFieldChange('norton_incontinent', e.target.value)}
-            >
-              <option value="">Select...</option>
-              <option value="4">Not (4)</option>
-              <option value="3">Occasionally (3)</option>
-              <option value="2">Usually (2)</option>
-              <option value="1">Doubly (1)</option>
-            </select>
-          </div>
-          <div className="pt-2 border-t">
-            <span className="text-xs font-medium">Total Score: </span>
-            <Badge variant="secondary" className="text-xs">
-              {(parseInt(fieldValues.norton_physical || '0') + 
-                parseInt(fieldValues.norton_mental || '0') + 
-                parseInt(fieldValues.norton_activity || '0') + 
-                parseInt(fieldValues.norton_mobility || '0') + 
-                parseInt(fieldValues.norton_incontinent || '0'))} /20
-            </Badge>
-          </div>
-        </div>
-      </InnerTabsContent>
-      
-      <InnerTabsContent value="braden" className="space-y-3">
-        <div className="space-y-2">
-          <div>
-            <label className="text-xs font-medium">Sensory Perception</label>
-            <select 
-              className="w-full mt-1 p-1.5 border rounded text-sm"
-              value={fieldValues.braden_sensory || ''}
-              onChange={(e) => onFieldChange('braden_sensory', e.target.value)}
-            >
-              <option value="">Select...</option>
-              <option value="1">Completely limited (1)</option>
-              <option value="2">Very limited (2)</option>
-              <option value="3">Slightly limited (3)</option>
-              <option value="4">No impairment (4)</option>
-            </select>
-          </div>
-          <div>
-            <label className="text-xs font-medium">Moisture</label>
-            <select 
-              className="w-full mt-1 p-1.5 border rounded text-sm"
-              value={fieldValues.braden_moisture || ''}
-              onChange={(e) => onFieldChange('braden_moisture', e.target.value)}
-            >
-              <option value="">Select...</option>
-              <option value="1">Constantly moist (1)</option>
-              <option value="2">Very moist (2)</option>
-              <option value="3">Occasionally moist (3)</option>
-              <option value="4">Rarely moist (4)</option>
-            </select>
-          </div>
-          <div>
-            <label className="text-xs font-medium">Activity</label>
-            <select 
-              className="w-full mt-1 p-1.5 border rounded text-sm"
-              value={fieldValues.braden_activity || ''}
-              onChange={(e) => onFieldChange('braden_activity', e.target.value)}
-            >
-              <option value="">Select...</option>
-              <option value="1">Bedfast (1)</option>
-              <option value="2">Chairfast (2)</option>
-              <option value="3">Walks occasionally (3)</option>
-              <option value="4">Walks frequently (4)</option>
-            </select>
-          </div>
-          <div>
-            <label className="text-xs font-medium">Mobility</label>
-            <select 
-              className="w-full mt-1 p-1.5 border rounded text-sm"
-              value={fieldValues.braden_mobility || ''}
-              onChange={(e) => onFieldChange('braden_mobility', e.target.value)}
-            >
-              <option value="">Select...</option>
-              <option value="1">Completely immobile (1)</option>
-              <option value="2">Very limited (2)</option>
-              <option value="3">Slightly limited (3)</option>
-              <option value="4">No limitation (4)</option>
-            </select>
-          </div>
-          <div>
-            <label className="text-xs font-medium">Nutrition</label>
-            <select 
-              className="w-full mt-1 p-1.5 border rounded text-sm"
-              value={fieldValues.braden_nutrition || ''}
-              onChange={(e) => onFieldChange('braden_nutrition', e.target.value)}
-            >
-              <option value="">Select...</option>
-              <option value="1">Very Poor (1)</option>
-              <option value="2">Probably inadequate (2)</option>
-              <option value="3">Adequate (3)</option>
-              <option value="4">Excellent (4)</option>
-            </select>
-          </div>
-          <div>
-            <label className="text-xs font-medium">Friction & Shear</label>
-            <select 
-              className="w-full mt-1 p-1.5 border rounded text-sm"
-              value={fieldValues.braden_friction || ''}
-              onChange={(e) => onFieldChange('braden_friction', e.target.value)}
-            >
-              <option value="">Select...</option>
-              <option value="1">Problem (1)</option>
-              <option value="2">Potential problem (2)</option>
-              <option value="3">No apparent problem (3)</option>
-            </select>
-          </div>
-          <div className="pt-2 border-t">
-            <span className="text-xs font-medium">Total Score: </span>
-            <Badge variant="secondary" className="text-xs">
-              {(parseInt(fieldValues.braden_sensory || '0') + 
-                parseInt(fieldValues.braden_moisture || '0') + 
-                parseInt(fieldValues.braden_activity || '0') + 
-                parseInt(fieldValues.braden_mobility || '0') + 
-                parseInt(fieldValues.braden_nutrition || '0') + 
-                parseInt(fieldValues.braden_friction || '0'))} /23
-            </Badge>
-          </div>
-        </div>
-      </InnerTabsContent>
-    </Tabs>
-  );
 
   return (
     <TabsContent value="risk" className="mt-0">
@@ -446,13 +416,6 @@ export function RiskTab({ onFieldChange, fieldValues }: RiskTabProps) {
         fieldValues={fieldValues}
       />
       
-      {/* Custom Pressure Injury Risk Section - Integrated */}
-      <div className="mt-6">
-        <div className="bg-card rounded-lg border p-4 max-w-md">
-          <h3 className="text-base font-semibold mb-3">Pressure Injury Risk Assessment</h3>
-          <PressureInjuryRiskTabs />
-        </div>
-      </div>
       
       {/* Fall Risk Score Display */}
       {fieldValues.morse_total_score && (
