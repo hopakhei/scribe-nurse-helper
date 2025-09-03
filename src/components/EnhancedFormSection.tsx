@@ -9,12 +9,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Plus, Calculator, CalendarIcon } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Plus, Calculator, CalendarIcon, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { format } from "date-fns";
 
-export type FieldType = 'text' | 'textarea' | 'select' | 'checkbox' | 'number' | 'radio' | 'date' | 'time' | 'calculated' | 'inline-group' | 'datepicker' | 'multi-select' | 'file' | 'file-upload' | 'dynamic-group' | 'nested-tabs';
+export type FieldType = 'text' | 'textarea' | 'select' | 'checkbox' | 'number' | 'radio' | 'date' | 'time' | 'calculated' | 'inline-group' | 'datepicker' | 'multi-select' | 'file' | 'file-upload' | 'dynamic-group' | 'nested-tabs' | 'dialog';
 export type DataSource = 'pre-populated' | 'ai-filled' | 'manual';
 
 interface OptionItem {
@@ -44,6 +45,10 @@ export interface FormField {
   tabs?: { id: string; label: string; fields: FormField[] }[];
   addButtonLabel?: string;
   itemSchema?: FormField[];
+  // Dialog-specific properties
+  dialogTitle?: string;
+  dialogFields?: FormField[];
+  dialogTriggerLabel?: string;
 }
 
 export interface FormCard {
@@ -440,6 +445,45 @@ export function EnhancedFormSection({
             <p className="text-sm text-muted-foreground">
               Nested tabs feature coming soon...
             </p>
+          </div>
+        );
+
+      case 'dialog':
+        const isDialogEnabled = currentValue === true;
+        return (
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              checked={isDialogEnabled}
+              onCheckedChange={(checked) => onFieldChange(field.id, checked)}
+              disabled={isDisabled}
+            />
+            <Label className="text-sm">{field.label}</Label>
+            {isDialogEnabled && (
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="sm" className="ml-2">
+                    <Settings className="w-4 h-4 mr-1" />
+                    {field.dialogTriggerLabel || 'Configure'}
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>{field.dialogTitle || field.label}</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4 py-4">
+                    {field.dialogFields?.map((dialogField) => (
+                      <div key={dialogField.id} className="space-y-2">
+                        <Label className="text-sm font-medium">
+                          {dialogField.label}
+                          {dialogField.required && <span className="text-destructive ml-1">*</span>}
+                        </Label>
+                        {renderField(dialogField)}
+                      </div>
+                    ))}
+                  </div>
+                </DialogContent>
+              </Dialog>
+            )}
           </div>
         );
       
