@@ -254,12 +254,44 @@ export function EnhancedFormSection({
         );
       
       case 'checkbox':
+        // Handle checkbox with multiple options (checkbox group)
+        if (field.options && field.options.length > 0) {
+          const selectedValues = Array.isArray(currentValue) ? currentValue : [];
+          
+          return (
+            <div className="space-y-2">
+              {normalizedOptions.map((option) => (
+                <div key={option.value} className="flex items-center space-x-2">
+                  <Checkbox
+                    checked={selectedValues.includes(String(option.value))}
+                    onCheckedChange={(checked) => {
+                      const newValues = checked
+                        ? [...selectedValues, String(option.value)]
+                        : selectedValues.filter(v => v !== String(option.value));
+                      onFieldChange(field.id, newValues);
+                    }}
+                    disabled={isDisabled}
+                    id={`${field.id}-${option.value}`}
+                  />
+                  <Label htmlFor={`${field.id}-${option.value}`} className="text-sm">
+                    {option.label}
+                  </Label>
+                </div>
+              ))}
+              {field.subLabel && (
+                <p className="text-xs text-muted-foreground mt-1">{field.subLabel}</p>
+              )}
+            </div>
+          );
+        }
+        
+        // Handle single checkbox (boolean)
         return (
           <div className="flex items-center space-x-2">
             <Checkbox
               checked={currentValue as boolean || false}
               onCheckedChange={(checked) => onFieldChange(field.id, checked)}
-              disabled={field.dataSource === 'pre-populated'}
+              disabled={isDisabled}
             />
             <Label className="text-sm">{field.label}</Label>
           </div>
