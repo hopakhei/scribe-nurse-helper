@@ -88,7 +88,7 @@ export function PhysicalTab({ onFieldChange, fieldValues }: PhysicalTabProps) {
     {
       id: 'urinalysis',
       title: 'Urinalysis',
-      column: 'right',
+      column: 'left',
       fields: [
         { id: 'urinalysis_sugar', label: 'Sugar', type: 'select', options: ['Negative', 'Trace', '+', '++', '+++ or above'], dataSource: 'manual' },
         { id: 'urinalysis_albumin', label: 'Albumin', type: 'select', options: ['Negative', 'Trace', '+', '++', '+++ or above'], dataSource: 'manual' },
