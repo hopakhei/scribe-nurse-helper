@@ -21,7 +21,7 @@ export function SkinPainTab({ onFieldChange, fieldValues }: SkinPainTabProps) {
           label: 'Wounds',
           type: 'dynamic-group',
           dataSource: 'manual',
-          addButtonLabel: '+ Add Wound',
+          addButtonLabel: 'Add Wound',
           itemSchema: [ // Defines the fields for each wound entry
             { id: 'wound_type', label: 'Type', type: 'select', options: ['Pressure injury', 'Abrasion', 'Laceration', 'Ulcer', 'Suture wound', 'Burn'], dataSource: 'manual' },
             { id: 'wound_location', label: 'Location / Site', type: 'text', dataSource: 'manual' },
