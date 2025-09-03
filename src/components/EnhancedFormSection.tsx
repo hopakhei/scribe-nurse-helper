@@ -226,7 +226,7 @@ export function EnhancedFormSection({
               <SelectTrigger className={fieldClass}>
                 <SelectValue placeholder="Select option..." />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="z-50">
                 {normalizedOptions.map((option) => (
                   <SelectItem key={option.value} value={String(option.value)}>
                     {option.label}
@@ -309,7 +309,7 @@ export function EnhancedFormSection({
                 {dateValue ? format(dateValue, "PPP") : <span>Pick a date</span>}
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
+            <PopoverContent className="w-auto p-0 z-50" align="start">
               <Calendar
                 mode="single"
                 selected={dateValue}
@@ -473,6 +473,9 @@ export function EnhancedFormSection({
               if (field.showCondition && !field.showCondition(fieldValues[field.id])) {
                 return null;
               }
+              if (field.displayCondition && !evaluateCondition(field.displayCondition, fieldValues)) {
+                return null;
+              }
 
               return (
                 <div key={field.id} className={cn(
@@ -546,9 +549,9 @@ export function EnhancedFormSection({
   const getLayoutClass = () => {
     switch (normalizedLayout) {
       case 'two-column':
-        return 'grid grid-cols-1 lg:grid-cols-2 gap-6';
+        return 'grid grid-cols-1 lg:grid-cols-2 gap-6 grid-flow-row-dense';
       case 'three-column':
-        return 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6';
+        return 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 grid-flow-row-dense';
       default:
         return 'space-y-6';
     }
