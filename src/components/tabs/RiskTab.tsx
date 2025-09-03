@@ -302,19 +302,6 @@ export function RiskTab({ onFieldChange, fieldValues }: RiskTabProps) {
       ]
     },
     {
-      id: 'missing-risk',
-      title: 'Missing Risk',
-      fields: [
-        {
-          id: 'missing_risk_status',
-          label: 'Missing Risk Assessment',
-          type: 'radio',
-          options: ['At risk', 'Not at risk'],
-          dataSource: 'manual'
-        }
-      ]
-    },
-    {
       id: 'fall-risk',
       title: 'Fall Risk Assessment',
       fields: [
@@ -415,6 +402,19 @@ export function RiskTab({ onFieldChange, fieldValues }: RiskTabProps) {
           label: 'Disclosure by relatives / friends that patient has suicidal inclination',
           type: 'radio',
           options: ['Yes', 'No', 'Not applicable'],
+          dataSource: 'manual'
+        }
+      ]
+    },
+    {
+      id: 'missing-risk',
+      title: 'Missing Risk',
+      fields: [
+        {
+          id: 'missing_risk_status',
+          label: 'Missing Risk Assessment',
+          type: 'radio',
+          options: ['At risk', 'Not at risk'],
           dataSource: 'manual'
         }
       ]
