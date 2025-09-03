@@ -117,218 +117,6 @@ export function RiskTab({ onFieldChange, fieldValues }: RiskTabProps) {
       ]
     },
     {
-      id: 'suicide-risk',
-      title: 'Suicide Risk Assessment',
-      fields: [
-        {
-          id: 'suicide_admitted_attempt',
-          label: 'Patient was admitted because of suicidal attempt or idea',
-          type: 'radio',
-          options: ['Yes', 'No'],
-          dataSource: 'manual'
-        },
-        {
-          id: 'suicide_expresses_idea',
-          label: 'Patient expresses suicidal idea or self-harm behaviour',
-          type: 'radio',
-          options: ['Yes', 'No'],
-          dataSource: 'manual'
-        },
-        {
-          id: 'suicide_disclosure_relatives',
-          label: 'Disclosure by relatives / friends that patient has suicidal inclination',
-          type: 'radio',
-          options: ['Yes', 'No', 'Not applicable'],
-          dataSource: 'manual'
-        }
-      ]
-    },
-    {
-      id: 'pressure-injury-risk',
-      title: 'Pressure Injury Risk Assessment',
-      fields: [
-        {
-          id: 'pressure_scale_type',
-          label: 'Assessment Scale',
-          type: 'radio',
-          options: ['Norton Scale', 'Braden Scale'],
-          defaultValue: 'Norton Scale',
-          dataSource: 'manual'
-        },
-        // Norton Scale Fields
-        {
-          id: 'norton_physical',
-          label: 'Physical Condition',
-          type: 'select',
-          options: [
-            { value: '4', label: 'Good (4)' },
-            { value: '3', label: 'Fair (3)' },
-            { value: '2', label: 'Poor (2)' },
-            { value: '1', label: 'Very bad (1)' }
-          ],
-          dataSource: 'manual',
-          displayCondition: 'pressure_scale_type === "Norton Scale"'
-        },
-        {
-          id: 'norton_mental',
-          label: 'Mental Condition', 
-          type: 'select',
-          options: [
-            { value: '4', label: 'Alert (4)' },
-            { value: '3', label: 'Apathetic (3)' },
-            { value: '2', label: 'Confused (2)' },
-            { value: '1', label: 'Stuporous (1)' }
-          ],
-          dataSource: 'manual',
-          displayCondition: 'pressure_scale_type === "Norton Scale"'
-        },
-        {
-          id: 'norton_activity',
-          label: 'Activity',
-          type: 'select',
-          options: [
-            { value: '4', label: 'Ambulant (4)' },
-            { value: '3', label: 'Walk with help (3)' },
-            { value: '2', label: 'Chairfast (2)' },
-            { value: '1', label: 'Bedfast (1)' }
-          ],
-          dataSource: 'manual',
-          displayCondition: 'pressure_scale_type === "Norton Scale"'
-        },
-        {
-          id: 'norton_mobility',
-          label: 'Mobility',
-          type: 'select',
-          options: [
-            { value: '4', label: 'Full (4)' },
-            { value: '3', label: 'Slightly limited (3)' },
-            { value: '2', label: 'Very limited (2)' },
-            { value: '1', label: 'Immobile (1)' }
-          ],
-          dataSource: 'manual',
-          displayCondition: 'pressure_scale_type === "Norton Scale"'
-        },
-        {
-          id: 'norton_incontinent',
-          label: 'Incontinent',
-          type: 'select',
-          options: [
-            { value: '4', label: 'Not (4)' },
-            { value: '3', label: 'Occasionally (3)' },
-            { value: '2', label: 'Usually (2)' },
-            { value: '1', label: 'Doubly (1)' }
-          ],
-          dataSource: 'manual',
-          displayCondition: 'pressure_scale_type === "Norton Scale"'
-        },
-        {
-          id: 'norton_total',
-          label: 'Total Score /20',
-          type: 'calculated',
-          calculation: (values) => {
-            return (parseInt(values.norton_physical || '0') + 
-                    parseInt(values.norton_mental || '0') + 
-                    parseInt(values.norton_activity || '0') + 
-                    parseInt(values.norton_mobility || '0') + 
-                    parseInt(values.norton_incontinent || '0'));
-          },
-          displayCondition: 'pressure_scale_type === "Norton Scale"'
-        },
-        // Braden Scale Fields
-        {
-          id: 'braden_sensory',
-          label: 'Sensory Perception',
-          type: 'select',
-          options: [
-            { value: '1', label: 'Completely limited (1)' },
-            { value: '2', label: 'Very limited (2)' },
-            { value: '3', label: 'Slightly limited (3)' },
-            { value: '4', label: 'No impairment (4)' }
-          ],
-          dataSource: 'manual',
-          displayCondition: 'pressure_scale_type === "Braden Scale"'
-        },
-        {
-          id: 'braden_moisture',
-          label: 'Moisture',
-          type: 'select',
-          options: [
-            { value: '1', label: 'Constantly moist (1)' },
-            { value: '2', label: 'Very moist (2)' },
-            { value: '3', label: 'Occasionally moist (3)' },
-            { value: '4', label: 'Rarely moist (4)' }
-          ],
-          dataSource: 'manual',
-          displayCondition: 'pressure_scale_type === "Braden Scale"'
-        },
-        {
-          id: 'braden_activity',
-          label: 'Activity',
-          type: 'select',
-          options: [
-            { value: '1', label: 'Bedfast (1)' },
-            { value: '2', label: 'Chairfast (2)' },
-            { value: '3', label: 'Walks occasionally (3)' },
-            { value: '4', label: 'Walks frequently (4)' }
-          ],
-          dataSource: 'manual',
-          displayCondition: 'pressure_scale_type === "Braden Scale"'
-        },
-        {
-          id: 'braden_mobility',
-          label: 'Mobility',
-          type: 'select',
-          options: [
-            { value: '1', label: 'Completely immobile (1)' },
-            { value: '2', label: 'Very limited (2)' },
-            { value: '3', label: 'Slightly limited (3)' },
-            { value: '4', label: 'No limitation (4)' }
-          ],
-          dataSource: 'manual',
-          displayCondition: 'pressure_scale_type === "Braden Scale"'
-        },
-        {
-          id: 'braden_nutrition',
-          label: 'Nutrition',
-          type: 'select',
-          options: [
-            { value: '1', label: 'Very Poor (1)' },
-            { value: '2', label: 'Probably inadequate (2)' },      
-            { value: '3', label: 'Adequate (3)' },
-            { value: '4', label: 'Excellent (4)' }
-          ],
-          dataSource: 'manual',
-          displayCondition: 'pressure_scale_type === "Braden Scale"'
-        },
-        {
-          id: 'braden_friction',
-          label: 'Friction & Shear',
-          type: 'select',
-          options: [
-            { value: '1', label: 'Problem (1)' },
-            { value: '2', label: 'Potential problem (2)' },
-            { value: '3', label: 'No apparent problem (3)' }
-          ],
-          dataSource: 'manual',
-          displayCondition: 'pressure_scale_type === "Braden Scale"'
-        },
-        {
-          id: 'braden_total',
-          label: 'Total Score /23',
-          type: 'calculated',
-          calculation: (values) => {
-            return (parseInt(values.braden_sensory || '0') + 
-                    parseInt(values.braden_moisture || '0') + 
-                    parseInt(values.braden_activity || '0') + 
-                    parseInt(values.braden_mobility || '0') + 
-                    parseInt(values.braden_nutrition || '0') + 
-                    parseInt(values.braden_friction || '0'));
-          },
-          displayCondition: 'pressure_scale_type === "Braden Scale"'
-        }
-      ]
-    },
-    {
       id: 'fall-risk',
       title: 'Fall Risk Assessment',
       fields: [
@@ -403,6 +191,218 @@ export function RiskTab({ onFieldChange, fieldValues }: RiskTabProps) {
           label: 'Remarks',
           type: 'textarea',
           dataSource: 'manual'
+        }
+      ]
+    },
+    {
+      id: 'suicide-risk',
+      title: 'Suicide Risk Assessment',
+      fields: [
+        {
+          id: 'suicide_admitted_attempt',
+          label: 'Patient was admitted because of suicidal attempt or idea',
+          type: 'radio',
+          options: ['Yes', 'No'],
+          dataSource: 'manual'
+        },
+        {
+          id: 'suicide_expresses_idea',
+          label: 'Patient expresses suicidal idea or self-harm behaviour',
+          type: 'radio',
+          options: ['Yes', 'No'],
+          dataSource: 'manual'
+        },
+        {
+          id: 'suicide_disclosure_relatives',
+          label: 'Disclosure by relatives / friends that patient has suicidal inclination',
+          type: 'radio',
+          options: ['Yes', 'No', 'Not applicable'],
+          dataSource: 'manual'
+        }
+      ]
+    },
+    {
+      id: 'pressure-injury-risk',
+      title: 'Pressure Injury Risk Assessment',
+      fields: [
+        {
+          id: 'pressure_scale_type',
+          label: 'Assessment Scale',
+          type: 'radio',
+          options: ['Norton Scale', 'Braden Scale'],
+          defaultValue: 'Norton Scale',
+          dataSource: 'manual'
+        },
+        // Norton Scale Fields
+        {
+          id: 'norton_physical',
+          label: 'Physical Condition',
+          type: 'select',
+          options: [
+            { value: '4', label: 'Good (4)' },
+            { value: '3', label: 'Fair (3)' },
+            { value: '2', label: 'Poor (2)' },
+            { value: '1', label: 'Very bad (1)' }
+          ],
+          dataSource: 'manual',
+          displayCondition: 'pressure_scale_type == "Norton Scale"'
+        },
+        {
+          id: 'norton_mental',
+          label: 'Mental Condition', 
+          type: 'select',
+          options: [
+            { value: '4', label: 'Alert (4)' },
+            { value: '3', label: 'Apathetic (3)' },
+            { value: '2', label: 'Confused (2)' },
+            { value: '1', label: 'Stuporous (1)' }
+          ],
+          dataSource: 'manual',
+          displayCondition: 'pressure_scale_type == "Norton Scale"'
+        },
+        {
+          id: 'norton_activity',
+          label: 'Activity',
+          type: 'select',
+          options: [
+            { value: '4', label: 'Ambulant (4)' },
+            { value: '3', label: 'Walk with help (3)' },
+            { value: '2', label: 'Chairfast (2)' },
+            { value: '1', label: 'Bedfast (1)' }
+          ],
+          dataSource: 'manual',
+          displayCondition: 'pressure_scale_type == "Norton Scale"'
+        },
+        {
+          id: 'norton_mobility',
+          label: 'Mobility',
+          type: 'select',
+          options: [
+            { value: '4', label: 'Full (4)' },
+            { value: '3', label: 'Slightly limited (3)' },
+            { value: '2', label: 'Very limited (2)' },
+            { value: '1', label: 'Immobile (1)' }
+          ],
+          dataSource: 'manual',
+          displayCondition: 'pressure_scale_type == "Norton Scale"'
+        },
+        {
+          id: 'norton_incontinent',
+          label: 'Incontinent',
+          type: 'select',
+          options: [
+            { value: '4', label: 'Not (4)' },
+            { value: '3', label: 'Occasionally (3)' },
+            { value: '2', label: 'Usually (2)' },
+            { value: '1', label: 'Doubly (1)' }
+          ],
+          dataSource: 'manual',
+          displayCondition: 'pressure_scale_type == "Norton Scale"'
+        },
+        {
+          id: 'norton_total',
+          label: 'Total Score /20',
+          type: 'calculated',
+          calculation: (values) => {
+            return (parseInt(values.norton_physical || '0') + 
+                    parseInt(values.norton_mental || '0') + 
+                    parseInt(values.norton_activity || '0') + 
+                    parseInt(values.norton_mobility || '0') + 
+                    parseInt(values.norton_incontinent || '0'));
+          },
+          displayCondition: 'pressure_scale_type == "Norton Scale"'
+        },
+        // Braden Scale Fields
+        {
+          id: 'braden_sensory',
+          label: 'Sensory Perception',
+          type: 'select',
+          options: [
+            { value: '1', label: 'Completely limited (1)' },
+            { value: '2', label: 'Very limited (2)' },
+            { value: '3', label: 'Slightly limited (3)' },
+            { value: '4', label: 'No impairment (4)' }
+          ],
+          dataSource: 'manual',
+          displayCondition: 'pressure_scale_type == "Braden Scale"'
+        },
+        {
+          id: 'braden_moisture',
+          label: 'Moisture',
+          type: 'select',
+          options: [
+            { value: '1', label: 'Constantly moist (1)' },
+            { value: '2', label: 'Very moist (2)' },
+            { value: '3', label: 'Occasionally moist (3)' },
+            { value: '4', label: 'Rarely moist (4)' }
+          ],
+          dataSource: 'manual',
+          displayCondition: 'pressure_scale_type == "Braden Scale"'
+        },
+        {
+          id: 'braden_activity',
+          label: 'Activity',
+          type: 'select',
+          options: [
+            { value: '1', label: 'Bedfast (1)' },
+            { value: '2', label: 'Chairfast (2)' },
+            { value: '3', label: 'Walks occasionally (3)' },
+            { value: '4', label: 'Walks frequently (4)' }
+          ],
+          dataSource: 'manual',
+          displayCondition: 'pressure_scale_type == "Braden Scale"'
+        },
+        {
+          id: 'braden_mobility',
+          label: 'Mobility',
+          type: 'select',
+          options: [
+            { value: '1', label: 'Completely immobile (1)' },
+            { value: '2', label: 'Very limited (2)' },
+            { value: '3', label: 'Slightly limited (3)' },
+            { value: '4', label: 'No limitation (4)' }
+          ],
+          dataSource: 'manual',
+          displayCondition: 'pressure_scale_type == "Braden Scale"'
+        },
+        {
+          id: 'braden_nutrition',
+          label: 'Nutrition',
+          type: 'select',
+          options: [
+            { value: '1', label: 'Very Poor (1)' },
+            { value: '2', label: 'Probably inadequate (2)' },      
+            { value: '3', label: 'Adequate (3)' },
+            { value: '4', label: 'Excellent (4)' }
+          ],
+          dataSource: 'manual',
+          displayCondition: 'pressure_scale_type == "Braden Scale"'
+        },
+        {
+          id: 'braden_friction',
+          label: 'Friction & Shear',
+          type: 'select',
+          options: [
+            { value: '1', label: 'Problem (1)' },
+            { value: '2', label: 'Potential problem (2)' },
+            { value: '3', label: 'No apparent problem (3)' }
+          ],
+          dataSource: 'manual',
+          displayCondition: 'pressure_scale_type == "Braden Scale"'
+        },
+        {
+          id: 'braden_total',
+          label: 'Total Score /23',
+          type: 'calculated',
+          calculation: (values) => {
+            return (parseInt(values.braden_sensory || '0') + 
+                    parseInt(values.braden_moisture || '0') + 
+                    parseInt(values.braden_activity || '0') + 
+                    parseInt(values.braden_mobility || '0') + 
+                    parseInt(values.braden_nutrition || '0') + 
+                    parseInt(values.braden_friction || '0'));
+          },
+          displayCondition: 'pressure_scale_type == "Braden Scale"'
         }
       ]
     },
