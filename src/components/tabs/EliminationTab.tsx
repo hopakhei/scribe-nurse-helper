@@ -105,77 +105,77 @@ export function EliminationTab({ onFieldChange, fieldValues }: EliminationTabPro
           type: 'text',
           dataSource: 'manual'
         },
-        // Urinary Catheter Dialog
+        // Urinary Catheter Section
         {
           id: 'urinary_catheter',
           label: 'Urinary catheter',
-          type: 'dialog',
-          dataSource: 'manual',
-          dialogTitle: 'Urinary Catheter Details',
-          dialogTriggerLabel: 'Details',
-          dialogFields: [
-            {
-              id: 'urinary_catheter_site',
-              label: 'Site',
-              type: 'select',
-              options: ['Urethral', 'Suprapubic'],
-              dataSource: 'manual'
-            },
-            {
-              id: 'urinary_catheter_size',
-              label: 'Size',
-              type: 'text',
-              dataSource: 'manual'
-            },
-            {
-              id: 'urinary_catheter_type',
-              label: 'Type',
-              type: 'select',
-              options: ['Latex', 'Silicone'],
-              dataSource: 'manual'
-            },
-            {
-              id: 'urinary_catheter_renewal_date',
-              label: 'Date of last renewal',
-              type: 'datepicker',
-              dataSource: 'manual'
-            },
-            {
-              id: 'urinary_catheter_change_days',
-              label: 'Change every (day(s))',
-              type: 'number',
-              dataSource: 'manual'
-            }
-          ]
+          type: 'checkbox',
+          dataSource: 'manual'
         },
-        // Intermittent Catheterization Dialog
+        {
+          id: 'urinary_catheter_site',
+          label: 'Site',
+          type: 'select',
+          options: ['Urethral', 'Suprapubic'],
+          dataSource: 'manual',
+          displayCondition: 'urinary_catheter === true'
+        },
+        {
+          id: 'urinary_catheter_size',
+          label: 'Size',
+          type: 'text',
+          dataSource: 'manual',
+          displayCondition: 'urinary_catheter === true'
+        },
+        {
+          id: 'urinary_catheter_type',
+          label: 'Type',
+          type: 'select',
+          options: ['Latex', 'Silicone'],
+          dataSource: 'manual',
+          displayCondition: 'urinary_catheter === true'
+        },
+        {
+          id: 'urinary_catheter_renewal_date',
+          label: 'Date of last renewal',
+          type: 'datepicker',
+          dataSource: 'manual',
+          displayCondition: 'urinary_catheter === true'
+        },
+        {
+          id: 'urinary_catheter_change_days',
+          label: 'Change every (day(s))',
+          type: 'number',
+          dataSource: 'manual',
+          displayCondition: 'urinary_catheter === true'
+        },
+        // Intermittent Catheterization Section
         {
           id: 'intermittent_catheterization',
           label: 'Intermittent catheterization',
-          type: 'dialog',
+          type: 'checkbox',
+          dataSource: 'manual'
+        },
+        {
+          id: 'intermittent_catheter_size',
+          label: 'Size',
+          type: 'text',
           dataSource: 'manual',
-          dialogTitle: 'Intermittent Catheterization Details',
-          dialogTriggerLabel: 'Details',
-          dialogFields: [
-            {
-              id: 'intermittent_catheter_size',
-              label: 'Size',
-              type: 'text',
-              dataSource: 'manual'
-            },
-            {
-              id: 'self_catheterization',
-              label: 'Self catheterization',
-              type: 'checkbox',
-              dataSource: 'manual'
-            },
-            {
-              id: 'catheterization_times_per_day',
-              label: 'Perform (time(s)/day)',
-              type: 'number',
-              dataSource: 'manual'
-            }
-          ]
+          displayCondition: 'intermittent_catheterization === true'
+        },
+        {
+          id: 'self_catheterization',
+          label: 'Self catheterization',
+          type: 'checkbox',
+          dataSource: 'manual',
+          displayCondition: 'intermittent_catheterization === true'
+        },
+        {
+          id: 'catheterization_times_per_day',
+          label: 'Perform (time(s)/day)',
+          type: 'number',
+          dataSource: 'manual',
+          displayCondition: 'intermittent_catheterization === true'
         }
       ]
     },
