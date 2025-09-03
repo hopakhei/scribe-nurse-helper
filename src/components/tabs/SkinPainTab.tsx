@@ -44,15 +44,15 @@ export function SkinPainTab({ onFieldChange, fieldValues }: SkinPainTabProps) {
           type: 'radio',
           options: ['Low', 'Medium', 'High'],
           dataSource: 'manual',
-          disabledCondition: 'pain_status !== "Yes"'
+          displayCondition: 'pain_status === "Yes"'
         },
         {
           id: 'pain_location',
           label: 'Pain Location',
           type: 'checkbox',
-          options: ['Whole body', 'Head', 'Chest', 'Abdomen', 'Back', 'Upper limbs', 'Lower limbs'],
+          options: ['Whole body', 'Head', 'Face', 'Chest', 'Abdomen', 'Back', 'Upper limbs', 'Lower limbs', 'Others'],
           dataSource: 'manual',
-          disabledCondition: 'pain_status !== "Yes"'
+          displayCondition: 'pain_status === "Yes"'
         }
       ]
     }
