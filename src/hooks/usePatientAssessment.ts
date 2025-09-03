@@ -9,6 +9,8 @@ interface RiskScores {
   morseScore: number;
   mstScore: number;
   mewsScore: number;
+  nortonScore: number;
+  bradenScore: number;
 }
 
 interface FormFieldValue {
@@ -25,7 +27,9 @@ export const usePatientAssessment = (patientId?: string) => {
   const [riskScores, setRiskScores] = useState<RiskScores>({
     morseScore: 0,
     mstScore: 0,
-    mewsScore: 0
+    mewsScore: 0,
+    nortonScore: 0,
+    bradenScore: 0
   });
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessingAudio, setIsProcessingAudio] = useState(false);
@@ -395,10 +399,34 @@ export const usePatientAssessment = (patientId?: string) => {
       }
       mstScore += parseInt(fieldValues.mst_q2 || '0');
 
+      // Pressure Injury Scores calculation
+      let nortonScore = 0;
+      let bradenScore = 0;
+      
+      // Only calculate the score for the selected scale type
+      const selectedScale = fieldValues.pressure_scale_type || 'Norton Scale';
+      
+      if (selectedScale === 'Norton Scale') {
+        nortonScore = (parseInt(fieldValues.norton_physical || '0') + 
+                      parseInt(fieldValues.norton_mental || '0') + 
+                      parseInt(fieldValues.norton_activity || '0') + 
+                      parseInt(fieldValues.norton_mobility || '0') + 
+                      parseInt(fieldValues.norton_incontinent || '0'));
+      } else if (selectedScale === 'Braden Scale') {
+        bradenScore = (parseInt(fieldValues.braden_sensory || '0') + 
+                      parseInt(fieldValues.braden_moisture || '0') + 
+                      parseInt(fieldValues.braden_activity || '0') + 
+                      parseInt(fieldValues.braden_mobility || '0') + 
+                      parseInt(fieldValues.braden_nutrition || '0') + 
+                      parseInt(fieldValues.braden_friction || '0'));
+      }
+
       setRiskScores(prev => ({
         ...prev,
         morseScore,
-        mstScore
+        mstScore,
+        nortonScore,
+        bradenScore
       }));
     };
 

@@ -29,6 +29,21 @@ export function RiskTab({ onFieldChange, fieldValues }: RiskTabProps) {
     return { level: 'Low Risk', color: 'default' };
   };
 
+  const getNortonRiskLevel = (score: number) => {
+    if (score < 10) return { level: 'Very High Risk', color: 'destructive' };
+    if (score <= 13) return { level: 'High Risk', color: 'destructive' };
+    if (score <= 18) return { level: 'Medium Risk', color: 'secondary' };
+    return { level: 'Low Risk', color: 'default' };
+  };
+
+  const getBradenRiskLevel = (score: number) => {
+    if (score <= 9) return { level: 'Very High/Severe Risk', color: 'destructive' };
+    if (score <= 12) return { level: 'High Risk', color: 'destructive' };
+    if (score <= 14) return { level: 'Moderate Risk', color: 'secondary' };
+    if (score <= 18) return { level: 'Mild Risk', color: 'secondary' };
+    return { level: 'No Risk', color: 'default' };
+  };
+
   const cards: FormCard[] = [
     {
       id: 'infection-isolation',
@@ -444,6 +459,30 @@ export function RiskTab({ onFieldChange, fieldValues }: RiskTabProps) {
             <span className="font-medium">Morse Fall Scale Risk Level:</span>
             <Badge variant={getMorseRiskLevel(fieldValues.morse_total_score).color as any}>
               {getMorseRiskLevel(fieldValues.morse_total_score).level}
+            </Badge>
+          </div>
+        </div>
+      )}
+
+      {/* Norton Scale Risk Level Display */}
+      {fieldValues.norton_total && fieldValues.pressure_scale_type === 'Norton Scale' && (
+        <div className="mt-4 p-4 bg-muted rounded-lg">
+          <div className="flex items-center justify-between">
+            <span className="font-medium">Norton Scale Risk Level:</span>
+            <Badge variant={getNortonRiskLevel(fieldValues.norton_total).color as any}>
+              {getNortonRiskLevel(fieldValues.norton_total).level}
+            </Badge>
+          </div>
+        </div>
+      )}
+
+      {/* Braden Scale Risk Level Display */}
+      {fieldValues.braden_total && fieldValues.pressure_scale_type === 'Braden Scale' && (
+        <div className="mt-4 p-4 bg-muted rounded-lg">
+          <div className="flex items-center justify-between">
+            <span className="font-medium">Braden Scale Risk Level:</span>
+            <Badge variant={getBradenRiskLevel(fieldValues.braden_total).color as any}>
+              {getBradenRiskLevel(fieldValues.braden_total).level}
             </Badge>
           </div>
         </div>

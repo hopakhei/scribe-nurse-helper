@@ -240,21 +240,35 @@ const Index = () => {
                       name: 'Morse Fall Scale',
                       score: riskScores.morseScore,
                       maxScore: 125,
-                      level: riskScores.morseScore >= 45 ? 'high' : riskScores.morseScore >= 25 ? 'medium' : 'low',
+                      level: (riskScores.morseScore >= 45 ? 'high' : riskScores.morseScore >= 25 ? 'medium' : 'low') as 'high' | 'medium' | 'low',
                       description: 'Fall risk assessment score'
                     },
                     {
                       name: 'MST Score',
                       score: riskScores.mstScore,
                       maxScore: 5,
-                      level: riskScores.mstScore >= 2 ? 'high' : 'low',
+                      level: (riskScores.mstScore >= 2 ? 'high' : 'low') as 'high' | 'medium' | 'low',
                       description: 'Malnutrition screening tool'
                     },
+                    ...(riskScores.nortonScore > 0 ? [{
+                      name: 'Norton Scale',
+                      score: riskScores.nortonScore,
+                      maxScore: 20,
+                      level: (riskScores.nortonScore < 10 ? 'high' : riskScores.nortonScore <= 18 ? 'medium' : 'low') as 'high' | 'medium' | 'low',
+                      description: 'Pressure injury risk assessment'
+                    }] : []),
+                    ...(riskScores.bradenScore > 0 ? [{
+                      name: 'Braden Scale', 
+                      score: riskScores.bradenScore,
+                      maxScore: 23,
+                      level: (riskScores.bradenScore <= 12 ? 'high' : riskScores.bradenScore <= 18 ? 'medium' : 'low') as 'high' | 'medium' | 'low',
+                      description: 'Pressure injury risk assessment'
+                    }] : []),
                     {
                       name: 'MEWS Score', 
                       score: riskScores.mewsScore,
                       maxScore: 14,
-                      level: riskScores.mewsScore >= 5 ? 'high' : riskScores.mewsScore >= 3 ? 'medium' : 'low',
+                      level: (riskScores.mewsScore >= 5 ? 'high' : riskScores.mewsScore >= 3 ? 'medium' : 'low') as 'high' | 'medium' | 'low',
                       description: 'Modified early warning score'
                     }
                   ]} />
