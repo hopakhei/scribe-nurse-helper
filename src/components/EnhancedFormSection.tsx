@@ -260,24 +260,27 @@ export function EnhancedFormSection({
           
           return (
             <div className="space-y-2">
-              {normalizedOptions.map((option) => (
-                <div key={option.value} className="flex items-center space-x-2">
-                  <Checkbox
-                    checked={selectedValues.includes(String(option.value))}
-                    onCheckedChange={(checked) => {
-                      const newValues = checked
-                        ? [...selectedValues, String(option.value)]
-                        : selectedValues.filter(v => v !== String(option.value));
-                      onFieldChange(field.id, newValues);
-                    }}
-                    disabled={isDisabled}
-                    id={`${field.id}-${option.value}`}
-                  />
-                  <Label htmlFor={`${field.id}-${option.value}`} className="text-sm">
-                    {option.label}
-                  </Label>
-                </div>
-              ))}
+              <Label className="text-sm font-medium">{field.label}</Label>
+              <div className="space-y-2">
+                {normalizedOptions.map((option) => (
+                  <div key={option.value} className="flex items-center space-x-2">
+                    <Checkbox
+                      checked={selectedValues.includes(String(option.value))}
+                      onCheckedChange={(checked) => {
+                        const newValues = checked
+                          ? [...selectedValues, String(option.value)]
+                          : selectedValues.filter(v => v !== String(option.value));
+                        onFieldChange(field.id, newValues);
+                      }}
+                      disabled={isDisabled}
+                      id={`${field.id}-${option.value}`}
+                    />
+                    <Label htmlFor={`${field.id}-${option.value}`} className="text-sm">
+                      {option.label}
+                    </Label>
+                  </div>
+                ))}
+              </div>
               {field.subLabel && (
                 <p className="text-xs text-muted-foreground mt-1">{field.subLabel}</p>
               )}
