@@ -549,9 +549,9 @@ export function EnhancedFormSection({
   const getLayoutClass = () => {
     switch (normalizedLayout) {
       case 'two-column':
-        return 'grid grid-cols-1 lg:grid-cols-2 gap-6 grid-flow-row-dense';
+        return 'grid grid-cols-1 lg:grid-cols-2 gap-6 items-start';
       case 'three-column':
-        return 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 grid-flow-row-dense';
+        return 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start';
       default:
         return 'space-y-6';
     }
