@@ -96,11 +96,18 @@ export function EnhancedFormSection({
         }
       }
       
-      // Handle basic equality conditions
-      const match = condition.match(/(\w+)\s*===?\s*['"]([^'"]+)['"]/);
-      if (match) {
-        const [, fieldId, value] = match;
+      // Handle basic equality conditions with quoted strings
+      const stringMatch = condition.match(/(\w+)\s*===?\s*['"]([^'"]+)['"]/);
+      if (stringMatch) {
+        const [, fieldId, value] = stringMatch;
         return values[fieldId] === value;
+      }
+      
+      // Handle boolean equality conditions
+      const booleanMatch = condition.match(/(\w+)\s*===?\s*(true|false)/);
+      if (booleanMatch) {
+        const [, fieldId, value] = booleanMatch;
+        return values[fieldId] === (value === 'true');
       }
       
       return false;
