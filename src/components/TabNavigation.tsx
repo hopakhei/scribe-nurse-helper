@@ -69,23 +69,6 @@ export function TabNavigation({
           </TabsList>
         </div>
 
-        {/* Progress indicator */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between text-sm text-muted-foreground mb-2">
-            <span>Assessment Progress</span>
-            <span>
-              {sections.filter(s => s.completed).length} of {sections.length} sections completed
-            </span>
-          </div>
-          <div className="w-full bg-muted rounded-full h-2">
-            <div
-              className="bg-primary rounded-full h-2 transition-all duration-300"
-              style={{
-                width: `${(sections.filter(s => s.completed).length / sections.length) * 100}%`
-              }}
-            />
-          </div>
-        </div>
 
         {/* Tab Content */}
         {children}
