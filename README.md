@@ -22,7 +22,7 @@ This is an **in-house Hospital Authority project** that demonstrates how robotic
 ### 📊 Automated Risk Assessment
 - **Morse Fall Scale** - Automated fall risk calculation (0-125 scale)
 - **MST Score** - Malnutrition screening tool assessment (0-5 scale)
-- **MEWS Score** - Modified Early Warning Score calculation (0-14 scale)
+- **Pressure Risk Scoel** - Adopt Norton Scale and Braden Scale
 - **Real-time Risk Updates** - Dynamic risk score calculation as data is entered
 
 ### 🤖 Robotic Interface Design
