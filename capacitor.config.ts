@@ -2,13 +2,9 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'app.lovable.43b0d83e9003404e86f8698fcb480c57',
+  appId: 'com.scribenurse.helper',
   appName: 'scribe-nurse-helper',
   webDir: 'dist',
-  server: {
-    url: 'https://43b0d83e-9003-404e-86f8-698fcb480c57.lovableproject.com?forceHideBadge=true',
-    cleartext: true
-  },
   plugins: {
     SplashScreen: {
       launchShowDuration: 2000,

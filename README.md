@@ -30,6 +30,7 @@ This is an **in-house Hospital Authority project** that demonstrates how robotic
 - **Touch-Friendly Interface** - Large buttons and intuitive navigation for robot-assisted interactions
 - **Kiosk Mode Support** - Full-screen operation suitable for robotic deployment
 - **Voice-Guided Navigation** - Audio prompts and feedback for seamless nurse-robot interaction
+onfig.ts
 
 ### 🔐 Secure Authentication
 - **Supabase Authentication** - Secure user management and session handling
@@ -55,10 +56,11 @@ This is an **in-house Hospital Authority project** that demonstrates how robotic
 - **Row Level Security** - Database-level security policies
 
 ### Robotic Platform & Deployment
-- **Capacitor** - Native Android app capabilities for robotic tablets
-- **Android APK** - Direct installation on robotic Android systems
-- **Kiosk Mode** - Full-screen robotic interface deployment
-- **Hardware Integration** - Optimized for robotic hardware constraints
+- **Capacitor 7.4.2** - Native Android app capabilities for robotic tablets
+- **Android APK** - Ready-to-deploy APK generation with pre-configured build system
+- **Kiosk Mode** - Full-screen robotic interface with splash screen and status bar configuration
+- **Hardware Integration** - Optimized for robotic hardware with audio recording and network capabilities
+- **Debug Support** - Web contents debugging enabled for development and troubleshooting
 
 ### AI & Audio Processing
 - **Speech-to-Text API** - Real-time audio transcription
@@ -71,6 +73,10 @@ This is an **in-house Hospital Authority project** that demonstrates how robotic
 - Node.js 18+ 
 - npm or bun package manager
 - Supabase account (for backend services)
+- **For Android APK generation:**
+  - Android Studio (latest version recommended)
+  - Android SDK (API level 24+ for optimal compatibility)
+  - Java Development Kit (JDK 11 or higher)
 
 ### Installation
 
@@ -175,29 +181,89 @@ supabase/
 - `npm run preview` - Preview production build
 - `npm run lint` - Run ESLint
 
+## Android APK Generation
+
+This project is fully configured for Android APK generation using Capacitor. The setup includes:
+
+### Current Configuration
+- **App ID**: `com.scribenurse.helper`
+- **App Name**: `scribe-nurse-helper`
+- **Capacitor Version**: 7.4.2
+- **Android Gradle Plugin**: 8.7.2
+- **Target SDK**: Configured for modern Android devices
+- **Web Directory**: `dist` (Vite build output)
+
+### Capacitor Features Configured
+- **Splash Screen**: 2-second launch duration with white background and full-screen immersive mode
+- **Status Bar**: Dark style with white background for professional appearance
+- **Mixed Content**: Allowed for flexible network configurations
+- **Audio Capture**: Input capture enabled for voice recording functionality
+- **Debug Mode**: Web contents debugging enabled for development
+- **Network Security**: Cleartext traffic allowed for internal hospital networks
+
+### Build Process
+
+1. **Development Build**
+   ```bash
+   npm run build:dev
+   npx cap sync android
+   npx cap open android
+   ```
+
+2. **Production Build**
+   ```bash
+   npm run build
+   npx cap sync android
+   npx cap open android
+   ```
+
+3. **Generate APK in Android Studio**
+   - Build → Build Bundle(s) / APK(s) → Build APK(s)
+   - Debug APK: `android/app/build/outputs/apk/debug/app-debug.apk`
+   - Release APK: `android/app/build/outputs/apk/release/app-release.apk`
+
+### Quick APK Generation Commands
+```bash
+# Full build and sync process
+npm run build && npx cap sync android
+
+# Open Android Studio for APK generation
+npx cap open android
+
+# Alternative: Build APK via command line (requires Android SDK)
+cd android && ./gradlew assembleDebug
+```
+
 ## Robot Deployment
 
 ### Building for Android Robot
+
+**Note**: Android platform is already configured and ready to use.
 
 1. **Build the application**
    ```bash
    npm run build
    ```
 
-2. **Add Android platform** (first time only)
-   ```bash
-   npx cap add android
-   ```
-
-3. **Sync and build APK**
+2. **Sync with Android platform**
    ```bash
    npx cap sync android
-   npx cap open android
    ```
 
-4. **Generate APK in Android Studio**
+3. **Open Android Studio and generate APK**
+   ```bash
+   npx cap open android
+   ```
    - In Android Studio: Build → Build Bundle(s) / APK(s) → Build APK(s)
-   - APK will be generated in `android/app/build/outputs/apk/debug/`
+   - Debug APK: `android/app/build/outputs/apk/debug/app-debug.apk`
+   - Release APK: `android/app/build/outputs/apk/release/app-release.apk`
+
+4. **Alternative: Command line APK build**
+   ```bash
+   cd android
+   ./gradlew assembleDebug    # For debug APK
+   ./gradlew assembleRelease  # For release APK (requires signing)
+   ```
 
 ### Installing on Robot
 
@@ -339,6 +405,44 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - Verify Hospital Authority network credentials
 - Check firewall settings for Supabase endpoints
 - Test internet connectivity from robot location
+
+### APK Configuration Issues
+
+**APK redirects to browser/Lovable instead of opening app:**
+
+This happens when the Capacitor config still points to a development server. To fix:
+
+1. **Check capacitor.config.ts** - Remove any `server.url` configuration:
+   ```typescript
+   // ❌ Wrong - points to external server
+   server: {
+     url: 'https://your-dev-server.com',
+     cleartext: true
+   }
+   
+   // ✅ Correct - uses local built files
+   // No server configuration needed
+   ```
+
+2. **Rebuild and sync:**
+   ```bash
+   npm run build
+   npx cap sync android
+   npx cap open android
+   ```
+
+3. **Clean build in Android Studio:**
+   - Build → Clean Project
+   - Build → Build Bundle(s) / APK(s) → Build APK(s)
+
+4. **Reinstall APK:**
+   - Uninstall old version from device/emulator
+   - Install new APK from `android/app/build/outputs/apk/debug/`
+
+**Environment variables not working in APK:**
+- Ensure `.env` variables are prefixed with `VITE_`
+- Rebuild after changing environment variables
+- Check that Supabase URLs are accessible from the target network
 
 ### Support Contacts
 
