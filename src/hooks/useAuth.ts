@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useLocalUserManager } from './useLocalUserManager';
+import { useNavigate } from 'react-router-dom';
 
 export const useAuthState = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -9,6 +10,7 @@ export const useAuthState = () => {
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<any | null>(null);
   const { saveUser } = useLocalUserManager();
+  const navigate = useNavigate();
 
   const loadProfile = async () => {
     if (!user) return;
@@ -137,8 +139,8 @@ export const useAuthState = () => {
           }, 0);
         }
 
-        // Force page reload for clean state
-        window.location.href = '/';
+        // Navigate to home page
+        navigate('/');
       }
       
       return { error: null };
@@ -151,13 +153,10 @@ export const useAuthState = () => {
     try {
       cleanupAuthState();
       
-      const redirectUrl = `${window.location.origin}/`;
-      
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          emailRedirectTo: redirectUrl,
           data: fullName ? { full_name: fullName } : undefined
         }
       });
@@ -178,8 +177,8 @@ export const useAuthState = () => {
         // Continue even if this fails
       }
       
-      // Force page reload for clean state
-      window.location.href = '/auth';
+      // Navigate to auth page
+      navigate('/auth');
     } catch (error) {
       console.error('Error signing out:', error);
     }
