@@ -51,6 +51,17 @@ export interface HandoverData {
   currentDateTime: string;
 }
 
+// Helper function to pick the first non-empty value from multiple possible keys
+const pickFirstNonEmpty = (fieldValues: Record<string, any>, keys: string[]): string => {
+  for (const key of keys) {
+    const value = fieldValues[key];
+    if (value && typeof value === 'string' && value.trim()) {
+      return value.trim();
+    }
+  }
+  return '';
+};
+
 export const mapAssessmentToHandoverData = (
   patient: any,
   fieldValues: Record<string, any>,
@@ -69,11 +80,30 @@ export const mapAssessmentToHandoverData = (
     date: currentDate.toLocaleDateString('en-GB'),
     time: currentDate.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
 
-    // Contact Information - Extract from field values
-    nextOfKin: fieldValues['emergency-contact-name'] || fieldValues['contact-person'] || '',
-    relationship: fieldValues['emergency-contact-relationship'] || fieldValues['relationship'] || '',
-    contactNumber: fieldValues['emergency-contact-phone'] || fieldValues['contact-number'] || '',
-    address: fieldValues['address'] || fieldValues['patient-address'] || '',
+    // Contact Information - Use correct field IDs from GeneralTab
+    nextOfKin: pickFirstNonEmpty(fieldValues, [
+      'emergency_contact_1_name',
+      'emergency_contact_2_name',
+      'emergency-contact-name',
+      'contact-person'
+    ]),
+    relationship: pickFirstNonEmpty(fieldValues, [
+      'emergency_contact_1_relationship',
+      'emergency_contact_2_relationship',
+      'emergency-contact-relationship',
+      'relationship'
+    ]),
+    contactNumber: pickFirstNonEmpty(fieldValues, [
+      'emergency_contact_1_phone',
+      'emergency_contact_2_phone',
+      'emergency-contact-phone',
+      'contact-number'
+    ]),
+    address: pickFirstNonEmpty(fieldValues, [
+      'home_address',
+      'address',
+      'patient-address'
+    ]),
 
     // Medical Information
     admissionDate: patient?.admission_date ? new Date(patient.admission_date).toLocaleDateString('en-GB') : '',
@@ -151,6 +181,10 @@ const compileAdditionalNotes = (fieldValues: Record<string, any>): string => {
 
   if (fieldValues['sleep-pattern']) {
     notes.push(`Sleep: ${fieldValues['sleep-pattern']}`);
+  }
+
+  if (fieldValues['belongings_description']) {
+    notes.push(`Belongings: ${fieldValues['belongings_description']}`);
   }
 
   // Join all notes with line breaks

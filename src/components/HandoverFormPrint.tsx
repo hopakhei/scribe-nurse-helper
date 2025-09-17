@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Printer } from 'lucide-react';
 import { mapAssessmentToHandoverData } from '@/utils/handoverDataMapper';
 
@@ -34,6 +34,9 @@ const HandoverFormPrint: React.FC<HandoverFormPrintProps> = ({
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto print:max-w-none print:max-h-none print:overflow-visible">
         <DialogHeader className="print:hidden">
           <DialogTitle>S9A Clinical Handover Notes - Print Preview</DialogTitle>
+          <DialogDescription>
+            Review the populated handover form before printing
+          </DialogDescription>
           <Button onClick={handlePrint} className="w-fit">
             <Printer className="h-4 w-4 mr-2" />
             Print Form
