@@ -25,6 +25,12 @@ This is an **in-house Hospital Authority project** that demonstrates how robotic
 - **Pressure Risk Scoel** - Adopt Norton Scale and Braden Scale
 - **Real-time Risk Updates** - Dynamic risk score calculation as data is entered
 
+### 📄 Clinical Handover Documentation
+- **S9A Handover Form Generation** - Auto-populate clinical handover forms from assessment data
+- **Print-Ready Format** - Professional formatted handover notes for clinical use
+- **Data Mapping** - Intelligent mapping of assessment fields to standard handover form fields
+- **One-Click Printing** - Generate and print handover forms directly from assessments
+
 ### 🤖 Robotic Interface Design
 - **Android Tablet Optimization** - Specifically designed for robotic Android tablet interfaces
 - **Touch-Friendly Interface** - Large buttons and intuitive navigation for robot-assisted interactions
@@ -162,6 +168,11 @@ supabase/
 - **ImprovedAudioRecording** - Audio capture and transcription
 - **RiskScoreDisplay** - Real-time risk score visualization
 - **ScribeDataDisplay** - AI-generated assessment data
+- **HandoverFormPrint** - S9A clinical handover form generation and printing
+
+### Clinical Documentation
+- **handoverDataMapper** - Utility for mapping assessment data to handover form fields
+- **Print Styles** - Optimized CSS for professional clinical document printing
 
 ### Patient Management
 - **PatientCard** - Individual patient information display
