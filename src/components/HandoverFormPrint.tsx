@@ -26,7 +26,7 @@ const HandoverFormPrint: React.FC<HandoverFormPrintProps> = ({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" className="flex items-center gap-2">
+        <Button variant="outline" className="flex items-center gap-2 min-h-[48px] px-6">
           <Printer className="h-4 w-4" />
           Print Handover Form
         </Button>
