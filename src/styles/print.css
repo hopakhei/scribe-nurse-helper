@@ -1,0 +1,224 @@
+/* Print-specific styles for handover form */
+@media print {
+  /* Reset all margins and padding for print */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  /* Page setup */
+  @page {
+    size: A4;
+    margin: 1cm;
+  }
+
+  /* Hide non-printable elements */
+  .print\\:hidden,
+  .no-print {
+    display: none !important;
+  }
+
+  /* Dialog content adjustments for print */
+  .print\\:max-w-none {
+    max-width: none !important;
+  }
+
+  .print\\:max-h-none {
+    max-height: none !important;
+  }
+
+  .print\\:overflow-visible {
+    overflow: visible !important;
+  }
+
+  .print\\:p-0 {
+    padding: 0 !important;
+  }
+
+  .print\\:m-0 {
+    margin: 0 !important;
+  }
+
+  /* Typography adjustments for print */
+  .print\\:text-base {
+    font-size: 16px !important;
+  }
+
+  .print\\:text-sm {
+    font-size: 14px !important;
+  }
+
+  .print\\:text-xs {
+    font-size: 12px !important;
+  }
+
+  .print\\:mb-4 {
+    margin-bottom: 1rem !important;
+  }
+
+  .print\\:mb-6 {
+    margin-bottom: 1.5rem !important;
+  }
+
+  .print\\:mt-6 {
+    margin-top: 1.5rem !important;
+  }
+
+  .print\\:min-h-\\[80px\\] {
+    min-height: 80px !important;
+  }
+
+  /* Handover form specific styles */
+  .handover-form {
+    font-family: Arial, sans-serif;
+    line-height: 1.4;
+    color: black;
+    background: white;
+  }
+
+  .handover-form h1,
+  .handover-form h2,
+  .handover-form h3 {
+    color: black;
+    margin-bottom: 0.5rem;
+  }
+
+  .handover-form .border-b {
+    border-bottom: 1px solid #666 !important;
+    border-bottom-style: solid !important;
+  }
+
+  .handover-form .border {
+    border: 1px solid #666 !important;
+    border-style: solid !important;
+  }
+
+  /* Checkbox styling for print */
+  .handover-form input[type="checkbox"] {
+    -webkit-appearance: checkbox;
+    appearance: checkbox;
+    width: 14px;
+    height: 14px;
+    margin-right: 0.5rem;
+    vertical-align: middle;
+  }
+
+  /* Grid adjustments for print */
+  .handover-form .grid {
+    display: grid;
+  }
+
+  .handover-form .grid-cols-2 {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .handover-form .grid-cols-3 {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+
+  /* Spacing adjustments */
+  .handover-form .gap-2 {
+    gap: 0.5rem;
+  }
+
+  .handover-form .gap-4 {
+    gap: 1rem;
+  }
+
+  .handover-form .gap-8 {
+    gap: 2rem;
+  }
+
+  /* Flex utilities */
+  .handover-form .flex {
+    display: flex;
+  }
+
+  .handover-form .items-center {
+    align-items: center;
+  }
+
+  .handover-form .flex-1 {
+    flex: 1;
+  }
+
+  /* Spacing utilities */
+  .handover-form .space-y-1 > * + * {
+    margin-top: 0.25rem;
+  }
+
+  .handover-form .space-y-2 > * + * {
+    margin-top: 0.5rem;
+  }
+
+  /* Minimum width utilities */
+  .handover-form .min-w-\\[80px\\] {
+    min-width: 80px;
+  }
+
+  .handover-form .min-w-\\[100px\\] {
+    min-width: 100px;
+  }
+
+  .handover-form .min-w-\\[120px\\] {
+    min-width: 120px;
+  }
+
+  .handover-form .min-w-\\[150px\\] {
+    min-width: 150px;
+  }
+
+  /* Padding utilities */
+  .handover-form .px-1 {
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
+  }
+
+  .handover-form .p-2 {
+    padding: 0.5rem;
+  }
+
+  /* Prevent page breaks within sections */
+  .handover-form > div {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Force page breaks if needed */
+  .page-break {
+    page-break-before: always;
+    break-before: page;
+  }
+
+  /* Ensure borders and backgrounds print */
+  .handover-form * {
+    -webkit-print-color-adjust: exact;
+    color-adjust: exact;
+  }
+}
+
+/* Screen styles for print preview */
+.handover-form {
+  font-family: Arial, sans-serif;
+  max-width: 21cm;
+  margin: 0 auto;
+  background: white;
+  padding: 1rem;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.handover-form input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin-right: 0.5rem;
+}
+
+.handover-form .border-b {
+  border-bottom-width: 1px;
+  border-bottom-style: solid;
+}
+
+.handover-form .border {
+  border-width: 1px;
+  border-style: solid;
+}

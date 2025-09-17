@@ -19,6 +19,8 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2, LogOut, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import HandoverFormPrint from "@/components/HandoverFormPrint";
+import "@/styles/print.css";
 
 const Index = () => {
   const { patientId } = useParams<{ patientId: string }>();
@@ -277,13 +279,22 @@ const Index = () => {
 
                   {/* Action Buttons */}
                   <div className="flex justify-between gap-4">
-                    <Button 
-                      variant="outline" 
-                      onClick={saveDraft}
-                      className="flex items-center min-h-[48px] px-6"
-                    >
-                      Save Draft
-                    </Button>
+                    <div className="flex gap-4">
+                      <Button 
+                        variant="outline" 
+                        onClick={saveDraft}
+                        className="flex items-center min-h-[48px] px-6"
+                      >
+                        Save Draft
+                      </Button>
+                      
+                      <HandoverFormPrint 
+                        patient={patientFromHook}
+                        fieldValues={fieldValues}
+                        riskScores={riskScores}
+                        assessmentId={assessmentId || ''}
+                      />
+                    </div>
                     
                     <Button 
                       onClick={() => submitAssessment(navigate)}
