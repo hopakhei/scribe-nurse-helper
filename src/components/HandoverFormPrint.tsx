@@ -33,7 +33,7 @@ const HandoverFormPrint: React.FC<HandoverFormPrintProps> = ({
       </DialogTrigger>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto print:max-w-none print:max-h-none print:overflow-visible">
         <DialogHeader className="print:hidden">
-          <DialogTitle>S9A Clinical Handover Notes - Print Preview</DialogTitle>
+          <DialogTitle>Handover Notes - Print Preview</DialogTitle>
           <DialogDescription>
             Review the populated handover form before printing
           </DialogDescription>
@@ -47,7 +47,7 @@ const HandoverFormPrint: React.FC<HandoverFormPrintProps> = ({
           {/* Hospital Header */}
           <div className="text-center mb-6 print:mb-4">
             <h1 className="text-xl font-bold print:text-base">CHANGI GENERAL HOSPITAL</h1>
-            <h2 className="text-lg font-semibold print:text-sm">S9A CLINICAL HANDOVER NOTES</h2>
+            <h2 className="text-lg font-semibold print:text-sm">HANDOVER NOTES</h2>
           </div>
 
           {/* Patient Information Section */}
@@ -234,10 +234,6 @@ const HandoverFormPrint: React.FC<HandoverFormPrintProps> = ({
                 <div className="flex items-center gap-2">
                   <input type="checkbox" checked={handoverData.mobility} readOnly />
                   <span>Mobility Aid</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <input type="checkbox" checked={handoverData.fallRisk} readOnly />
-                  <span>Fall Risk</span>
                 </div>
               </div>
             </div>

@@ -43,7 +43,6 @@ export interface HandoverData {
   catheter: boolean;
   pacemaker: boolean;
   mobility: boolean;
-  fallRisk: boolean;
 
   // Additional Information
   additionalNotes: string;
@@ -133,7 +132,6 @@ export const mapAssessmentToHandoverData = (
     catheter: !!(fieldValues['catheter'] || fieldValues['urinary-catheter'] || fieldValues['foley-catheter']),
     pacemaker: !!(fieldValues['pacemaker'] || fieldValues['cardiac-pacemaker']),
     mobility: !!(fieldValues['mobility-aid'] || fieldValues['walking-aid'] || fieldValues['ambulatory-aid']),
-    fallRisk: riskScores?.morseScore >= 45 || !!(fieldValues['fall-risk'] || fieldValues['high-fall-risk']),
 
     // Additional Information
     additionalNotes: compileAdditionalNotes(fieldValues),
