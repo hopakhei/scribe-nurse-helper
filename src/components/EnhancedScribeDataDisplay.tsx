@@ -384,10 +384,12 @@ export function EnhancedScribeDataDisplay({ assessmentId, currentFieldValues }: 
                 <CardTitle className="text-left">Scribe History ({scribeHistory.length})</CardTitle>
               </Button>
             </CollapsibleTrigger>
+            <CollapsibleContent>
+              <CardDescription className="mt-2">
+                Complete history of audio transcriptions and AI processing
+              </CardDescription>
+            </CollapsibleContent>
           </Collapsible>
-          <CardDescription>
-            Complete history of audio transcriptions and AI processing
-          </CardDescription>
         </CardHeader>
         <CollapsibleContent>
           <CardContent>
