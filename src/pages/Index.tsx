@@ -7,7 +7,7 @@ import { AndroidLayout } from "@/components/AndroidLayout";
 import { PatientHeader } from "@/components/PatientHeader";
 import { AudioRecordingControls } from "@/components/AudioRecordingControls";
 import { ImprovedAudioRecording } from "@/components/ImprovedAudioRecording";
-import ScribeDataDisplay from "@/components/ScribeDataDisplay";
+import { EnhancedScribeDataDisplay } from "@/components/EnhancedScribeDataDisplay";
 import { RiskScoreDisplay } from "@/components/RiskScoreDisplay";
 import { TabAssessmentSystem } from "@/components/TabAssessmentSystem";
 import { usePatientAssessment } from "@/hooks/usePatientAssessment";
@@ -308,7 +308,7 @@ const Index = () => {
                 {/* Right Column - Scribe Data & History */}
                 <div className="lg:col-span-1">
                   <div className="sticky top-4">
-                    <ScribeDataDisplay
+                    <EnhancedScribeDataDisplay
                       assessmentId={assessmentId || ''}
                       currentFieldValues={fieldValues}
                     />

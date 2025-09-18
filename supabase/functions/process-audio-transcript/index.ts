@@ -165,37 +165,53 @@ serve(async (req) => {
   }
 });
 
-// AI-powered field extraction using OpenAI GPT-4
+// Enhanced AI-powered field extraction using comprehensive field mapping
 async function extractFieldsWithAI(transcriptText: string, apiKey: string): Promise<FieldMapping[]> {
   try {
-    const systemPrompt = `You are a medical AI assistant helping nurses extract patient information from conversation transcripts to fill out patient assessment forms.
+    // Generate comprehensive field mapping for the AI
+    const fieldMappingPrompt = generateFieldMappingPrompt();
+    
+    const systemPrompt = `You are an expert medical AI assistant specializing in extracting comprehensive patient information from clinical conversation transcripts to populate electronic health record assessment forms.
 
-EXACT FORM FIELD IDs (use these exactly):
-- morse_history_falling: "No (0)" or "Yes (25)"
-- morse_secondary_diagnosis: "No (0)" or "Yes (15)" 
-- morse_ambulatory_aid: "None/bed rest/nurse assist (0)" or "Crutches/cane/walker (15)" or "Furniture (30)"
-- morse_iv_heparin: "No (0)" or "Yes (20)"
-- morse_gait: "Normal/bed rest/immobile (0)" or "Weak (10)" or "Impaired (20)"
-- morse_mental_status: "Oriented to own ability (0)" or "Forgets limitations (15)"
+${fieldMappingPrompt}
 
-SECTION MAPPING:
-- All morse_* fields belong to section "risk"
+EXTRACTION STRATEGY:
+1. VITAL SIGNS PRIORITY: Always look for temperature, pulse, blood pressure, respiratory rate, SpO2
+2. CLINICAL STATUS: Extract consciousness level, pain scores, complaints, symptoms
+3. RISK FACTORS: Identify fall risks, mobility issues, cognitive status
+4. FUNCTIONAL STATUS: Assess communication, elimination, nutrition, self-care abilities
+5. SOCIAL FACTORS: Capture living situation, support systems, discharge needs
 
-CRITICAL RULES:
-1. Use EXACT field IDs from the list above
-2. Use EXACT option values in parentheses
-3. Only extract information explicitly mentioned or clearly implied
-4. For fall history: if patient mentions falling, use "Yes (25)"
-5. For gait: if mentions walking problems/instability, use "Impaired (20)"
-6. For mental status: if mentions forgetting limitations/confusion, use "Forgets limitations (15)"
+EXTRACTION RULES:
+1. Extract ALL relevant information mentioned in the transcript
+2. Use EXACT field IDs from the comprehensive mapping above
+3. Match values to provided options when available
+4. For numeric fields, extract exact values with units
+5. Include confidence scores based on clarity of information
+6. Reference the exact text that supports each extraction
+7. Handle synonyms and medical terminology variations
+8. Infer reasonable values when clearly implied
 
-Return JSON array with:
-- fieldId: exact field ID from list
-- sectionId: "risk" 
-- fieldLabel: human readable label
-- value: exact option value with score
-- aiSourceText: relevant quote from transcript
-- confidenceScore: 0.0-1.0`;
+CRITICAL GUIDELINES:
+- Prioritize patient safety information (vital signs, pain, consciousness)
+- Extract multiple related fields when mentioned together (e.g., BP systolic/diastolic)
+- Handle ranges and approximate values appropriately
+- Consider clinical context and normal ranges
+- Extract negative findings when explicitly stated
+
+Return a JSON array with this exact structure:
+[
+  {
+    "fieldId": "exact_field_id_from_mapping",
+    "sectionId": "section_id",
+    "fieldLabel": "Human readable field name",
+    "value": "extracted_value_matching_expected_format",
+    "aiSourceText": "exact quote from transcript supporting this extraction",
+    "confidenceScore": 0.95
+  }
+]
+
+RESPONSE FORMAT: Return only valid JSON array, no explanatory text.`;
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -204,40 +220,190 @@ Return JSON array with:
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-4o', // Upgraded to more capable model
         messages: [
           { role: 'system', content: systemPrompt },
-          { role: 'user', content: `Extract patient information from this transcript: "${transcriptText}"` }
+          { role: 'user', content: `Extract comprehensive patient information from this clinical transcript:\n\n"${transcriptText}"\n\nExtract all relevant assessment data following the field mapping guidelines.` }
         ],
-        max_tokens: 2000,
-        temperature: 0.1
+        max_tokens: 4000, // Increased for comprehensive extraction
+        temperature: 0.1,
+        response_format: { type: "json_object" }, // Ensure JSON response
       }),
     });
 
     if (!response.ok) {
-      throw new Error(`OpenAI API error: ${response.status}`);
+      const errorText = await response.text();
+      console.error('OpenAI API error:', response.status, errorText);
+      throw new Error(`OpenAI API error: ${response.status} - ${errorText}`);
     }
 
     const data = await response.json();
     const content = data.choices[0].message.content;
     
-    // Try to parse JSON from the response
+    console.log('AI Response received, length:', content.length);
+    
+    // Enhanced JSON parsing with multiple fallback strategies
     try {
-      const parsed = JSON.parse(content);
-      return Array.isArray(parsed) ? parsed : [];
-    } catch (parseError) {
-      // If direct JSON parsing fails, try to extract JSON from markdown code blocks
-      const jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/) || content.match(/\[([\s\S]*?)\]/);
-      if (jsonMatch) {
-        const parsed = JSON.parse(jsonMatch[1].trim());
-        return Array.isArray(parsed) ? parsed : [];
+      // Try direct JSON parsing first
+      let parsed = JSON.parse(content);
+      
+      // Handle different response structures
+      if (parsed.extractions && Array.isArray(parsed.extractions)) {
+        parsed = parsed.extractions;
+      } else if (parsed.fields && Array.isArray(parsed.fields)) {
+        parsed = parsed.fields;
+      } else if (parsed.data && Array.isArray(parsed.data)) {
+        parsed = parsed.data;
       }
-      console.error('Failed to parse AI response:', content);
-      return [];
+      
+      const extractedFields = Array.isArray(parsed) ? parsed : [];
+      
+      // Validate and filter extracted fields
+      const validatedFields = extractedFields
+        .filter(field => field.fieldId && field.sectionId && field.value)
+        .map(field => ({
+          ...field,
+          confidenceScore: field.confidenceScore || 0.8,
+          aiSourceText: field.aiSourceText || 'Extracted from transcript'
+        }));
+      
+      console.log(`Successfully extracted ${validatedFields.length} fields from transcript`);
+      return validatedFields;
+      
+    } catch (parseError) {
+      console.error('JSON parsing failed, trying alternative extraction');
+      
+      // Alternative: Extract from code blocks or arrays
+      const jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/) || 
+                       content.match(/\[([\s\S]*?)\]/) ||
+                       content.match(/\{[\s\S]*\}/);
+      
+      if (jsonMatch) {
+        try {
+          const parsed = JSON.parse(jsonMatch[0].replace(/```json|```/g, '').trim());
+          const extractedFields = Array.isArray(parsed) ? parsed : [parsed];
+          console.log(`Alternative parsing extracted ${extractedFields.length} fields`);
+          return extractedFields.filter(field => field.fieldId && field.value);
+        } catch (secondaryError) {
+          console.error('Alternative parsing also failed:', secondaryError);
+        }
+      }
+      
+      // Final fallback: Try to extract individual field mentions
+      console.log('Attempting basic field extraction from text content');
+      return performBasicExtraction(content, transcriptText);
     }
 
   } catch (error) {
-    console.error('Error in AI field extraction:', error);
-    return [];
+    console.error('Error in comprehensive AI field extraction:', error);
+    // Fallback to basic extraction if AI fails
+    return performBasicExtraction('', transcriptText);
   }
+}
+
+// Generate comprehensive field mapping prompt for AI
+function generateFieldMappingPrompt(): string {
+  return `
+COMPREHENSIVE FIELD MAPPING - Use these EXACT field IDs and formats:
+
+VITAL SIGNS (Physical Assessment):
+- temperature: Number (°C) | Synonyms: temp, body temperature, fever, pyrexia | Normal: 36-37.5°C
+- pulse: Number (bpm) | Synonyms: heart rate, HR, beats per minute | Normal: 60-100 bpm  
+- bp_systolic: Number (mmHg) | Synonyms: systolic BP, upper BP | Normal: 100-140 mmHg
+- bp_diastolic: Number (mmHg) | Synonyms: diastolic BP, lower BP | Normal: 60-90 mmHg
+- respiratory_rate: Number (/min) | Synonyms: RR, breathing rate, breaths per minute | Normal: 12-20/min
+- spo2: Number (%) | Synonyms: oxygen saturation, O2 sat, pulse oximetry | Normal: 95-100%
+
+CLINICAL STATUS (Physical Assessment):
+- current_complaint: Text | Synonyms: chief complaint, presenting complaint, main problem, symptoms
+- level_of_consciousness: Select [Alert|Drowsy|Lethargic|Stuporous|Comatose] | Synonyms: LOC, alertness, mental state
+- pain_scale: Number (0-10) | Synonyms: pain score, pain level, VAS score | 0=no pain, 10=worst pain
+- pain_location: Text | Synonyms: where is pain, pain site, painful area
+
+MORSE FALL RISK (Risk Assessment):
+- morse_history_falling: Select ["No (0 points)"|"Yes (25 points)"] | Synonyms: fall history, previous falls
+- morse_secondary_diagnosis: Select ["No (0 points)"|"Yes (15 points)"] | Synonyms: multiple diagnoses, comorbidities
+- morse_ambulatory_aid: Select ["None/bed rest/nurse assist (0 points)"|"Crutches/cane/walker (15 points)"|"Furniture (30 points)"] | Synonyms: walking aid, mobility aid
+- morse_iv_therapy: Select ["No (0 points)"|"Yes (20 points)"] | Synonyms: IV line, intravenous, heparin lock
+- morse_gait: Select ["Normal/bed rest/immobile (0 points)"|"Weak (10 points)"|"Impaired (20 points)"] | Synonyms: walking pattern, gait pattern
+- morse_mental_status: Select ["Oriented to own ability (0 points)"|"Forgets limitations (15 points)"] | Synonyms: mental state, cognition, awareness
+
+COMMUNICATION (Communication/Respiration/Mobility):
+- hearing_status: Select [Normal|Impaired|"Hearing aid"|Deaf] | Synonyms: hearing, auditory, deaf, hard of hearing
+- vision_status: Select [Normal|Impaired|"Glasses/contacts"|"Legally blind"] | Synonyms: vision, sight, eyesight, glasses
+- language_preferred: Text | Synonyms: language, speaks, communication language, interpreter needed
+
+ELIMINATION:
+- bowel_pattern: Select [Normal|Constipated|Diarrhea|Incontinence] | Synonyms: bowel movements, BM, stool, constipation
+- urinary_pattern: Select [Normal|Frequency|Urgency|Incontinence|Retention] | Synonyms: urination, voiding, bladder
+
+NUTRITION (Nutrition/Self-Care):
+- appetite: Select [Good|Fair|Poor|NPO] | Synonyms: eating, food intake, hunger, nutrition
+- dietary_restrictions: Text | Synonyms: diet, food allergies, special diet, diabetic diet
+
+SOCIAL (Social Assessment):  
+- living_arrangement: Select ["Lives alone"|"With family"|"With spouse"|"Nursing home"|"Assisted living"] | Synonyms: lives with, home situation
+- discharge_planning_needs: Text | Synonyms: discharge planning, home care needs, follow-up care
+
+GENERAL INFORMATION:
+- emergency_contact_1_name: Text | Synonyms: emergency contact, next of kin, family contact
+- emergency_contact_1_relationship: Text | Synonyms: relationship, family member, spouse, child, parent
+- emergency_contact_1_phone: Text | Format: +65 #### #### | Synonyms: phone number, contact number, mobile
+
+EXTRACTION PRIORITY: 1) Vital Signs, 2) Pain/Consciousness, 3) Fall Risk, 4) Communication, 5) Other assessments
+`;
+}
+
+// Basic extraction fallback for when AI parsing fails
+function performBasicExtraction(aiResponse: string, transcriptText: string): FieldMapping[] {
+  const basicExtractions: FieldMapping[] = [];
+  const text = transcriptText.toLowerCase();
+  
+  // Basic vital signs extraction using regex patterns
+  const tempMatch = text.match(/(?:temp|temperature).*?(\d{1,2}\.?\d?)\s*°?c?/i);
+  if (tempMatch) {
+    basicExtractions.push({
+      fieldId: 'temperature',
+      sectionId: 'physical', 
+      fieldLabel: 'Temperature',
+      value: tempMatch[1] + '°C',
+      aiSourceText: tempMatch[0],
+      confidenceScore: 0.7
+    });
+  }
+  
+  const bpMatch = text.match(/(?:bp|blood pressure).*?(\d{2,3})\/(\d{2,3})/i);
+  if (bpMatch) {
+    basicExtractions.push({
+      fieldId: 'bp_systolic',
+      sectionId: 'physical',
+      fieldLabel: 'Systolic BP', 
+      value: bpMatch[1],
+      aiSourceText: bpMatch[0],
+      confidenceScore: 0.7
+    });
+    basicExtractions.push({
+      fieldId: 'bp_diastolic',
+      sectionId: 'physical',
+      fieldLabel: 'Diastolic BP',
+      value: bpMatch[2], 
+      aiSourceText: bpMatch[0],
+      confidenceScore: 0.7
+    });
+  }
+  
+  const painMatch = text.match(/(?:pain).*?(\d{1,2})(?:\/10|\s*out\s*of\s*10)?/i);
+  if (painMatch) {
+    basicExtractions.push({
+      fieldId: 'pain_scale',
+      sectionId: 'skin-pain',
+      fieldLabel: 'Pain Scale', 
+      value: painMatch[1],
+      aiSourceText: painMatch[0],
+      confidenceScore: 0.6
+    });
+  }
+  
+  console.log(`Basic extraction found ${basicExtractions.length} fields`);
+  return basicExtractions;
 }
