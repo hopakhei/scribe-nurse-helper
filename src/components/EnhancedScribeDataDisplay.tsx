@@ -375,8 +375,8 @@ export function EnhancedScribeDataDisplay({ assessmentId, currentFieldValues }: 
 
       {/* Scribe History Section */}
       <Card>
-        <CardHeader>
-          <Collapsible open={isHistoryExpanded} onOpenChange={setIsHistoryExpanded}>
+        <Collapsible open={isHistoryExpanded} onOpenChange={setIsHistoryExpanded}>
+          <CardHeader>
             <CollapsibleTrigger asChild>
               <Button variant="ghost" className="flex items-center gap-2 w-full justify-start p-0 h-auto">
                 {isHistoryExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
@@ -389,43 +389,43 @@ export function EnhancedScribeDataDisplay({ assessmentId, currentFieldValues }: 
                 Complete history of audio transcriptions and AI processing
               </CardDescription>
             </CollapsibleContent>
-          </Collapsible>
-        </CardHeader>
-        <CollapsibleContent>
-          <CardContent>
-            {scribeHistory.length === 0 ? (
-              <div className="text-center py-6 text-muted-foreground">
-                <Clock className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                <p>No transcription history yet.</p>
-              </div>
-            ) : (
-              <ScrollArea className="h-[300px]">
-                <div className="space-y-3">
-                  {scribeHistory.map((entry, index) => (
-                    <div key={entry.id} className="border rounded-lg p-3">
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <Badge variant={entry.processed ? 'default' : 'secondary'}>
-                            {entry.processed ? 'Processed' : 'Processing'}
-                          </Badge>
-                          <span className="text-sm text-muted-foreground">
-                            {formatTimestamp(entry.created_at)}
-                          </span>
-                        </div>
-                        <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                      </div>
-                      <div className="text-sm">
-                        <p className="line-clamp-3">
-                          {entry.transcript_text}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
+          </CardHeader>
+          <CollapsibleContent>
+            <CardContent>
+              {scribeHistory.length === 0 ? (
+                <div className="text-center py-6 text-muted-foreground">
+                  <Clock className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                  <p>No transcription history yet.</p>
                 </div>
-              </ScrollArea>
-            )}
-          </CardContent>
-        </CollapsibleContent>
+              ) : (
+                <ScrollArea className="h-[300px]">
+                  <div className="space-y-3">
+                    {scribeHistory.map((entry, index) => (
+                      <div key={entry.id} className="border rounded-lg p-3">
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <Badge variant={entry.processed ? 'default' : 'secondary'}>
+                              {entry.processed ? 'Processed' : 'Processing'}
+                            </Badge>
+                            <span className="text-sm text-muted-foreground">
+                              {formatTimestamp(entry.created_at)}
+                            </span>
+                          </div>
+                          <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                        </div>
+                        <div className="text-sm">
+                          <p className="line-clamp-3">
+                            {entry.transcript_text}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
+              )}
+            </CardContent>
+          </CollapsibleContent>
+        </Collapsible>
       </Card>
     </div>
   );
