@@ -257,8 +257,26 @@ async function extractFieldsWithRAG(
         .filter(field => field.fieldId && field.sectionId && field.value)
         .map(field => {
           const matchingField = similarFields.find(sf => sf.field_id === field.fieldId);
+          
+          // Standardize value formats
+          let standardizedValue = field.value;
+          
+          // Fix Morse scale values - remove "points" suffix
+          if (field.fieldId.startsWith('morse_') && typeof standardizedValue === 'string') {
+            standardizedValue = standardizedValue.replace(/ points?\)/g, ')');
+          }
+          
+          // Fix vital signs values - extract numeric only
+          if (['pulse', 'spo2', 'temperature', 'bp_systolic', 'bp_diastolic', 'respiratory_rate'].includes(field.fieldId)) {
+            const numericMatch = String(standardizedValue).match(/\d+(\.\d+)?/);
+            if (numericMatch) {
+              standardizedValue = numericMatch[0];
+            }
+          }
+          
           return {
             ...field,
+            value: standardizedValue,
             confidenceScore: matchingField ? 
               Math.min(0.95, (field.confidenceScore || 0.8) * matchingField.similarity) : 
               (field.confidenceScore || 0.8),
@@ -345,7 +363,12 @@ Pay special attention to fall-related phrases in ANY language:
 - Cantonese: "跌倒", "跌咗", "仆倒"
 - Any mention of frequency: "three times", "last week", "recently"
 
-For fall history, extract to morse_history_falling with value "Yes (25 points)" if ANY falls are mentioned.
+For fall history, extract to morse_history_falling with value "Yes (25)" if ANY falls are mentioned.
+
+VALUE FORMAT STANDARDIZATION:
+- For Morse Fall Scale fields, use format without "points": "Yes (25)" not "Yes (25 points)"  
+- For vital signs, use numeric values only: "98" not "98%", "54" not "54 bpm"
+- Match exact option formats from the field mappings
 
 RESPONSE FORMAT:
 Return a JSON object with this exact structure:
@@ -396,7 +419,7 @@ function performBasicExtraction(transcriptText: string): FieldMapping[] {
         fieldId: 'morse_history_falling',
         sectionId: 'risk',
         fieldLabel: 'History of Falling',
-        value: 'Yes (25 points)',
+        value: 'Yes (25)',
         aiSourceText: match[0],
         confidenceScore: 0.8
       });

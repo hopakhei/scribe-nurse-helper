@@ -285,10 +285,8 @@ export const usePatientAssessment = (patientId?: string) => {
       console.log('Transcript processed:', data);
       toast.success(`Audio processed successfully - ${data?.fieldsExtracted || 0} fields extracted`);
       
-      // Force reload field values after processing to ensure immediate update
-      setTimeout(() => {
-        loadFieldValues();
-      }, 500);
+      // Immediately refresh field values and force re-render
+      await loadFieldValues();
       
     } catch (error: any) {
       console.error('Error processing transcript:', error);
