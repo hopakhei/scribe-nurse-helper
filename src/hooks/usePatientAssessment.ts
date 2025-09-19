@@ -384,7 +384,7 @@ export const usePatientAssessment = (patientId?: string) => {
       if (fieldValues.morse_secondary_diagnosis?.includes('15')) morseScore += 15;
       if (fieldValues.morse_ambulatory_aid?.includes('30')) morseScore += 30;
       else if (fieldValues.morse_ambulatory_aid?.includes('15')) morseScore += 15;
-      if (fieldValues.morse_iv_heparin?.includes('20')) morseScore += 20;
+      if (fieldValues.morse_iv_therapy?.includes('20')) morseScore += 20;
       if (fieldValues.morse_gait?.includes('20')) morseScore += 20;
       else if (fieldValues.morse_gait?.includes('10')) morseScore += 10;
       if (fieldValues.morse_mental_status?.includes('15')) morseScore += 15;

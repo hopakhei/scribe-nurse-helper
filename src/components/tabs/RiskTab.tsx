@@ -14,7 +14,7 @@ export function RiskTab({ onFieldChange, fieldValues }: RiskTabProps) {
       history_falling: fieldValues.morse_history_falling === 'Yes' ? 25 : 0,
       secondary_diagnosis: fieldValues.morse_secondary_diagnosis === 'Yes' ? 15 : 0,
       ambulatory_aid: fieldValues.morse_ambulatory_aid === 'Furniture' ? 30 : fieldValues.morse_ambulatory_aid === 'Crutches/cane/walker' ? 15 : 0,
-      iv_heparin: fieldValues.morse_iv_heparin === 'Yes' ? 20 : 0,
+      iv_heparin: fieldValues.morse_iv_therapy === 'Yes' ? 20 : 0,
       gait: fieldValues.morse_gait === 'Impaired' ? 20 : fieldValues.morse_gait === 'Weak' ? 10 : 0,
       mental_status: fieldValues.morse_mental_status === 'Forgets limitations' ? 15 : 0
     };

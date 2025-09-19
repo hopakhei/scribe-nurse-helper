@@ -143,7 +143,7 @@ const ScribeDataDisplay: React.FC<ScribeDataDisplayProps> = ({
       'morse_history_falling': 'Fall History',
       'morse_secondary_diagnosis': 'Secondary Diagnosis',
       'morse_ambulatory_aid': 'Ambulatory Aid',
-      'morse_iv_heparin': 'IV/Heparin Lock',
+      'morse_iv_therapy': 'IV/Heparin Lock',
       'morse_gait': 'Gait/Transferring',
       'morse_mental_status': 'Mental Status',
       'chief_complaint': 'Chief Complaint',

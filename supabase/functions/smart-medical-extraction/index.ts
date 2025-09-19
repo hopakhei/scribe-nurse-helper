@@ -33,6 +33,61 @@ interface SimilarField {
   similarity: number;
 }
 
+// Field ID normalization mapping - maps common incorrect IDs to canonical ones
+const FIELD_ID_ALIASES: Record<string, string> = {
+  'vitals_bp_systolic_mmhg': 'bp_systolic',
+  'vitals_bp_diastolic_mmhg': 'bp_diastolic',
+  'vitals_pulse': 'pulse',
+  'vitals_temperature': 'temperature',
+  'vitals_respiratory_rate': 'respiratory_rate',
+  'vitals_spo2': 'spo2',
+  'vitals_oxygen_saturation': 'spo2',
+  'vital_signs_temperature': 'temperature',
+  'vital_signs_pulse': 'pulse',
+  'vital_signs_bp_systolic': 'bp_systolic',
+  'vital_signs_bp_diastolic': 'bp_diastolic',
+  'bp_sys': 'bp_systolic',
+  'bp_dia': 'bp_diastolic',
+  'temp': 'temperature',
+  'hr': 'pulse',
+  'rr': 'respiratory_rate',
+  'o2_sat': 'spo2',
+  'oxygen_sat': 'spo2',
+  'morse_iv_heparin': 'morse_iv_therapy',
+  'morse_fall_history': 'morse_history_falling',
+  'fall_history': 'morse_history_falling'
+};
+
+// Function to normalize field IDs to canonical form
+const normalizeFieldId = (fieldId: string): string | null => {
+  // First check if it's already a canonical ID (exists in comprehensive mapping)
+  const canonicalFieldIds = [
+    'temperature', 'pulse', 'bp_systolic', 'bp_diastolic', 'respiratory_rate', 'spo2',
+    'morse_history_falling', 'morse_secondary_diagnosis', 'morse_ambulatory_aid', 
+    'morse_iv_therapy', 'morse_gait', 'morse_mental_status',
+    'current_complaint', 'level_of_consciousness', 'pain_scale', 'pain_location',
+    'hearing_status', 'vision_status', 'language_preferred',
+    'bowel_pattern', 'urinary_pattern', 'appetite', 'dietary_restrictions',
+    'living_arrangement', 'discharge_planning_needs',
+    'emergency_contact_1_name', 'emergency_contact_1_relationship', 'emergency_contact_1_phone'
+  ];
+  
+  if (canonicalFieldIds.includes(fieldId)) {
+    return fieldId;
+  }
+  
+  // Check if it has an alias
+  const canonicalId = FIELD_ID_ALIASES[fieldId];
+  if (canonicalId && canonicalFieldIds.includes(canonicalId)) {
+    console.log(`Normalized field ID: ${fieldId} -> ${canonicalId}`);
+    return canonicalId;
+  }
+  
+  // Field ID not recognized - drop it
+  console.warn(`Unknown field ID dropped: ${fieldId}`);
+  return null;
+};
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -256,18 +311,24 @@ async function extractFieldsWithRAG(
       const validatedFields = extractedFields
         .filter(field => field.fieldId && field.sectionId && field.value)
         .map(field => {
-          const matchingField = similarFields.find(sf => sf.field_id === field.fieldId);
+          // Normalize field ID first
+          const normalizedFieldId = normalizeFieldId(field.fieldId);
+          if (!normalizedFieldId) {
+            return null; // Skip unknown fields
+          }
+          
+          const matchingField = similarFields.find(sf => sf.field_id === normalizedFieldId);
           
           // Standardize value formats
           let standardizedValue = field.value;
           
           // Fix Morse scale values - remove "points" suffix
-          if (field.fieldId.startsWith('morse_') && typeof standardizedValue === 'string') {
+          if (normalizedFieldId.startsWith('morse_') && typeof standardizedValue === 'string') {
             standardizedValue = standardizedValue.replace(/ points?\)/g, ')');
           }
           
           // Fix vital signs values - extract numeric only
-          if (['pulse', 'spo2', 'temperature', 'bp_systolic', 'bp_diastolic', 'respiratory_rate'].includes(field.fieldId)) {
+          if (['pulse', 'spo2', 'temperature', 'bp_systolic', 'bp_diastolic', 'respiratory_rate'].includes(normalizedFieldId)) {
             const numericMatch = String(standardizedValue).match(/\d+(\.\d+)?/);
             if (numericMatch) {
               standardizedValue = numericMatch[0];
@@ -276,13 +337,15 @@ async function extractFieldsWithRAG(
           
           return {
             ...field,
+            fieldId: normalizedFieldId, // Use normalized field ID
             value: standardizedValue,
             confidenceScore: matchingField ? 
               Math.min(0.95, (field.confidenceScore || 0.8) * matchingField.similarity) : 
               (field.confidenceScore || 0.8),
             aiSourceText: field.aiSourceText || 'Extracted from transcript using RAG'
           };
-        });
+        })
+        .filter(field => field !== null); // Remove null entries
       
       console.log(`Successfully extracted ${validatedFields.length} fields using RAG`);
       return validatedFields;
@@ -348,14 +411,17 @@ EXTRACTION STRATEGY:
 4. USE clinical reasoning to extract related fields when mentioned together
 5. PRESERVE original language context while extracting structured data
 
-CRITICAL EXTRACTION RULES:
-1. Extract ALL relevant information mentioned in the transcript
-2. Use EXACT field IDs from the RAG-retrieved mappings above
-3. Match values to provided options when available (exact or closest match)
-4. For numeric fields, extract exact values with appropriate units
-5. Handle multilingual medical terminology (English, Cantonese, etc.)
-6. Include confidence scores based on clarity and RAG similarity
-7. Reference the exact text that supports each extraction
+CRITICAL: USE ONLY THESE CANONICAL FIELD IDs - DO NOT CREATE VARIATIONS:
+- Vital Signs: temperature, pulse, bp_systolic, bp_diastolic, respiratory_rate, spo2
+- Morse Fall Scale: morse_history_falling, morse_secondary_diagnosis, morse_ambulatory_aid, morse_iv_therapy, morse_gait, morse_mental_status
+- Clinical: current_complaint, level_of_consciousness, pain_scale, pain_location
+- Communication: hearing_status, vision_status, language_preferred
+- Elimination: bowel_pattern, urinary_pattern
+- Nutrition: appetite, dietary_restrictions
+- Social: living_arrangement, discharge_planning_needs
+- Emergency: emergency_contact_1_name, emergency_contact_1_relationship, emergency_contact_1_phone
+
+WARNING: DO NOT use variations like vitals_*, vital_signs_*, morse_iv_heparin, etc. These will be rejected.
 
 FALL HISTORY FOCUS:
 Pay special attention to fall-related phrases in ANY language:
