@@ -33,3 +33,6 @@ port = 54327
 
 [functions.realtime-transcription]
 verify_jwt = false
+
+[functions.generate-field-embeddings]
+verify_jwt = false

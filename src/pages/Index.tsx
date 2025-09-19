@@ -10,6 +10,7 @@ import { ImprovedAudioRecording } from "@/components/ImprovedAudioRecording";
 import { EnhancedScribeDataDisplay } from "@/components/EnhancedScribeDataDisplay";
 import { RiskScoreDisplay } from "@/components/RiskScoreDisplay";
 import { TabAssessmentSystem } from "@/components/TabAssessmentSystem";
+import RAGSetupButton from "@/components/RAGSetupButton";
 import { usePatientAssessment } from "@/hooks/usePatientAssessment";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { Button } from "@/components/ui/button";
@@ -219,6 +220,13 @@ const Index = () => {
                 AI-Assisted Patient Assessment Documentation System
               </p>
             </div>
+
+            {/* RAG Setup for Admin Users */}
+            {profile?.role === 'admin' && (
+              <div className="mb-6">
+                <RAGSetupButton />
+              </div>
+            )}
 
             {/* Patient Information */}
           <PatientHeader patient={patientFromHook} />

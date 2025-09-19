@@ -61,7 +61,7 @@ serve(async (req) => {
     const openAIFormData = new FormData();
     openAIFormData.append('file', audioFile, 'audio.webm');
     openAIFormData.append('model', 'whisper-1');
-    openAIFormData.append('language', 'en');
+    // Remove language parameter to let Whisper auto-detect and preserve original language
 
     // Send to OpenAI Whisper API
     const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {

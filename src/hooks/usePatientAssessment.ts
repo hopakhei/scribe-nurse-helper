@@ -273,7 +273,7 @@ export const usePatientAssessment = (patientId?: string) => {
     setIsProcessingAudio(true);
     
     try {
-      const { data, error } = await supabase.functions.invoke('process-audio-transcript', {
+      const { data, error } = await supabase.functions.invoke('smart-medical-extraction', {
         body: {
           assessmentId,
           transcriptText
