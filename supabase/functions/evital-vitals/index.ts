@@ -12,6 +12,49 @@ const supabase = createClient(
   Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 );
 
+// Define patient coverage scenarios based on ID patterns
+function getPatientCoverage(patientId: string): 'high' | 'medium' | 'low' | 'none' {
+  if (patientId.toUpperCase().startsWith('A')) return 'high';
+  if (patientId.toUpperCase().startsWith('B')) return 'medium'; 
+  if (patientId.toUpperCase().startsWith('C')) return 'low';
+  if (patientId.toUpperCase().startsWith('D')) return 'none';
+  return 'high'; // Default to high coverage
+}
+
+function getMockDataForCoverage(coverage: 'high' | 'medium' | 'low' | 'none') {
+  const scenarios = {
+    high: {
+      temperature: "37.2",
+      temp_method: "Oral",
+      pulse: "78",
+      pulse_location: "Radial",
+      pulse_pattern: "Regular",
+      bp_systolic: "125",
+      bp_diastolic: "80", 
+      bp_position: "Sitting",
+      respiratory_rate: "18",
+      respiration_status: "Normal",
+      spo2: "98"
+    },
+    medium: {
+      temperature: "36.8",
+      pulse: "82",
+      bp_systolic: "130",
+      bp_diastolic: "85",
+      spo2: "97"
+      // Partial vitals for medium coverage
+    },
+    low: {
+      temperature: "37.0",
+      pulse: "80"
+      // Very limited vitals for low coverage  
+    },
+    none: {}
+  };
+  
+  return scenarios[coverage];
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -22,21 +65,16 @@ serve(async (req) => {
     const { patientId } = await req.json();
     
     console.log('eVital: Fetching vital signs for patient:', patientId);
-
-    // Mock eVital vital signs data
-    const mockData = {
-      temperature: "37.2",
-      temp_method: "Tympanic",
-      pulse: "78",
-      pulse_location: "Radial",
-      pulse_pattern: "Regular",
-      bp_systolic: "124",
-      bp_diastolic: "82",
-      bp_position: "Sitting",
-      respiratory_rate: "16",
-      respiration_status: "Normal",
-      spo2: "98"
-    };
+    
+    const coverage = getPatientCoverage(patientId);
+    console.log(`Patient ${patientId} has ${coverage} coverage`);
+    
+    // Simulate system unavailability for 'none' coverage and some 'low' coverage cases
+    if (coverage === 'none' || (coverage === 'low' && Math.random() < 0.5)) {
+      throw new Error('eVital system connection timeout');
+    }
+    
+    const mockData = getMockDataForCoverage(coverage);
 
     // Store in cache
     const cacheData = {
@@ -44,7 +82,7 @@ serve(async (req) => {
       system_name: 'evital',
       cache_key: 'vital_signs',
       cached_data: mockData,
-      expires_at: new Date(Date.now() + 4 * 60 * 60 * 1000).toISOString() // 4 hours
+      expires_at: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString() // 2 hours
     };
 
     const { error: cacheError } = await supabase
@@ -59,6 +97,7 @@ serve(async (req) => {
       success: true,
       data: mockData,
       source: 'eVital',
+      coverage: coverage,
       timestamp: new Date().toISOString()
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

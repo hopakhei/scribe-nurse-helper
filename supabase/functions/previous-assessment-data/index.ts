@@ -12,19 +12,18 @@ const supabase = createClient(
   Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 );
 
-serve(async (req) => {
-  // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
-  }
+// Define patient coverage scenarios based on ID patterns
+function getPatientCoverage(patientId: string): 'high' | 'medium' | 'low' | 'none' {
+  if (patientId.toUpperCase().startsWith('A')) return 'high';
+  if (patientId.toUpperCase().startsWith('B')) return 'medium'; 
+  if (patientId.toUpperCase().startsWith('C')) return 'low';
+  if (patientId.toUpperCase().startsWith('D')) return 'none';
+  return 'high'; // Default to high coverage
+}
 
-  try {
-    const { patientId } = await req.json();
-    
-    console.log('Previous Assessment: Fetching data for patient:', patientId);
-
-    // Mock previous assessment data for social and communication
-    const mockData = {
+function getMockDataForCoverage(coverage: 'high' | 'medium' | 'low' | 'none') {
+  const scenarios = {
+    high: {
       // Social data
       marital_status: "Married",
       religion: "Buddhism", 
@@ -36,7 +35,7 @@ serve(async (req) => {
       nationality: "Singaporean",
       household_members: ["Spouse", "Children"],
       smoking_status: "Non-smoker",
-      drinking_status: "Ex-drinker",
+      drinking_status: "Ex-drinker", 
       drinking_start_since: "20",
       substance_status: "Non-user",
       
@@ -47,7 +46,58 @@ serve(async (req) => {
       hearing_aids: "No",
       visual_aids: "Reading glasses",
       speech_difficulties: "None"
-    };
+    },
+    medium: {
+      marital_status: "Single",
+      religion: "Christianity",
+      education: "Primary", 
+      smoking_status: "Non-smoker",
+      drinking_status: "Social drinker",
+      primary_language: "Mandarin",
+      hearing_aids: "No"
+      // Partial historical data for medium coverage
+    },
+    low: {
+      marital_status: "Married",
+      smoking_status: "Ex-smoker",
+      primary_language: "English"
+      // Very limited historical data for low coverage
+    },
+    none: {}
+  };
+  
+  return scenarios[coverage];
+}
+
+serve(async (req) => {
+  // Handle CORS preflight requests
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  try {
+    const { patientId } = await req.json();
+    
+    console.log('History: Fetching data for patient:', patientId);
+
+    const coverage = getPatientCoverage(patientId);
+    console.log(`Patient ${patientId} has ${coverage} coverage`);
+    
+    // Simulate no historical data for 'none' coverage
+    if (coverage === 'none') {
+      return new Response(JSON.stringify({
+        success: true,
+        data: {},
+        source: 'History',
+        coverage: coverage,
+        message: 'No previous assessment data available',
+        timestamp: new Date().toISOString()
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+    
+    const mockData = getMockDataForCoverage(coverage);
 
     // Store in cache
     const cacheData = {
@@ -63,23 +113,24 @@ serve(async (req) => {
       .upsert(cacheData);
 
     if (cacheError) {
-      console.error('Error caching previous assessment data:', cacheError);
+      console.error('Error caching History data:', cacheError);
     }
 
     return new Response(JSON.stringify({
       success: true,
       data: mockData,
-      source: 'Previous Assessment',
+      source: 'History',
+      coverage: coverage,
       timestamp: new Date().toISOString()
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
   } catch (error) {
-    console.error('Error in previous assessment function:', error);
+    console.error('Error in History function:', error);
     return new Response(JSON.stringify({ 
       error: error.message,
-      source: 'Previous Assessment'
+      source: 'History'
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

@@ -12,6 +12,43 @@ const supabase = createClient(
   Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 );
 
+// Define patient coverage scenarios based on ID patterns
+function getPatientCoverage(patientId: string): 'high' | 'medium' | 'low' | 'none' {
+  if (patientId.toUpperCase().startsWith('A')) return 'high';
+  if (patientId.toUpperCase().startsWith('B')) return 'medium'; 
+  if (patientId.toUpperCase().startsWith('C')) return 'low';
+  if (patientId.toUpperCase().startsWith('D')) return 'none';
+  return 'high'; // Default to high coverage
+}
+
+function getMockDataForCoverage(coverage: 'high' | 'medium' | 'low' | 'none') {
+  const scenarios = {
+    high: {
+      mdro_status: "Positive",
+      mdro_organism: "MRSA",
+      mdro_site: "Wound swab",
+      mdro_date_identified: "2024-01-15",
+      isolation_precautions: "Contact precautions",
+      alert_level: "High",
+      previous_mdro_history: "Yes",
+      screening_required: "Yes"
+    },
+    medium: {
+      mdro_status: "Negative", 
+      screening_required: "Yes",
+      previous_mdro_history: "No"
+      // Basic alert data for medium coverage
+    },
+    low: {
+      mdro_status: "Negative"
+      // Minimal alert data for low coverage
+    },
+    none: {}
+  };
+  
+  return scenarios[coverage];
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -23,17 +60,15 @@ serve(async (req) => {
     
     console.log('Alert Function: Fetching MDRO tags for patient:', patientId);
 
-    // Mock MDRO (Multi-Drug Resistant Organism) alert data
-    const mockData = {
-      mdro_status: "Positive",
-      mdro_organism: "MRSA",
-      mdro_site: "Wound swab",
-      mdro_date_identified: "2024-01-15",
-      isolation_precautions: "Contact precautions",
-      alert_level: "High",
-      previous_mdro_history: "Yes",
-      screening_required: "Yes"
-    };
+    const coverage = getPatientCoverage(patientId);
+    console.log(`Patient ${patientId} has ${coverage} coverage`);
+    
+    // Simulate system unavailability for 'none' and some 'low' coverage cases
+    if (coverage === 'none' || (coverage === 'low' && Math.random() < 0.3)) {
+      throw new Error('Alert system database maintenance in progress');
+    }
+    
+    const mockData = getMockDataForCoverage(coverage);
 
     // Store in cache
     const cacheData = {
@@ -56,6 +91,7 @@ serve(async (req) => {
       success: true,
       data: mockData,
       source: 'Alert Function',
+      coverage: coverage,
       timestamp: new Date().toISOString()
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

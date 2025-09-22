@@ -146,7 +146,7 @@ export function EnhancedFormSection({
     const labels = {
       'opas': 'OPAS',
       'evital': 'eVital',
-      'previous-assessment': 'Previous Assessment',
+      'previous-assessment': 'History',
       'alert-function': 'Alert Function',
       'ai-filled': 'AI Filled',
       'manual': ''
@@ -183,9 +183,6 @@ export function EnhancedFormSection({
     const fieldClass = cn(
       "transition-colors border-2",
       getFieldBackground(field.dataSource),
-      (field.dataSource === 'opas' || field.dataSource === 'evital' || 
-       field.dataSource === 'previous-assessment' || field.dataSource === 'alert-function') && 
-      "cursor-not-allowed opacity-75",
       field.dataSource === 'ai-filled' && "border-primary/20",
     );
 
@@ -198,9 +195,7 @@ export function EnhancedFormSection({
     }
     
     // Check disabled condition
-    const isDisabled = (field.dataSource === 'opas' || field.dataSource === 'evital' || 
-      field.dataSource === 'previous-assessment' || field.dataSource === 'alert-function') || 
-      (field.disabledCondition && evaluateCondition(field.disabledCondition, fieldValues));
+    const isDisabled = field.disabledCondition && evaluateCondition(field.disabledCondition, fieldValues);
 
     const normalizedOptions = normalizeOptions(field.options);
 

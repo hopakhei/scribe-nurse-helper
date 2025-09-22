@@ -1,13 +1,16 @@
 import { TabsContent } from "@/components/ui/tabs";
 import { EnhancedFormSection } from "@/components/EnhancedFormSection";
+import { RefreshButton } from "@/components/RefreshButton";
 import type { FormCard } from "@/components/EnhancedFormSection";
 
 interface GeneralTabProps {
   onFieldChange: (fieldId: string, value: any) => void;
   fieldValues: Record<string, any>;
+  assessmentId?: string;
+  patientId?: string;
 }
 
-export function GeneralTab({ onFieldChange, fieldValues }: GeneralTabProps) {
+export function GeneralTab({ onFieldChange, fieldValues, assessmentId, patientId }: GeneralTabProps) {
   const cards: FormCard[] = [
     {
       id: 'emergency-contact-1',
@@ -66,9 +69,17 @@ export function GeneralTab({ onFieldChange, fieldValues }: GeneralTabProps) {
 
   return (
     <TabsContent value="general" className="mt-0">
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h2 className="text-xl font-bold">General Information</h2>
+          <p className="text-muted-foreground text-sm">Basic patient information and emergency contacts</p>
+        </div>
+        {assessmentId && patientId && (
+          <RefreshButton assessmentId={assessmentId} patientId={patientId} />
+        )}
+      </div>
       <EnhancedFormSection
-        title="General Information"
-        description="Basic patient information and emergency contacts"
+        title=""
         cards={cards}
         layout="single"
         onFieldChange={onFieldChange}

@@ -70,7 +70,7 @@ serve(async (req) => {
       }
     } catch (error) {
       console.error('Previous Assessment error:', error);
-      results.errors.push({ system: 'Previous Assessment', error: error.message });
+      results.errors.push({ system: 'History', error: error.message });
     }
 
     // Call Alert Function for MDRO tagging
@@ -180,7 +180,7 @@ function getSourceSystemName(dataSource: string): string {
   const systemNames: Record<string, string> = {
     'opas': 'OPAS',
     'evital': 'eVital',
-    'previous-assessment': 'Previous Assessment',
+    'previous-assessment': 'History',
     'alert-function': 'Alert Function'
   };
   return systemNames[dataSource] || dataSource;

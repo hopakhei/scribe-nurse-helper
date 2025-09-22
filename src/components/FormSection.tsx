@@ -49,7 +49,7 @@ export function FormSection({ title, description, fields, onFieldChange }: FormS
     const labels = {
       'opas': 'OPAS',
       'evital': 'eVital',
-      'previous-assessment': 'Previous Assessment',
+      'previous-assessment': 'History',
       'alert-function': 'Alert Function',
       'ai-filled': 'AI Filled',
       'manual': ''
@@ -73,9 +73,6 @@ export function FormSection({ title, description, fields, onFieldChange }: FormS
     const fieldClass = cn(
       "transition-colors border-2",
       getFieldBackground(field.dataSource),
-      (field.dataSource === 'opas' || field.dataSource === 'evital' || 
-       field.dataSource === 'previous-assessment' || field.dataSource === 'alert-function') && 
-      "cursor-not-allowed opacity-75",
       field.dataSource === 'ai-filled' && "border-primary/20",
     );
 
@@ -90,8 +87,6 @@ export function FormSection({ title, description, fields, onFieldChange }: FormS
             value={field.value as string || ''}
             onChange={(e) => onFieldChange(field.id, e.target.value)}
             className={fieldClass}
-            disabled={field.dataSource === 'opas' || field.dataSource === 'evital' || 
-                     field.dataSource === 'previous-assessment' || field.dataSource === 'alert-function'}
           />
         );
       
@@ -101,8 +96,6 @@ export function FormSection({ title, description, fields, onFieldChange }: FormS
             value={field.value as string || ''}
             onChange={(e) => onFieldChange(field.id, e.target.value)}
             className={fieldClass}
-            disabled={field.dataSource === 'opas' || field.dataSource === 'evital' || 
-                     field.dataSource === 'previous-assessment' || field.dataSource === 'alert-function'}
             rows={3}
           />
         );
@@ -112,8 +105,6 @@ export function FormSection({ title, description, fields, onFieldChange }: FormS
           <Select
             value={field.value as string || ''}
             onValueChange={(value) => onFieldChange(field.id, value)}
-            disabled={field.dataSource === 'opas' || field.dataSource === 'evital' || 
-                     field.dataSource === 'previous-assessment' || field.dataSource === 'alert-function'}
           >
             <SelectTrigger className={fieldClass}>
               <SelectValue placeholder="Select option..." />
@@ -134,8 +125,6 @@ export function FormSection({ title, description, fields, onFieldChange }: FormS
             <Checkbox
               checked={field.value as boolean || false}
               onCheckedChange={(checked) => onFieldChange(field.id, checked)}
-              disabled={field.dataSource === 'opas' || field.dataSource === 'evital' || 
-                       field.dataSource === 'previous-assessment' || field.dataSource === 'alert-function'}
             />
             <Label className="text-sm">{field.label}</Label>
           </div>
@@ -153,8 +142,6 @@ export function FormSection({ title, description, fields, onFieldChange }: FormS
                   value={option}
                   checked={field.value === option}
                   onChange={(e) => onFieldChange(field.id, e.target.value)}
-                  disabled={field.dataSource === 'opas' || field.dataSource === 'evital' || 
-                           field.dataSource === 'previous-assessment' || field.dataSource === 'alert-function'}
                   className="w-4 h-4"
                 />
                 <Label htmlFor={`${field.id}-${option}`} className="text-sm">

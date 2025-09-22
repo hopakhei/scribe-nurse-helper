@@ -48,7 +48,7 @@ export function useExternalDataPopulation() {
         const successSystems = [];
         if (result.results.opas) successSystems.push('OPAS');
         if (result.results.evital) successSystems.push('eVital');
-        if (result.results.previousAssessment) successSystems.push('Previous Assessment');
+        if (result.results.previousAssessment) successSystems.push('History');
         if (result.results.alertFunction) successSystems.push('Alert Function');
         
         if (successSystems.length > 0) {
