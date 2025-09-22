@@ -44,6 +44,12 @@ onfig.ts
 - **Device Memory** - Remember trusted devices for quick access
 - **Protected Routes** - Secure access to patient data
 
+### 🔗 External System Integration
+- **Central System Sync** - Automatically fetches patient demographics from the Patient Administration System (PAS) and latest vital signs from eVital to pre-populate assessment forms and reduce manual data entry.
+- **Historical Data Access** - Retrieves past nursing summaries (PAF), clinical photos from the Patient Album, and existing alerts to provide comprehensive context directly within the assessment interface.
+- **Real-time Alert Generation** - Pushes critical alerts to the central hospital alert system based on real-time risk score calculations (e.g., high fall risk), ensuring immediate team-wide awareness.
+<img width="931" height="682" alt="image" src="https://github.com/user-attachments/assets/5780fd1f-de45-4509-a8be-1297d4f4ae78" />
+
 ## Tech Stack
 
 ### Frontend
