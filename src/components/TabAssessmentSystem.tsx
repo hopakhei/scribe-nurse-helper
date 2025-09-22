@@ -16,6 +16,8 @@ import { PhotoTab } from "@/components/tabs/PhotoTab";
 interface TabAssessmentSystemProps {
   onFieldChange: (fieldId: string, value: any) => void;
   fieldValues: Record<string, any>;
+  assessmentId?: string;
+  patientId?: string;
 }
 
 interface TabSection {
@@ -27,7 +29,7 @@ interface TabSection {
   completedFields?: number;
 }
 
-export function TabAssessmentSystem({ onFieldChange, fieldValues }: TabAssessmentSystemProps) {
+export function TabAssessmentSystem({ onFieldChange, fieldValues, assessmentId, patientId }: TabAssessmentSystemProps) {
   const [currentSection, setCurrentSection] = useState('general');
   const [localFieldValues, setLocalFieldValues] = useState<Record<string, any>>({});
   
@@ -60,7 +62,7 @@ export function TabAssessmentSystem({ onFieldChange, fieldValues }: TabAssessmen
   const renderTabContent = (sectionId: string) => {
     switch (sectionId) {
       case 'general':
-        return <GeneralTab onFieldChange={handleLocalFieldChange} fieldValues={mergedFieldValues} />;
+        return <GeneralTab onFieldChange={handleLocalFieldChange} fieldValues={mergedFieldValues} assessmentId={assessmentId} patientId={patientId} />;
       case 'physical':
         return <PhysicalTab onFieldChange={handleLocalFieldChange} fieldValues={mergedFieldValues} />;
       case 'social':

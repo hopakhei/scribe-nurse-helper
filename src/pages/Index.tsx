@@ -279,6 +279,8 @@ const Index = () => {
                   {/* Enhanced Tab Assessment System */}
                   <TabAssessmentSystem
                     onFieldChange={handleFieldChange}
+                    assessmentId={assessmentId}
+                    patientId={patientId}
                     fieldValues={{
                       patient_gender: patientFromHook?.sex === 'F' ? 'Female' : 'Male',
                       ...fieldValues
