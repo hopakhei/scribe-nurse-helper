@@ -1,4 +1,4 @@
-# Scribe Nurse Helper - Robotic Patient Assessment Assistant
+# Vector - Robotic Patient Assessment Assistant
 
 A proof-of-concept AI-powered patient assessment system designed for robotic assistants in healthcare settings. Developed by the **Robotic Evangelist Cohort 8** team at **Hospital Authority**, this system enables robots equipped with Android tablets to assist nurses with patient assessments upon admission.
 
