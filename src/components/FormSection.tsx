@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 export type FieldType = 'text' | 'textarea' | 'select' | 'checkbox' | 'number' | 'radio' | 'date' | 'time';
-export type DataSource = 'pre-populated' | 'ai-filled' | 'manual';
+export type DataSource = 'opas' | 'evital' | 'previous-assessment' | 'alert-function' | 'ai-filled' | 'manual';
 
 interface FormField {
   id: string;
@@ -17,7 +17,9 @@ interface FormField {
   value?: string | boolean | number;
   options?: string[];
   required?: boolean;
-  dataSource: DataSource;
+  dataSource?: DataSource;
+  sourceSystem?: string;
+  lastSync?: string;
   aiSourceText?: string;
 }
 
@@ -29,25 +31,35 @@ interface FormSectionProps {
 }
 
 export function FormSection({ title, description, fields, onFieldChange }: FormSectionProps) {
-  const getFieldBackground = (dataSource: DataSource) => {
+  const getFieldBackground = (dataSource?: DataSource) => {
+    if (!dataSource) return '';
     const backgrounds = {
-      'pre-populated': 'bg-medical-pre-populated',
-      'ai-filled': 'bg-medical-ai-filled',
-      'manual': 'bg-medical-manual-entry'
+      'opas': 'bg-blue-50 dark:bg-blue-950/50',
+      'evital': 'bg-green-50 dark:bg-green-950/50',
+      'previous-assessment': 'bg-purple-50 dark:bg-purple-950/50',
+      'alert-function': 'bg-orange-50 dark:bg-orange-950/50',
+      'ai-filled': 'bg-medical-ai-filled'
     };
     return backgrounds[dataSource];
   };
 
-  const getDataSourceBadge = (dataSource: DataSource) => {
+  const getDataSourceBadge = (dataSource?: DataSource) => {
+    if (!dataSource) return null;
+    
     const labels = {
-      'pre-populated': 'History',
+      'opas': 'OPAS',
+      'evital': 'eVital',
+      'previous-assessment': 'Previous Assessment',
+      'alert-function': 'Alert Function',
       'ai-filled': 'AI Filled',
       'manual': ''
     };
     const variants = {
-      'pre-populated': 'secondary',
-      'ai-filled': 'default',
-      'manual': 'outline'
+      'opas': 'secondary',
+      'evital': 'default',
+      'previous-assessment': 'outline',
+      'alert-function': 'destructive',
+      'ai-filled': 'default'
     } as const;
     
     return (
@@ -61,7 +73,9 @@ export function FormSection({ title, description, fields, onFieldChange }: FormS
     const fieldClass = cn(
       "transition-colors border-2",
       getFieldBackground(field.dataSource),
-      field.dataSource === 'pre-populated' && "cursor-not-allowed opacity-75",
+      (field.dataSource === 'opas' || field.dataSource === 'evital' || 
+       field.dataSource === 'previous-assessment' || field.dataSource === 'alert-function') && 
+      "cursor-not-allowed opacity-75",
       field.dataSource === 'ai-filled' && "border-primary/20",
     );
 
@@ -76,7 +90,8 @@ export function FormSection({ title, description, fields, onFieldChange }: FormS
             value={field.value as string || ''}
             onChange={(e) => onFieldChange(field.id, e.target.value)}
             className={fieldClass}
-            disabled={field.dataSource === 'pre-populated'}
+            disabled={field.dataSource === 'opas' || field.dataSource === 'evital' || 
+                     field.dataSource === 'previous-assessment' || field.dataSource === 'alert-function'}
           />
         );
       
@@ -86,7 +101,8 @@ export function FormSection({ title, description, fields, onFieldChange }: FormS
             value={field.value as string || ''}
             onChange={(e) => onFieldChange(field.id, e.target.value)}
             className={fieldClass}
-            disabled={field.dataSource === 'pre-populated'}
+            disabled={field.dataSource === 'opas' || field.dataSource === 'evital' || 
+                     field.dataSource === 'previous-assessment' || field.dataSource === 'alert-function'}
             rows={3}
           />
         );
@@ -96,7 +112,8 @@ export function FormSection({ title, description, fields, onFieldChange }: FormS
           <Select
             value={field.value as string || ''}
             onValueChange={(value) => onFieldChange(field.id, value)}
-            disabled={field.dataSource === 'pre-populated'}
+            disabled={field.dataSource === 'opas' || field.dataSource === 'evital' || 
+                     field.dataSource === 'previous-assessment' || field.dataSource === 'alert-function'}
           >
             <SelectTrigger className={fieldClass}>
               <SelectValue placeholder="Select option..." />
@@ -117,7 +134,8 @@ export function FormSection({ title, description, fields, onFieldChange }: FormS
             <Checkbox
               checked={field.value as boolean || false}
               onCheckedChange={(checked) => onFieldChange(field.id, checked)}
-              disabled={field.dataSource === 'pre-populated'}
+              disabled={field.dataSource === 'opas' || field.dataSource === 'evital' || 
+                       field.dataSource === 'previous-assessment' || field.dataSource === 'alert-function'}
             />
             <Label className="text-sm">{field.label}</Label>
           </div>
@@ -135,7 +153,8 @@ export function FormSection({ title, description, fields, onFieldChange }: FormS
                   value={option}
                   checked={field.value === option}
                   onChange={(e) => onFieldChange(field.id, e.target.value)}
-                  disabled={field.dataSource === 'pre-populated'}
+                  disabled={field.dataSource === 'opas' || field.dataSource === 'evital' || 
+                           field.dataSource === 'previous-assessment' || field.dataSource === 'alert-function'}
                   className="w-4 h-4"
                 />
                 <Label htmlFor={`${field.id}-${option}`} className="text-sm">

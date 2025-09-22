@@ -16,7 +16,7 @@ import { useState } from "react";
 import { format } from "date-fns";
 
 export type FieldType = 'text' | 'textarea' | 'select' | 'checkbox' | 'number' | 'radio' | 'date' | 'time' | 'calculated' | 'inline-group' | 'datepicker' | 'multi-select' | 'file' | 'file-upload' | 'dynamic-group' | 'nested-tabs' | 'dialog';
-export type DataSource = 'pre-populated' | 'ai-filled' | 'manual';
+export type DataSource = 'opas' | 'evital' | 'previous-assessment' | 'alert-function' | 'ai-filled' | 'manual';
 
 interface OptionItem {
   value: string | number;
@@ -31,6 +31,8 @@ export interface FormField {
   options?: string[] | OptionItem[];
   required?: boolean;
   dataSource?: DataSource; // Make dataSource optional
+  sourceSystem?: string;
+  lastSync?: string;
   aiSourceText?: string;
   calculation?: (values: Record<string, any>) => string | number;
   inlineFields?: FormField[];
@@ -129,25 +131,32 @@ export function EnhancedFormSection({
   const getFieldBackground = (dataSource?: DataSource) => {
     if (!dataSource) return '';
     const backgrounds = {
-      'pre-populated': 'bg-medical-pre-populated',
-      'ai-filled': 'bg-medical-ai-filled',
-      'manual': ''
+      'opas': 'bg-blue-50 dark:bg-blue-950/50',
+      'evital': 'bg-green-50 dark:bg-green-950/50',
+      'previous-assessment': 'bg-purple-50 dark:bg-purple-950/50',
+      'alert-function': 'bg-orange-50 dark:bg-orange-950/50',
+      'ai-filled': 'bg-medical-ai-filled'
     };
     return backgrounds[dataSource];
   };
 
   const getDataSourceBadge = (dataSource?: DataSource) => {
-    if (!dataSource || dataSource === 'manual') return null;
+    if (!dataSource) return null;
     
     const labels = {
-      'pre-populated': 'History',
+      'opas': 'OPAS',
+      'evital': 'eVital',
+      'previous-assessment': 'Previous Assessment',
+      'alert-function': 'Alert Function',
       'ai-filled': 'AI Filled',
       'manual': ''
     };
     const variants = {
-      'pre-populated': 'secondary',
-      'ai-filled': 'default',
-      'manual': 'outline'
+      'opas': 'secondary',
+      'evital': 'default',
+      'previous-assessment': 'outline',
+      'alert-function': 'destructive',
+      'ai-filled': 'default'
     } as const;
     
     return (
@@ -174,7 +183,9 @@ export function EnhancedFormSection({
     const fieldClass = cn(
       "transition-colors border-2",
       getFieldBackground(field.dataSource),
-      field.dataSource === 'pre-populated' && "cursor-not-allowed opacity-75",
+      (field.dataSource === 'opas' || field.dataSource === 'evital' || 
+       field.dataSource === 'previous-assessment' || field.dataSource === 'alert-function') && 
+      "cursor-not-allowed opacity-75",
       field.dataSource === 'ai-filled' && "border-primary/20",
     );
 
@@ -187,7 +198,8 @@ export function EnhancedFormSection({
     }
     
     // Check disabled condition
-    const isDisabled = field.dataSource === 'pre-populated' || 
+    const isDisabled = (field.dataSource === 'opas' || field.dataSource === 'evital' || 
+      field.dataSource === 'previous-assessment' || field.dataSource === 'alert-function') || 
       (field.disabledCondition && evaluateCondition(field.disabledCondition, fieldValues));
 
     const normalizedOptions = normalizeOptions(field.options);
@@ -351,7 +363,7 @@ export function EnhancedFormSection({
                   !dateValue && "text-muted-foreground",
                   fieldClass
                 )}
-                disabled={field.dataSource === 'pre-populated'}
+                disabled={isDisabled}
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />
                 {dateValue ? format(dateValue, "PPP") : <span>Pick a date</span>}

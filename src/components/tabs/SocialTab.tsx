@@ -19,54 +19,62 @@ export function SocialTab({ onFieldChange, fieldValues }: SocialTabProps) {
           label: 'Marital Status',
           type: 'select',
           options: ['Single', 'Married', 'Divorced', 'Widowed', 'Separated'],
-          dataSource: 'manual'
+          dataSource: 'previous-assessment',
+          sourceSystem: 'Previous Assessment'
         },
         {
           id: 'religion',
           label: 'Religion',
           type: 'select',
           options: ['Buddhism', 'Christianity', 'Islam', 'Hinduism', 'Taoism', 'Other', 'None'],
-          dataSource: 'manual'
+          dataSource: 'previous-assessment',
+          sourceSystem: 'Previous Assessment'
         },
         {
           id: 'education',
           label: 'Education',
           type: 'select',
           options: ['Primary', 'Secondary', 'Tertiary', 'University', 'Postgraduate', 'Other'],
-          dataSource: 'manual'
+          dataSource: 'previous-assessment',
+          sourceSystem: 'Previous Assessment'
         },
         {
           id: 'employment_status',
           label: 'Employment Status',
           type: 'select',
           options: ['Employed', 'Unemployed', 'Retired', 'Student', 'Homemaker', 'Other'],
-          dataSource: 'manual'
+          dataSource: 'previous-assessment',
+          sourceSystem: 'Previous Assessment'
         },
         {
           id: 'occupation',
           label: 'Occupation',
           type: 'text',
-          dataSource: 'manual'
+          dataSource: 'previous-assessment',
+          sourceSystem: 'Previous Assessment'
         },
         {
           id: 'financial_support',
           label: 'Financial Support',
           type: 'select',
           options: ['Self', 'Family', 'Government', 'Insurance', 'Other'],
-          dataSource: 'manual'
+          dataSource: 'previous-assessment',
+          sourceSystem: 'Previous Assessment'
         },
         {
           id: 'accommodation',
           label: 'Accommodation',
           type: 'select',
           options: ['Own home', 'Rental', 'Care home', 'Hostel', 'Homeless', 'Other'],
-          dataSource: 'manual'
+          dataSource: 'previous-assessment',
+          sourceSystem: 'Previous Assessment'
         },
         {
           id: 'nationality',
           label: 'Nationality',
           type: 'text',
-          dataSource: 'manual'
+          dataSource: 'previous-assessment',
+          sourceSystem: 'Previous Assessment'
         }
       ]
     },
@@ -79,7 +87,8 @@ export function SocialTab({ onFieldChange, fieldValues }: SocialTabProps) {
           label: 'Household Members',
           type: 'multi-select',
           options: ['Spouse', 'Children', 'Parents', 'Siblings', 'Other relatives', 'Non-relatives', 'Live alone'],
-          dataSource: 'manual'
+          dataSource: 'previous-assessment',
+          sourceSystem: 'Previous Assessment'
         }
       ]
     },
@@ -93,27 +102,31 @@ export function SocialTab({ onFieldChange, fieldValues }: SocialTabProps) {
           label: 'Smoking',
           type: 'radio',
           options: ['Smoker', 'Ex-smoker', 'Non-smoker'],
-          dataSource: 'manual',
+          dataSource: 'previous-assessment',
+          sourceSystem: 'Previous Assessment',
           conditionalFields: [
             {
               id: 'smoking_cigarettes_per_day',
               label: 'Cigarettes per day',
               type: 'number',
-              dataSource: 'manual',
+              dataSource: 'previous-assessment',
+              sourceSystem: 'Previous Assessment',
               showCondition: (value) => value === 'Smoker'
             },
             {
               id: 'smoking_start_since',
               label: 'Started since (years)',
               type: 'number',
-              dataSource: 'manual',
+              dataSource: 'previous-assessment',
+              sourceSystem: 'Previous Assessment',
               showCondition: (value) => value === 'Smoker' || value === 'Ex-smoker'
             },
             {
               id: 'smoking_quit_since',
               label: 'Quit since (years)',
               type: 'number',
-              dataSource: 'manual',
+              dataSource: 'previous-assessment',
+              sourceSystem: 'Previous Assessment',
               showCondition: (value) => value === 'Ex-smoker'
             }
           ]
@@ -123,14 +136,16 @@ export function SocialTab({ onFieldChange, fieldValues }: SocialTabProps) {
           label: 'Drinking',
           type: 'radio',
           options: ['Drinker', 'Ex-drinker', 'Non-drinker'],
-          dataSource: 'manual',
+          dataSource: 'previous-assessment',
+          sourceSystem: 'Previous Assessment',
           conditionalFields: [
             {
               id: 'drinking_type',
               label: 'Type of Beverage',
               type: 'select',
               options: ['Beer', 'Wine', 'Spirits', 'Mixed'],
-              dataSource: 'manual',
+              dataSource: 'previous-assessment',
+              sourceSystem: 'Previous Assessment',
               showCondition: (value) => value === 'Drinker'
             },
             {
@@ -138,14 +153,16 @@ export function SocialTab({ onFieldChange, fieldValues }: SocialTabProps) {
               label: 'Frequency',
               type: 'select',
               options: ['Daily', 'Weekly', 'Monthly', 'Occasionally'],
-              dataSource: 'manual',
+              dataSource: 'previous-assessment',
+              sourceSystem: 'Previous Assessment',
               showCondition: (value) => value === 'Drinker'
             },
             {
               id: 'drinking_start_since',
               label: 'Started since (years)',
               type: 'number',
-              dataSource: 'manual',
+              dataSource: 'previous-assessment',
+              sourceSystem: 'Previous Assessment',
               showCondition: (value) => value === 'Drinker' || value === 'Ex-drinker'
             }
           ]
@@ -155,13 +172,15 @@ export function SocialTab({ onFieldChange, fieldValues }: SocialTabProps) {
           label: 'Substance Use',
           type: 'radio',
           options: ['Active user', 'Ex-user', 'Non-user'],
-          dataSource: 'manual',
+          dataSource: 'previous-assessment',
+          sourceSystem: 'Previous Assessment',
           conditionalFields: [
             {
               id: 'substance_type',
               label: 'Type of Substance',
               type: 'text',
-              dataSource: 'manual',
+              dataSource: 'previous-assessment',
+              sourceSystem: 'Previous Assessment',
               showCondition: (value) => value === 'Active user'
             },
             {
@@ -169,7 +188,8 @@ export function SocialTab({ onFieldChange, fieldValues }: SocialTabProps) {
               label: 'Frequency',
               type: 'select',
               options: ['Daily', 'Weekly', 'Monthly', 'Occasionally'],
-              dataSource: 'manual',
+              dataSource: 'previous-assessment',
+              sourceSystem: 'Previous Assessment',
               showCondition: (value) => value === 'Active user'
             }
           ]

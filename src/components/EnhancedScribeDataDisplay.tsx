@@ -34,7 +34,7 @@ interface FormFieldValue {
   section_id: string;
   field_label: string;
   value: string;
-  data_source: 'manual' | 'ai-filled' | 'pre-populated';
+  data_source: 'opas' | 'evital' | 'previous-assessment' | 'alert-function' | 'ai-filled' | 'manual' | 'pre-populated';
   ai_source_text?: string;
   created_at: string;
 }

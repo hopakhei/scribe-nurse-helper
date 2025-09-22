@@ -90,6 +90,69 @@ export type Database = {
           },
         ]
       }
+      external_data_cache: {
+        Row: {
+          cache_key: string
+          cached_data: Json
+          created_at: string | null
+          expires_at: string
+          id: string
+          patient_id: string
+          system_name: string
+        }
+        Insert: {
+          cache_key: string
+          cached_data: Json
+          created_at?: string | null
+          expires_at: string
+          id?: string
+          patient_id: string
+          system_name: string
+        }
+        Update: {
+          cache_key?: string
+          cached_data?: Json
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          patient_id?: string
+          system_name?: string
+        }
+        Relationships: []
+      }
+      external_system_configs: {
+        Row: {
+          config_data: Json | null
+          created_at: string | null
+          display_name: string
+          endpoint_url: string | null
+          id: string
+          is_active: boolean | null
+          system_name: string
+          updated_at: string | null
+        }
+        Insert: {
+          config_data?: Json | null
+          created_at?: string | null
+          display_name: string
+          endpoint_url?: string | null
+          id?: string
+          is_active?: boolean | null
+          system_name: string
+          updated_at?: string | null
+        }
+        Update: {
+          config_data?: Json | null
+          created_at?: string | null
+          display_name?: string
+          endpoint_url?: string | null
+          id?: string
+          is_active?: boolean | null
+          system_name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       field_embeddings: {
         Row: {
           created_at: string
@@ -141,7 +204,9 @@ export type Database = {
           field_id: string
           field_label: string
           id: string
+          last_sync_at: string | null
           section_id: string
+          source_system: string | null
           updated_at: string | null
           value: string | null
         }
@@ -153,7 +218,9 @@ export type Database = {
           field_id: string
           field_label: string
           id?: string
+          last_sync_at?: string | null
           section_id: string
+          source_system?: string | null
           updated_at?: string | null
           value?: string | null
         }
@@ -165,7 +232,9 @@ export type Database = {
           field_id?: string
           field_label?: string
           id?: string
+          last_sync_at?: string | null
           section_id?: string
+          source_system?: string | null
           updated_at?: string | null
           value?: string | null
         }
@@ -508,7 +577,14 @@ export type Database = {
     Enums: {
       admission_type: "A&E" | "Elective" | "Transfer" | "Readmission"
       assessment_status: "in_progress" | "completed" | "submitted"
-      data_source: "pre-populated" | "ai-filled" | "manual"
+      data_source:
+        | "pre-populated"
+        | "ai-filled"
+        | "manual"
+        | "opas"
+        | "evital"
+        | "previous-assessment"
+        | "alert-function"
       patient_status:
         | "awaiting_bed"
         | "bed_assigned"
@@ -649,7 +725,15 @@ export const Constants = {
     Enums: {
       admission_type: ["A&E", "Elective", "Transfer", "Readmission"],
       assessment_status: ["in_progress", "completed", "submitted"],
-      data_source: ["pre-populated", "ai-filled", "manual"],
+      data_source: [
+        "pre-populated",
+        "ai-filled",
+        "manual",
+        "opas",
+        "evital",
+        "previous-assessment",
+        "alert-function",
+      ],
       patient_status: [
         "awaiting_bed",
         "bed_assigned",
