@@ -161,6 +161,25 @@ export const usePatientAssessment = (patientId?: string) => {
         
         console.log('Created new assessment:', newAssessment.id);
         setAssessmentId(newAssessment.id);
+        
+        // Auto-populate external data for new assessments
+        console.log('Auto-populating external data for new assessment...');
+        try {
+          const { data, error } = await supabase.functions.invoke('populate-external-data', {
+            body: { assessmentId: newAssessment.id, patientId }
+          });
+          
+          if (error) {
+            console.error('Error auto-populating external data:', error);
+          } else {
+            console.log('External data auto-populated successfully:', data);
+            // Show success toast
+            toast.success('External data populated successfully from hospital systems');
+          }
+        } catch (error) {
+          console.error('Error in auto-population:', error);
+          // Don't show error toast for this as it's optional
+        }
       }
     } catch (error: any) {
       console.error('Error in createOrLoadAssessment:', error);

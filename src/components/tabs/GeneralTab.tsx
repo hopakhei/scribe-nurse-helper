@@ -75,7 +75,10 @@ export function GeneralTab({ onFieldChange, fieldValues, assessmentId, patientId
           <p className="text-muted-foreground text-sm">Basic patient information and emergency contacts</p>
         </div>
         {assessmentId && patientId && (
-          <RefreshButton assessmentId={assessmentId} patientId={patientId} />
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">External data:</span>
+            <RefreshButton assessmentId={assessmentId} patientId={patientId} />
+          </div>
         )}
       </div>
       <EnhancedFormSection
