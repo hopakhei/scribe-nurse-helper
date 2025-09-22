@@ -140,8 +140,19 @@ export function EnhancedFormSection({
     return backgrounds[dataSource];
   };
 
-  const getDataSourceBadge = (dataSource?: DataSource) => {
-    if (!dataSource) return null;
+  const getDataSourceBadge = (dataSource?: DataSource, value?: any) => {
+    if (!dataSource || dataSource === 'manual') return null;
+    
+    // Check if the field actually has meaningful data
+    const hasData = (() => {
+      if (value === null || value === undefined) return false;
+      if (typeof value === 'string' && value.trim() === '') return false;
+      if (Array.isArray(value) && value.length === 0) return false;
+      if (typeof value === 'boolean') return true; // false is still valid data
+      return true;
+    })();
+    
+    if (!hasData) return null;
     
     const labels = {
       'opas': 'OPAS',
@@ -582,7 +593,7 @@ export function EnhancedFormSection({
                         {field.label}
                         {field.required && <span className="text-destructive ml-1">*</span>}
                       </Label>
-                      {field.dataSource && getDataSourceBadge(field.dataSource)}
+                      {field.dataSource && getDataSourceBadge(field.dataSource, fieldValues[field.id])}
                     </div>
                   )}
                   
@@ -599,7 +610,7 @@ export function EnhancedFormSection({
                            <Label className="text-sm font-medium">
                              {conditionalField.label}
                            </Label>
-                           {conditionalField.dataSource && getDataSourceBadge(conditionalField.dataSource)}
+                           {conditionalField.dataSource && getDataSourceBadge(conditionalField.dataSource, fieldValues[conditionalField.id])}
                          </div>
                          {renderField(conditionalField)}
                        </div>

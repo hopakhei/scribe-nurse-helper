@@ -43,8 +43,19 @@ export function FormSection({ title, description, fields, onFieldChange }: FormS
     return backgrounds[dataSource];
   };
 
-  const getDataSourceBadge = (dataSource?: DataSource) => {
-    if (!dataSource) return null;
+  const getDataSourceBadge = (dataSource?: DataSource, value?: any) => {
+    if (!dataSource || dataSource === 'manual') return null;
+    
+    // Check if the field actually has meaningful data
+    const hasData = (() => {
+      if (value === null || value === undefined) return false;
+      if (typeof value === 'string' && value.trim() === '') return false;
+      if (Array.isArray(value) && value.length === 0) return false;
+      if (typeof value === 'boolean') return true; // false is still valid data
+      return true;
+    })();
+    
+    if (!hasData) return null;
     
     const labels = {
       'opas': 'OPAS',
@@ -174,7 +185,7 @@ export function FormSection({ title, description, fields, onFieldChange }: FormS
                 {field.label}
                 {field.required && <span className="text-destructive ml-1">*</span>}
               </Label>
-              {getDataSourceBadge(field.dataSource)}
+              {getDataSourceBadge(field.dataSource, field.value)}
             </div>
             
             {renderField(field)}
