@@ -5,9 +5,9 @@ import { cn } from "@/lib/utils";
 
 interface RiskScore {
   name: string;
-  score: number;
+  score: number | null;
   maxScore: number;
-  level: 'low' | 'medium' | 'high';
+  level: 'low' | 'medium' | 'high' | 'none';
   description: string;
 }
 
@@ -24,6 +24,8 @@ export function RiskScoreDisplay({ scores }: RiskScoreDisplayProps) {
         return <AlertCircle className="h-4 w-4" />;
       case 'high':
         return <AlertTriangle className="h-4 w-4" />;
+      case 'none':
+        return <Shield className="h-4 w-4 opacity-50" />;
       default:
         return <Shield className="h-4 w-4" />;
     }
@@ -37,6 +39,8 @@ export function RiskScoreDisplay({ scores }: RiskScoreDisplayProps) {
         return 'bg-risk-medium text-risk-medium-foreground border-risk-medium-foreground/20';
       case 'high':
         return 'bg-risk-high text-risk-high-foreground border-risk-high-foreground/20';
+      case 'none':
+        return 'bg-muted text-muted-foreground border-muted-foreground/20';
       default:
         return 'bg-risk-low text-risk-low-foreground border-risk-low-foreground/20';
     }
@@ -69,15 +73,16 @@ export function RiskScoreDisplay({ scores }: RiskScoreDisplayProps) {
                   "text-xs capitalize",
                   risk.level === 'high' && "border-destructive text-destructive",
                   risk.level === 'medium' && "border-warning text-warning",
-                  risk.level === 'low' && "border-success text-success"
+                  risk.level === 'low' && "border-success text-success",
+                  risk.level === 'none' && "border-muted-foreground text-muted-foreground"
                 )}
               >
-                {risk.level}
+                {risk.level === 'none' ? 'N/A' : risk.level}
               </Badge>
             </div>
             
             <div className="text-2xl font-bold mb-1">
-              {risk.score}
+              {risk.score !== null ? risk.score : '-'}
               <span className="text-sm font-normal opacity-70">
                 /{risk.maxScore}
               </span>

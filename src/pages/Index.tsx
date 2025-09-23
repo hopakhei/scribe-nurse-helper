@@ -248,30 +248,30 @@ const Index = () => {
                   <RiskScoreDisplay scores={[
                     {
                       name: 'Morse Fall Scale',
-                      score: riskScores.morseScore,
+                      score: riskScores.morseScore || null,
                       maxScore: 125,
-                      level: (riskScores.morseScore >= 45 ? 'high' : riskScores.morseScore >= 25 ? 'medium' : 'low') as 'high' | 'medium' | 'low',
+                      level: !riskScores.morseScore ? 'none' : (riskScores.morseScore >= 45 ? 'high' : riskScores.morseScore >= 25 ? 'medium' : 'low') as 'high' | 'medium' | 'low' | 'none',
                       description: 'Fall risk assessment score'
                     },
                     {
                       name: 'MST Score',
-                      score: riskScores.mstScore,
+                      score: riskScores.mstScore || null,
                       maxScore: 5,
-                      level: (riskScores.mstScore >= 2 ? 'high' : 'low') as 'high' | 'medium' | 'low',
+                      level: !riskScores.mstScore ? 'none' : (riskScores.mstScore >= 2 ? 'high' : 'low') as 'high' | 'medium' | 'low' | 'none',
                       description: 'Malnutrition screening tool'
                     },
                     {
                       name: 'Norton Scale',
-                      score: riskScores.nortonScore,
+                      score: riskScores.nortonScore || null,
                       maxScore: 20,
-                      level: (riskScores.nortonScore < 10 ? 'high' : riskScores.nortonScore <= 18 ? 'medium' : 'low') as 'high' | 'medium' | 'low',
+                      level: !riskScores.nortonScore ? 'none' : (riskScores.nortonScore < 10 ? 'high' : riskScores.nortonScore <= 18 ? 'medium' : 'low') as 'high' | 'medium' | 'low' | 'none',
                       description: 'Pressure injury risk assessment'
                     },
                     {
                       name: 'Braden Scale', 
-                      score: riskScores.bradenScore,
+                      score: riskScores.bradenScore || null,
                       maxScore: 23,
-                      level: (riskScores.bradenScore <= 12 ? 'high' : riskScores.bradenScore <= 18 ? 'medium' : 'low') as 'high' | 'medium' | 'low',
+                      level: !riskScores.bradenScore ? 'none' : (riskScores.bradenScore <= 12 ? 'high' : riskScores.bradenScore <= 18 ? 'medium' : 'low') as 'high' | 'medium' | 'low' | 'none',
                       description: 'Pressure injury risk assessment'
                     }
                   ]} />
