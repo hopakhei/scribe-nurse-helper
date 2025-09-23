@@ -260,20 +260,20 @@ const Index = () => {
                       level: (riskScores.mstScore >= 2 ? 'high' : 'low') as 'high' | 'medium' | 'low',
                       description: 'Malnutrition screening tool'
                     },
-                    ...(riskScores.nortonScore > 0 ? [{
+                    {
                       name: 'Norton Scale',
                       score: riskScores.nortonScore,
                       maxScore: 20,
                       level: (riskScores.nortonScore < 10 ? 'high' : riskScores.nortonScore <= 18 ? 'medium' : 'low') as 'high' | 'medium' | 'low',
                       description: 'Pressure injury risk assessment'
-                    }] : []),
-                    ...(riskScores.bradenScore > 0 ? [{
+                    },
+                    {
                       name: 'Braden Scale', 
                       score: riskScores.bradenScore,
                       maxScore: 23,
                       level: (riskScores.bradenScore <= 12 ? 'high' : riskScores.bradenScore <= 18 ? 'medium' : 'low') as 'high' | 'medium' | 'low',
                       description: 'Pressure injury risk assessment'
-                     }] : [])
+                    }
                   ]} />
 
                   {/* Enhanced Tab Assessment System */}
