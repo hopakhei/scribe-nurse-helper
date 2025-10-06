@@ -32,6 +32,12 @@ export function ImprovedAudioRecording({
       // Clear any previous permission errors
       setPermissionError(null);
       
+      console.log("Requesting microphone access...");
+      
+      // Check if running in Capacitor (Android/iOS native app)
+      const isCapacitor = (window as any).Capacitor !== undefined;
+      console.log("Running in Capacitor:", isCapacitor);
+      
       // Check if we're on iOS/Safari
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
                    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
@@ -55,6 +61,8 @@ export function ImprovedAudioRecording({
 
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
       
+      console.log("Microphone access granted successfully");
+      
       toast({
         title: "Microphone Access Granted",
         description: "Recording is ready to start",
@@ -64,11 +72,17 @@ export function ImprovedAudioRecording({
     } catch (error: any) {
       console.error('Microphone permission error:', error);
       
+      const isCapacitor = (window as any).Capacitor !== undefined;
       let errorMessage = 'Unable to access microphone. ';
       
       switch (error.name) {
         case 'NotAllowedError':
-          errorMessage += 'Please allow microphone access in your browser settings and try again.';
+        case 'PermissionDeniedError':
+          if (isCapacitor) {
+            errorMessage += 'Please enable microphone permission in your device\'s app settings (Settings → Apps → HA Nursing Scribe → Permissions → Microphone).';
+          } else {
+            errorMessage += 'Please allow microphone access in your browser settings and try again.';
+          }
           break;
         case 'NotFoundError':
           errorMessage += 'No microphone found. Please check your device.';
@@ -78,6 +92,9 @@ export function ImprovedAudioRecording({
           break;
         case 'OverconstrainedError':
           errorMessage += 'Microphone constraints cannot be satisfied.';
+          break;
+        case 'NotSupportedError':
+          errorMessage += 'HTTPS connection required for microphone access.';
           break;
         default:
           errorMessage += `Error: ${error.message}`;
@@ -265,9 +282,10 @@ export function ImprovedAudioRecording({
                 <p className="text-sm text-yellow-700 dark:text-yellow-300">
                   {permissionError}
                 </p>
-                <div className="mt-3 text-xs text-yellow-600 dark:text-yellow-400">
-                  <p><strong>On iPad/iPhone:</strong> Go to Settings → Safari → Camera & Microphone → Allow</p>
-                  <p><strong>On other devices:</strong> Look for the microphone icon in your browser's address bar</p>
+                <div className="mt-3 text-xs text-yellow-600 dark:text-yellow-400 space-y-1">
+                  <p><strong>On Android tablet app:</strong> Settings → Apps → HA Nursing Scribe → Permissions → Microphone → Allow</p>
+                  <p><strong>On iPad/iPhone:</strong> Settings → Safari → Camera & Microphone → Allow</p>
+                  <p><strong>On web browser:</strong> Click the microphone icon in your browser's address bar and allow access</p>
                 </div>
               </div>
             </div>
