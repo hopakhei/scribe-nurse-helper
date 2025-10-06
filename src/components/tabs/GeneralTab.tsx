@@ -19,17 +19,20 @@ export function GeneralTab({ onFieldChange, fieldValues, assessmentId, patientId
         {
           id: 'emergency_contact_1_name',
           label: 'Full Name',
-          type: 'text'
+          type: 'text',
+          dataSource: 'manual'
         },
         {
           id: 'emergency_contact_1_relationship',
           label: 'Relationship',
-          type: 'text'
+          type: 'text',
+          dataSource: 'manual'
         },
         {
           id: 'emergency_contact_1_phone',
           label: 'Phone Number',
-          type: 'text'
+          type: 'text',
+          dataSource: 'manual'
         }
       ]
     },
@@ -40,17 +43,20 @@ export function GeneralTab({ onFieldChange, fieldValues, assessmentId, patientId
         {
           id: 'emergency_contact_2_name',
           label: 'Full Name',
-          type: 'text'
+          type: 'text',
+          dataSource: 'manual'
         },
         {
           id: 'emergency_contact_2_relationship',
           label: 'Relationship',
-          type: 'text'
+          type: 'text',
+          dataSource: 'manual'
         },
         {
           id: 'emergency_contact_2_phone',
           label: 'Phone Number',
-          type: 'text'
+          type: 'text',
+          dataSource: 'manual'
         }
       ]
     },
@@ -61,7 +67,8 @@ export function GeneralTab({ onFieldChange, fieldValues, assessmentId, patientId
         {
           id: 'belongings_description',
           label: 'Describe belongings brought by patient',
-          type: 'textarea'
+          type: 'textarea',
+          dataSource: 'manual'
         }
       ]
     }
