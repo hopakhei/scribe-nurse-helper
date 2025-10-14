@@ -16,46 +16,44 @@ const supabase = createClient(
 function getPatientSpecificData(patientId: string) {
   const specificPatients: Record<string, any> = {
     'c1111111-1111-1111-1111-111111111111': {
-      mdro_status: "Positive",
-      mdro_organism: "MRSA",
-      mdro_organism_full: "Methicillin-resistant Staphylococcus aureus",
+      mdro_status: "MRSA Positive",
+      mdro_type: "MRSA",
       mdro_site: "Nasal swab",
-      mdro_date_identified: "2024-09-20",
-      isolation_precautions: "Contact precautions required",
-      isolation_details: "Gloves and gown required for contact",
-      alert_level: "High",
-      previous_mdro_history: "Yes",
-      previous_mdro_details: "MRSA in 2023, successfully treated",
-      screening_required: "Yes",
-      screening_details: "Required on admission",
-      precautions_notes: "Patient aware of precautions"
+      mdro_date_detected: "2025-09-20",
+      isolation_precautions: "Contact Precautions Required",
+      isolation_type: "Contact",
+      ppe_requirements: "Gown and gloves required for all contact",
+      special_instructions: "Patient requires single room isolation. Hand hygiene before and after contact."
     },
     'c2222222-2222-2222-2222-222222222222': {
-      mdro_status: "Negative",
-      mdro_organism: "None detected",
-      mdro_site: "Nasal and rectal swabs",
-      mdro_date_screened: "2025-10-10",
-      screening_type: "Pre-admission screening",
-      isolation_precautions: "Standard precautions only",
-      alert_level: "Low risk",
-      previous_mdro_history: "No",
-      previous_mdro_details: "No previous positive screens",
-      screening_required: "Completed",
-      screening_status: "Pre-admission screening completed",
-      precautions_notes: "Standard hand hygiene protocols"
+      mdro_status: "VRE Positive",
+      mdro_type: "VRE",
+      mdro_site: "Rectal swab",
+      mdro_date_detected: "2025-08-15",
+      isolation_precautions: "Contact Precautions Required",
+      isolation_type: "Contact",
+      ppe_requirements: "Gown and gloves for direct contact and environmental contact",
+      special_instructions: "Dedicated equipment preferred. Ensure thorough environmental cleaning."
     },
     'c3333333-3333-3333-3333-333333333333': {
-      mdro_status: "Negative",
-      mdro_organism: "None detected",
+      mdro_status: "ESBL Positive",
+      mdro_type: "ESBL-producing E. coli",
+      mdro_site: "Urine culture",
+      mdro_date_detected: "2025-07-10",
+      isolation_precautions: "Contact Precautions",
+      isolation_type: "Contact",
+      ppe_requirements: "Gloves for contact with patient or contaminated surfaces",
+      special_instructions: "Single room preferred but not mandatory. Standard contact precautions apply."
+    },
+    'e1111111-1111-1111-1111-111111111111': {
+      mdro_status: "MRSA Positive",
+      mdro_type: "MRSA",
       mdro_site: "Nasal swab",
-      mdro_date_screened: "2025-10-14",
-      screening_type: "On admission",
-      isolation_precautions: "Standard precautions only",
-      alert_level: "Low risk",
-      previous_mdro_history: "No",
-      screening_required: "Completed",
-      screening_status: "Screening completed on admission",
-      precautions_notes: "Standard hand hygiene protocols"
+      mdro_date_detected: "2025-09-15",
+      isolation_precautions: "Contact Precautions Required",
+      isolation_type: "Contact",
+      ppe_requirements: "Gown and gloves required for all contact",
+      special_instructions: "Patient requires single room isolation. Hand hygiene before and after contact."
     }
   };
   
