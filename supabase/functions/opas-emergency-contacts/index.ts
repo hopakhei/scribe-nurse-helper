@@ -12,6 +12,38 @@ const supabase = createClient(
   Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 );
 
+// Patient-specific mock data for high-coverage demo patients
+function getPatientSpecificData(patientId: string) {
+  const specificPatients: Record<string, any> = {
+    'c1111111-1111-1111-1111-111111111111': {
+      contact_1_name: 'Wong Mei Ling (陳美玲)',
+      contact_1_relationship: 'Wife',
+      contact_1_phone: '+852 9123 4567',
+      contact_2_name: 'Chan Ka Fai (陳嘉輝)',
+      contact_2_relationship: 'Son',
+      contact_2_phone: '+852 8765 4321'
+    },
+    'c2222222-2222-2222-2222-222222222222': {
+      contact_1_name: 'Suen Wai Han (孫惠嫻)',
+      contact_1_relationship: 'Daughter',
+      contact_1_phone: '+852 9876 5432',
+      contact_2_name: 'Suen Ming Tat (孫明達)',
+      contact_2_relationship: 'Son',
+      contact_2_phone: '+852 8765 1234'
+    },
+    'c3333333-3333-3333-3333-333333333333': {
+      contact_1_name: 'David Hung (洪大衛)',
+      contact_1_relationship: 'Son',
+      contact_1_phone: '+852 8888 8888',
+      contact_2_name: 'Emily Hung (洪詠琳)',
+      contact_2_relationship: 'Daughter',
+      contact_2_phone: '+852 7777 7777'
+    }
+  };
+  
+  return specificPatients[patientId] || null;
+}
+
 // Define patient coverage scenarios based on ID patterns
 function getPatientCoverage(patientId: string): 'high' | 'medium' | 'low' | 'none' {
   if (patientId.toUpperCase().startsWith('A')) return 'high';
@@ -58,7 +90,40 @@ serve(async (req) => {
     const { patientId } = await req.json();
     
     console.log('OPAS: Fetching emergency contacts for patient:', patientId);
-    
+
+    // Check for patient-specific data first
+    const specificData = getPatientSpecificData(patientId);
+    if (specificData) {
+      console.log(`Using patient-specific data for ${patientId}`);
+      
+      // Store in cache
+      const cacheData = {
+        patient_id: patientId,
+        system_name: 'opas',
+        cache_key: 'emergency_contacts',
+        cached_data: specificData,
+        expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+      };
+
+      const { error: cacheError } = await supabase
+        .from('external_data_cache')
+        .upsert(cacheData);
+
+      if (cacheError) {
+        console.error('Error caching OPAS data:', cacheError);
+      }
+
+      return new Response(JSON.stringify({
+        success: true,
+        data: specificData,
+        source: 'OPAS',
+        coverage: 'high',
+        timestamp: new Date().toISOString()
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     const coverage = getPatientCoverage(patientId);
     console.log(`Patient ${patientId} has ${coverage} coverage`);
     

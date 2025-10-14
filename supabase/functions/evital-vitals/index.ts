@@ -12,6 +12,53 @@ const supabase = createClient(
   Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 );
 
+// Patient-specific mock data for high-coverage demo patients
+function getPatientSpecificData(patientId: string) {
+  const specificPatients: Record<string, any> = {
+    'c1111111-1111-1111-1111-111111111111': {
+      temperature: "38.5",
+      temp_method: "Oral",
+      pulse: "92",
+      pulse_location: "Radial",
+      pulse_pattern: "Regular",
+      bp_systolic: "145",
+      bp_diastolic: "88",
+      bp_position: "Sitting",
+      respiratory_rate: "22",
+      respiration_status: "Slightly laboured",
+      spo2: "94"
+    },
+    'c2222222-2222-2222-2222-222222222222': {
+      temperature: "36.9",
+      temp_method: "Oral",
+      pulse: "68",
+      pulse_location: "Radial",
+      pulse_pattern: "Regular",
+      bp_systolic: "138",
+      bp_diastolic: "82",
+      bp_position: "Sitting",
+      respiratory_rate: "18",
+      respiration_status: "Normal",
+      spo2: "97"
+    },
+    'c3333333-3333-3333-3333-333333333333': {
+      temperature: "37.3",
+      temp_method: "Oral",
+      pulse: "85",
+      pulse_location: "Radial",
+      pulse_pattern: "Regular",
+      bp_systolic: "132",
+      bp_diastolic: "78",
+      bp_position: "Sitting",
+      respiratory_rate: "20",
+      respiration_status: "Normal",
+      spo2: "96"
+    }
+  };
+  
+  return specificPatients[patientId] || null;
+}
+
 // Define patient coverage scenarios based on ID patterns
 function getPatientCoverage(patientId: string): 'high' | 'medium' | 'low' | 'none' {
   if (patientId.toUpperCase().startsWith('A')) return 'high';
@@ -65,6 +112,39 @@ serve(async (req) => {
     const { patientId } = await req.json();
     
     console.log('eVital: Fetching vital signs for patient:', patientId);
+    
+    // Check for patient-specific data first
+    const specificData = getPatientSpecificData(patientId);
+    if (specificData) {
+      console.log(`Using patient-specific data for ${patientId}`);
+      
+      // Store in cache
+      const cacheData = {
+        patient_id: patientId,
+        system_name: 'evital',
+        cache_key: 'vital_signs',
+        cached_data: specificData,
+        expires_at: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString()
+      };
+
+      const { error: cacheError } = await supabase
+        .from('external_data_cache')
+        .upsert(cacheData);
+
+      if (cacheError) {
+        console.error('Error caching eVital data:', cacheError);
+      }
+
+      return new Response(JSON.stringify({
+        success: true,
+        data: specificData,
+        source: 'eVital',
+        coverage: 'high',
+        timestamp: new Date().toISOString()
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
     
     const coverage = getPatientCoverage(patientId);
     console.log(`Patient ${patientId} has ${coverage} coverage`);
