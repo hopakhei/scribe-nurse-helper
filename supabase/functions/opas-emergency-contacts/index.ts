@@ -16,61 +16,61 @@ const supabase = createClient(
 function getPatientSpecificData(patientId: string) {
   const specificPatients: Record<string, any> = {
     'c1111111-1111-1111-1111-111111111111': {
-      contact_1_name: 'Wong Mei Ling (陳美玲)',
-      contact_1_relationship: 'Wife',
-      contact_1_phone: '+852 9123 4567',
-      contact_2_name: 'Chan Ka Fai (陳嘉輝)',
-      contact_2_relationship: 'Son',
-      contact_2_phone: '+852 8765 4321'
+      emergency_contact_1_name: 'Wong Mei Ling (陳美玲)',
+      emergency_contact_1_relationship: 'Wife',
+      emergency_contact_1_phone: '+852 9123 4567',
+      emergency_contact_2_name: 'Chan Ka Fai (陳嘉輝)',
+      emergency_contact_2_relationship: 'Son',
+      emergency_contact_2_phone: '+852 8765 4321'
     },
     'c2222222-2222-2222-2222-222222222222': {
-      contact_1_name: 'Suen Wai Han (孫惠嫻)',
-      contact_1_relationship: 'Daughter',
-      contact_1_phone: '+852 9876 5432',
-      contact_2_name: 'Suen Ming Tat (孫明達)',
-      contact_2_relationship: 'Son',
-      contact_2_phone: '+852 8765 1234'
+      emergency_contact_1_name: 'Suen Wai Han (孫惠嫻)',
+      emergency_contact_1_relationship: 'Daughter',
+      emergency_contact_1_phone: '+852 9876 5432',
+      emergency_contact_2_name: 'Suen Ming Tat (孫明達)',
+      emergency_contact_2_relationship: 'Son',
+      emergency_contact_2_phone: '+852 8765 1234'
     },
     'c3333333-3333-3333-3333-333333333333': {
-      contact_1_name: 'David Hung (洪大衛)',
-      contact_1_relationship: 'Son',
-      contact_1_phone: '+852 8888 8888',
-      contact_2_name: 'Emily Hung (洪詠琳)',
-      contact_2_relationship: 'Daughter',
-      contact_2_phone: '+852 7777 7777'
+      emergency_contact_1_name: 'David Hung (洪大衛)',
+      emergency_contact_1_relationship: 'Son',
+      emergency_contact_1_phone: '+852 8888 8888',
+      emergency_contact_2_name: 'Emily Hung (洪詠琳)',
+      emergency_contact_2_relationship: 'Daughter',
+      emergency_contact_2_phone: '+852 7777 7777'
     },
     'e1111111-1111-1111-1111-111111111111': {
-      contact_1_name: 'NAT MEI KEI (楊美琪)',
-      contact_1_relationship: 'Daughter',
-      contact_1_phone: '+852 9234 5678',
-      contact_2_name: 'NAT CHI KEUNG (楊志強)',
-      contact_2_relationship: 'Son',
-      contact_2_phone: '+852 9876 5432',
-      contact_3_name: 'CHAN SUK FAN (陳淑芬)',
-      contact_3_relationship: 'Niece',
-      contact_3_phone: '+852 6543 2109'
+      emergency_contact_1_name: 'NAT MEI KEI (楊美琪)',
+      emergency_contact_1_relationship: 'Daughter',
+      emergency_contact_1_phone: '+852 9234 5678',
+      emergency_contact_2_name: 'NAT CHI KEUNG (楊志強)',
+      emergency_contact_2_relationship: 'Son',
+      emergency_contact_2_phone: '+852 9876 5432',
+      emergency_contact_3_name: 'CHAN SUK FAN (陳淑芬)',
+      emergency_contact_3_relationship: 'Niece',
+      emergency_contact_3_phone: '+852 6543 2109'
     },
     'e2222222-2222-2222-2222-222222222222': {
-      contact_1_name: 'CHAN MEI LING (陳美玲)',
-      contact_1_relationship: 'Wife',
-      contact_1_phone: '+852 9234 5678',
-      contact_2_name: 'CHAN CHI KEUNG (陳志強)',
-      contact_2_relationship: 'Son',
-      contact_2_phone: '+852 8765 4321',
-      contact_3_name: 'CHAN SHU FAN (陳淑芬)',
-      contact_3_relationship: 'Daughter',
-      contact_3_phone: '+852 6543 2109'
+      emergency_contact_1_name: 'CHAN MEI LING (陳美玲)',
+      emergency_contact_1_relationship: 'Wife',
+      emergency_contact_1_phone: '+852 9234 5678',
+      emergency_contact_2_name: 'CHAN CHI KEUNG (陳志強)',
+      emergency_contact_2_relationship: 'Son',
+      emergency_contact_2_phone: '+852 8765 4321',
+      emergency_contact_3_name: 'CHAN SHU FAN (陳淑芬)',
+      emergency_contact_3_relationship: 'Daughter',
+      emergency_contact_3_phone: '+852 6543 2109'
     },
     'f3333333-3333-3333-3333-333333333333': {
-      contact_1_name: 'CHAN SIU LING (陳小玲)',
-      contact_1_relationship: 'Wife',
-      contact_1_phone: '+852 9234 5678',
-      contact_2_name: 'CHAN CHI MING (陳志明)',
-      contact_2_relationship: 'Son',
-      contact_2_phone: '+852 8765 4321',
-      contact_3_name: 'CHAN MEI FUN (陳美芬)',
-      contact_3_relationship: 'Daughter',
-      contact_3_phone: '+852 6543 2109'
+      emergency_contact_1_name: 'CHAN SIU LING (陳小玲)',
+      emergency_contact_1_relationship: 'Wife',
+      emergency_contact_1_phone: '+852 9234 5678',
+      emergency_contact_2_name: 'CHAN CHI MING (陳志明)',
+      emergency_contact_2_relationship: 'Son',
+      emergency_contact_2_phone: '+852 8765 4321',
+      emergency_contact_3_name: 'CHAN MEI FUN (陳美芬)',
+      emergency_contact_3_relationship: 'Daughter',
+      emergency_contact_3_phone: '+852 6543 2109'
     }
   };
   
