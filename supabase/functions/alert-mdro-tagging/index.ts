@@ -64,6 +64,16 @@ function getPatientSpecificData(patientId: string) {
       isolation_type: "Contact",
       ppe_requirements: "Gown and gloves for direct contact and environmental contact",
       special_instructions: "Dedicated equipment preferred. Ensure thorough environmental cleaning. Single room isolation recommended."
+    },
+    'f3333333-3333-3333-3333-333333333333': {
+      mdro_status: "CPE Positive",
+      mdro_type: "CPE (KPC-producing Klebsiella pneumoniae)",
+      mdro_site: "Urine culture",
+      mdro_date_detected: "2025-09-28",
+      isolation_precautions: "Contact Precautions Required (Strict)",
+      isolation_type: "Contact",
+      ppe_requirements: "Gown, gloves, and mask for all contact",
+      special_instructions: "Single room isolation mandatory. Dedicated equipment required. Enhanced environmental cleaning protocol."
     }
   };
   
