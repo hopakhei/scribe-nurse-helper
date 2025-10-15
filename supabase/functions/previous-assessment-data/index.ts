@@ -142,12 +142,6 @@ function getPatientSpecificData(patientId: string) {
       dietary_restrictions: "Diabetic, avoid high potassium",
       bowel_pattern: "Constipated (last BM 3 days ago)",
       urinary_pattern: "Frequency and nocturia (BPH-related)",
-      morse_history_falling: "Yes (25 points)",
-      morse_secondary_diagnosis: "Yes (15 points)",
-      morse_ambulatory_aid: "Crutches/Cane/Walkers (15 points)",
-      morse_iv_therapy: "Yes (20 points)",
-      morse_gait: "Impaired (20 points)",
-      morse_mental_status: "Overestimates/Forgets limitations (15 points)",
       last_admission_date: "2025-09-01",
       last_discharge_date: "2025-09-18"
     }
