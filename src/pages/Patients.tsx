@@ -152,7 +152,7 @@ const Patients = () => {
             Patient List
           </h1>
           <p className="text-muted-foreground">
-            Ward {profile?.ward || '3A'} - {patients.length} patients
+            Ward {profile?.ward || '9A'} - {patients.length} patients
           </p>
         </div>
 

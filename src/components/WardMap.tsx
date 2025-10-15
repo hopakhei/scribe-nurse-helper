@@ -9,16 +9,16 @@ interface WardMapProps {
 }
 
 export const WardMap: React.FC<WardMapProps> = ({ selectedBed, onBedSelect }) => {
-  // Generate bed numbers for Ward 3A and 3B
+  // Generate bed numbers for Ward 9A and 9B
   const generateBeds = (corridor: 'A' | 'B') => {
-    return Array.from({ length: 20 }, (_, i) => `3${corridor}-${String(i + 1).padStart(2, '0')}`);
+    return Array.from({ length: 20 }, (_, i) => `9${corridor}-${String(i + 1).padStart(2, '0')}`);
   };
 
-  const ward3ABeds = generateBeds('A');
-  const ward3BBeds = generateBeds('B');
+  const ward9ABeds = generateBeds('A');
+  const ward9BBeds = generateBeds('B');
 
   // Mock occupied beds for demo
-  const occupiedBeds = ['3A-03', '3A-07', '3A-15', '3B-02', '3B-09', '3B-14', '3B-18'];
+  const occupiedBeds = ['9A-03', '9A-07', '9A-15', '9B-02', '9B-09', '9B-14', '9B-18'];
 
   const getBedStatus = (bedNumber: string) => {
     if (occupiedBeds.includes(bedNumber)) return 'occupied';
@@ -97,12 +97,12 @@ export const WardMap: React.FC<WardMapProps> = ({ selectedBed, onBedSelect }) =>
       {/* Ward Layout */}
       <div className="bg-gray-50 rounded-lg p-6 space-y-8">
         <div className="text-center">
-          <h4 className="font-semibold text-lg mb-2">Ward 3 - Floor Plan</h4>
+          <h4 className="font-semibold text-lg mb-2">Ward 9 - Floor Plan</h4>
           <p className="text-sm text-muted-foreground">Click on an available bed to select</p>
         </div>
 
         {/* Corridor A */}
-        {renderCorridor(ward3ABeds, 'A')}
+        {renderCorridor(ward9ABeds, 'A')}
 
         {/* Corridor Separator */}
         <div className="flex items-center justify-center py-4">
@@ -114,14 +114,14 @@ export const WardMap: React.FC<WardMapProps> = ({ selectedBed, onBedSelect }) =>
         </div>
 
         {/* Corridor B */}
-        {renderCorridor(ward3BBeds, 'B')}
+        {renderCorridor(ward9BBeds, 'B')}
       </div>
 
       {/* Quick Stats */}
       <div className="grid grid-cols-3 gap-4 text-center">
         <div className="bg-green-50 rounded-lg p-3">
           <div className="font-semibold text-green-800">
-            {[...ward3ABeds, ...ward3BBeds].filter(bed => getBedStatus(bed) === 'available').length}
+            {[...ward9ABeds, ...ward9BBeds].filter(bed => getBedStatus(bed) === 'available').length}
           </div>
           <div className="text-xs text-green-600">Available</div>
         </div>
