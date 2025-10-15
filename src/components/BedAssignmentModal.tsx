@@ -63,7 +63,7 @@ export const BedAssignmentModal: React.FC<BedAssignmentModalProps> = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <MapPin className="h-5 w-5" />
-            Bed Assignment - Ward 3
+            Bed Assignment - Ward 9
           </DialogTitle>
         </DialogHeader>
 
@@ -95,7 +95,7 @@ export const BedAssignmentModal: React.FC<BedAssignmentModalProps> = ({
 
           {/* Ward Map */}
           <div>
-            <h4 className="font-medium mb-3">Select a bed from Ward 3:</h4>
+            <h4 className="font-medium mb-3">Select a bed from Ward 9:</h4>
             <WardMap 
               selectedBed={selectedBed}
               onBedSelect={handleBedSelect}
