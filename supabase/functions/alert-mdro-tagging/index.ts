@@ -54,6 +54,16 @@ function getPatientSpecificData(patientId: string) {
       isolation_type: "Contact",
       ppe_requirements: "Gown and gloves required for all contact",
       special_instructions: "Patient requires single room isolation. Hand hygiene before and after contact."
+    },
+    'e2222222-2222-2222-2222-222222222222': {
+      mdro_status: "VRE Positive",
+      mdro_type: "VRE",
+      mdro_site: "Rectal swab",
+      mdro_date_detected: "2025-09-20",
+      isolation_precautions: "Contact Precautions Required",
+      isolation_type: "Contact",
+      ppe_requirements: "Gown and gloves for direct contact and environmental contact",
+      special_instructions: "Dedicated equipment preferred. Ensure thorough environmental cleaning. Single room isolation recommended."
     }
   };
   

@@ -49,6 +49,17 @@ function getPatientSpecificData(patientId: string) {
       contact_3_name: 'CHAN SUK FAN (陳淑芬)',
       contact_3_relationship: 'Niece',
       contact_3_phone: '+852 6543 2109'
+    },
+    'e2222222-2222-2222-2222-222222222222': {
+      contact_1_name: 'CHAN MEI LING (陳美玲)',
+      contact_1_relationship: 'Wife',
+      contact_1_phone: '+852 9234 5678',
+      contact_2_name: 'CHAN CHI KEUNG (陳志強)',
+      contact_2_relationship: 'Son',
+      contact_2_phone: '+852 8765 4321',
+      contact_3_name: 'CHAN SHU FAN (陳淑芬)',
+      contact_3_relationship: 'Daughter',
+      contact_3_phone: '+852 6543 2109'
     }
   };
   
