@@ -47,7 +47,8 @@ export function TabAssessmentSystem({ onFieldChange, fieldValues, assessmentId, 
     };
     
     autoSyncData();
-  }, [assessmentId, patientId, hasAutoSynced, populateExternalData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [assessmentId, patientId, hasAutoSynced]);
   
   const handleLocalFieldChange = useCallback((fieldId: string, value: any) => {
     setLocalFieldValues(prev => ({ ...prev, [fieldId]: value }));
