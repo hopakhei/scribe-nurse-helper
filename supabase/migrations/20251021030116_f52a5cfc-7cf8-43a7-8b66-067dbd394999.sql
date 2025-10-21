@@ -1,0 +1,36 @@
+-- Insert demo patient WONG SIU MING for data sync demonstration
+INSERT INTO public.patients (
+  id,
+  name,
+  hospital_no,
+  id_no,
+  age,
+  sex,
+  dept,
+  team,
+  ward,
+  bed,
+  admission_type,
+  admission_date,
+  patient_status,
+  bed_assigned_at,
+  created_at,
+  updated_at
+) VALUES (
+  'd4444444-4444-4444-4444-444444444444',
+  'WONG SIU MING (王小明)',
+  'H2025-DEMO',
+  'Z987654(3)',
+  65,
+  'F',
+  'Surgery',
+  'Team B',
+  '9A',
+  '3B-15',
+  'A&E',
+  '2025-10-21',
+  'bed_assigned',
+  now(),
+  now(),
+  now()
+);

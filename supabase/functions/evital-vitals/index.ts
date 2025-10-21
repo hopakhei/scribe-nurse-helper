@@ -92,6 +92,20 @@ function getPatientSpecificData(patientId: string) {
       respiratory_rate: "24",
       respiration_status: "Slightly laboured",
       spo2: "92"
+    },
+    'd4444444-4444-4444-4444-444444444444': {
+      temperature: "37.1",
+      temp_method: "Tympanic",
+      pulse: "76",
+      pulse_location: "Radial",
+      pulse_pattern: "Regular",
+      bp_systolic: "128",
+      bp_diastolic: "82",
+      bp_position: "Sitting",
+      respiratory_rate: "16",
+      respiration_status: "Regular",
+      spo2: "98",
+      oxygen_therapy: "Room Air"
     }
   };
   

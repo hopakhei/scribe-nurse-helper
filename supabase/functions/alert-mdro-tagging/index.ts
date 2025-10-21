@@ -74,6 +74,16 @@ function getPatientSpecificData(patientId: string) {
       isolation_type: "Contact",
       ppe_requirements: "Gown, gloves, and mask for all contact",
       special_instructions: "Single room isolation mandatory. Dedicated equipment required. Enhanced environmental cleaning protocol."
+    },
+    'd4444444-4444-4444-4444-444444444444': {
+      mdro_status: "Negative",
+      mdro_type: "None",
+      mdro_site: "N/A",
+      mdro_date_detected: "N/A",
+      isolation_precautions: "Standard Precautions",
+      isolation_type: "None",
+      ppe_requirements: "Standard hand hygiene and universal precautions",
+      special_instructions: "No isolation required. Last MDRO screening on 2025-10-15: Negative."
     }
   };
   

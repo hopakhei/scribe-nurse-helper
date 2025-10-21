@@ -71,6 +71,17 @@ function getPatientSpecificData(patientId: string) {
       emergency_contact_3_name: 'CHAN MEI FUN (陳美芬)',
       emergency_contact_3_relationship: 'Daughter',
       emergency_contact_3_phone: '+852 6543 2109'
+    },
+    'd4444444-4444-4444-4444-444444444444': {
+      emergency_contact_1_name: 'WONG TAI CHEUNG (王大祥)',
+      emergency_contact_1_relationship: 'Husband',
+      emergency_contact_1_phone: '+852 9876 5432',
+      emergency_contact_2_name: 'WONG MEI LING (王美玲)',
+      emergency_contact_2_relationship: 'Daughter',
+      emergency_contact_2_phone: '+852 9123 4567',
+      emergency_contact_3_name: 'WONG CHI WAI (王志偉)',
+      emergency_contact_3_relationship: 'Son',
+      emergency_contact_3_phone: '+852 9234 5678'
     }
   };
   

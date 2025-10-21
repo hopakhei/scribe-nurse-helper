@@ -144,6 +144,29 @@ function getPatientSpecificData(patientId: string) {
       urinary_pattern: "Frequency and nocturia (BPH-related)",
       last_admission_date: "2025-09-01",
       last_discharge_date: "2025-09-18"
+    },
+    'd4444444-4444-4444-4444-444444444444': {
+      marital_status: "Married",
+      religion: "Buddhism",
+      education: "Secondary",
+      employment_status: "Retired",
+      occupation: "Teacher",
+      financial_support: "Family",
+      accommodation: "Own flat",
+      nationality: "Hong Kong Chinese",
+      household_members: "Husband, Daughter (visits regularly)",
+      smoking_status: "Non-smoker",
+      drinking_status: "Occasional drinker (social occasions only)",
+      substance_status: "Non-user",
+      primary_language: "Cantonese",
+      dialect: "Cantonese",
+      communication_barriers: "None",
+      hearing_aids: "No",
+      visual_aids: "Reading glasses",
+      speech_difficulties: "None",
+      hearing_status: "Normal",
+      speech_status: "Clear",
+      vision_status: "Wears glasses for reading"
     }
   };
   
