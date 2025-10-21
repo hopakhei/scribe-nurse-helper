@@ -14,7 +14,7 @@ const router = createBrowserRouter(
 const App = () => (
   <div id="app-root">
     <RouterProvider router={router} />
-    <Toaster />
+    <Toaster position="bottom-right" />
   </div>
 );
 

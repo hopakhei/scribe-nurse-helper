@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/components/ui/sonner';
 
 interface ExternalDataPopulationResult {
   success: boolean;
@@ -17,7 +17,7 @@ interface ExternalDataPopulationResult {
 export function useExternalDataPopulation() {
   const [isLoading, setIsLoading] = useState(false);
   const [lastPopulated, setLastPopulated] = useState<string | null>(null);
-  const { toast } = useToast();
+  
 
   const populateExternalData = async (assessmentId: string, patientId: string) => {
     setIsLoading(true);
@@ -31,10 +31,8 @@ export function useExternalDataPopulation() {
 
       if (error) {
         console.error('Error calling populate-external-data:', error);
-        toast({
-          title: "External Data Error",
-          description: "Failed to retrieve external data. Please try again.",
-          variant: "destructive"
+        toast.error("External Data Error", {
+          description: "Failed to retrieve external data. Please try again."
         });
         return null;
       }
@@ -52,20 +50,16 @@ export function useExternalDataPopulation() {
         if (result.results.alertFunction) successSystems.push('Alert Function');
         
         if (successSystems.length > 0) {
-          toast({
-            title: "External Data Loaded",
-            description: `Successfully retrieved data from: ${successSystems.join(', ')}`,
-            variant: "default"
+          toast.success("External Data Loaded", {
+            description: `Successfully retrieved data from: ${successSystems.join(', ')}`
           });
         }
 
         // Show error toast for failed systems
         if (result.results.errors.length > 0) {
           const errorSystems = result.results.errors.map(e => e.system).join(', ');
-          toast({
-            title: "Partial Data Retrieval",
-            description: `Some systems failed: ${errorSystems}`,
-            variant: "destructive"
+          toast.error("Partial Data Retrieval", {
+            description: `Some systems failed: ${errorSystems}`
           });
         }
       }
@@ -74,10 +68,8 @@ export function useExternalDataPopulation() {
       
     } catch (error) {
       console.error('Error in useExternalDataPopulation:', error);
-      toast({
-        title: "External Data Error",
-        description: "An unexpected error occurred while retrieving external data.",
-        variant: "destructive"
+      toast.error("External Data Error", {
+        description: "An unexpected error occurred while retrieving external data."
       });
       return null;
     } finally {
