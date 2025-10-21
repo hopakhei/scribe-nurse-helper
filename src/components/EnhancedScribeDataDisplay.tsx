@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useImperativeHandle, forwardRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -49,7 +49,12 @@ interface FieldValidationDisplay {
   validation: ExtractedFieldValidation;
 }
 
-export function EnhancedScribeDataDisplay({ assessmentId, currentFieldValues }: EnhancedScribeDataDisplayProps) {
+export interface EnhancedScribeDataDisplayRef {
+  refresh: () => Promise<void>;
+}
+
+export const EnhancedScribeDataDisplay = forwardRef<EnhancedScribeDataDisplayRef, EnhancedScribeDataDisplayProps>(
+  ({ assessmentId, currentFieldValues }, ref) => {
   const [scribeHistory, setScribeHistory] = useState<ScribeEntry[]>([]);
   const [aiFilledFields, setAiFilledFields] = useState<FormFieldValue[]>([]);
   const [validatedFields, setValidatedFields] = useState<FieldValidationDisplay[]>([]);
@@ -138,6 +143,11 @@ export function EnhancedScribeDataDisplay({ assessmentId, currentFieldValues }: 
     setIsLoading(false);
   }, [loadScribeHistory, loadAiFilledFields]);
 
+  // Expose refresh method via ref
+  useImperativeHandle(ref, () => ({
+    refresh: refreshData
+  }), [refreshData]);
+
   // Initial load and real-time subscriptions
   useEffect(() => {
     refreshData();
@@ -179,7 +189,7 @@ export function EnhancedScribeDataDisplay({ assessmentId, currentFieldValues }: 
       transcriptsSubscription.unsubscribe();
       fieldsSubscription.unsubscribe();
     };
-  }, [assessmentId, refreshData, loadScribeHistory, loadAiFilledFields]);
+  }, [assessmentId]);
 
   // Get field display name with enhanced mapping
   const getFieldDisplayName = (fieldName: string): string => {
@@ -429,4 +439,4 @@ export function EnhancedScribeDataDisplay({ assessmentId, currentFieldValues }: 
       </Card>
     </div>
   );
-}
+});

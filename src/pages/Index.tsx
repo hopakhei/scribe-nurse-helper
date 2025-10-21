@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuthState } from "@/hooks/useAuth";
 import { useLocalUserManager } from "@/hooks/useLocalUserManager";
@@ -7,7 +7,7 @@ import { AndroidLayout } from "@/components/AndroidLayout";
 import { PatientHeader } from "@/components/PatientHeader";
 import { AudioRecordingControls } from "@/components/AudioRecordingControls";
 import { ImprovedAudioRecording } from "@/components/ImprovedAudioRecording";
-import { EnhancedScribeDataDisplay } from "@/components/EnhancedScribeDataDisplay";
+import { EnhancedScribeDataDisplay, EnhancedScribeDataDisplayRef } from "@/components/EnhancedScribeDataDisplay";
 import { RiskScoreDisplay } from "@/components/RiskScoreDisplay";
 import { TabAssessmentSystem } from "@/components/TabAssessmentSystem";
 import RAGSetupButton from "@/components/RAGSetupButton";
@@ -31,6 +31,7 @@ const Index = () => {
   const [showUserSelection, setShowUserSelection] = useState(false);
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [loadingError, setLoadingError] = useState<string | null>(null);
+  const scribeDisplayRef = useRef<EnhancedScribeDataDisplayRef>(null);
 
   console.log('Index render:', { 
     patientId, 
@@ -57,8 +58,18 @@ const Index = () => {
     submitAssessment,
     saveDraft,
     validateAssessment,
-    assessmentId
+    assessmentId,
+    registerScribeRefresh
   } = usePatientAssessment(patientId);
+
+  // Register the scribe refresh callback
+  useEffect(() => {
+    if (scribeDisplayRef.current) {
+      registerScribeRefresh(() => {
+        scribeDisplayRef.current?.refresh();
+      });
+    }
+  }, [registerScribeRefresh]);
 
   console.log('Hook data:', {
     patient: !!patientFromHook,
@@ -319,6 +330,7 @@ const Index = () => {
                 <div className="lg:col-span-1">
                   <div className="sticky top-4">
                     <EnhancedScribeDataDisplay
+                      ref={scribeDisplayRef}
                       assessmentId={assessmentId || ''}
                       currentFieldValues={fieldValues}
                     />

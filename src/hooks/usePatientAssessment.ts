@@ -37,6 +37,7 @@ export const usePatientAssessment = (patientId?: string) => {
   const [lastTranscript, setLastTranscript] = useState('');
   const creatingRef = useRef(false);
   const initializedRef = useRef(false);
+  const scribeRefreshCallbackRef = useRef<(() => void) | null>(null);
 
   // Load patient data
   useEffect(() => {
@@ -307,6 +308,11 @@ export const usePatientAssessment = (patientId?: string) => {
       // Immediately refresh field values and force re-render
       await loadFieldValues();
       
+      // Trigger scribe data display refresh
+      if (scribeRefreshCallbackRef.current) {
+        scribeRefreshCallbackRef.current();
+      }
+      
     } catch (error: any) {
       console.error('Error processing transcript:', error);
       toast.error('Failed to process audio transcript');
@@ -455,6 +461,10 @@ export const usePatientAssessment = (patientId?: string) => {
     calculateRiskScores();
   }, [fieldValues]);
 
+  const registerScribeRefresh = useCallback((callback: () => void) => {
+    scribeRefreshCallbackRef.current = callback;
+  }, []);
+
   return {
     patient,
     assessmentId,
@@ -469,6 +479,7 @@ export const usePatientAssessment = (patientId?: string) => {
     submitAssessment,
     saveDraft,
     validateAssessment,
+    registerScribeRefresh,
     sections: [], // Add if needed
     currentSection: '', // Add if needed
     setCurrentSection: () => {}, // Add if needed
