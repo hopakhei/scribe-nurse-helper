@@ -142,7 +142,6 @@ export function RiskTab({ onFieldChange, fieldValues }: RiskTabProps) {
           label: 'Assessment Scale',
           type: 'radio',
           options: ['Norton Scale', 'Braden Scale'],
-          defaultValue: 'Norton Scale',
           dataSource: 'manual'
         },
         // Norton Scale Fields
