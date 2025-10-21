@@ -12,6 +12,7 @@ import { NutritionSelfCareTab } from "@/components/tabs/NutritionSelfCareTab";
 import { SkinPainTab } from "@/components/tabs/SkinPainTab";
 import { EmotionRemarkTab } from "@/components/tabs/EmotionRemarkTab";
 import { PhotoTab } from "@/components/tabs/PhotoTab";
+import { useExternalDataPopulation } from "@/hooks/useExternalDataPopulation";
 
 interface TabAssessmentSystemProps {
   onFieldChange: (fieldId: string, value: any) => void;
@@ -32,6 +33,21 @@ interface TabSection {
 export function TabAssessmentSystem({ onFieldChange, fieldValues, assessmentId, patientId }: TabAssessmentSystemProps) {
   const [currentSection, setCurrentSection] = useState('general');
   const [localFieldValues, setLocalFieldValues] = useState<Record<string, any>>({});
+  const [hasAutoSynced, setHasAutoSynced] = useState(false);
+  const { populateExternalData, isLoading } = useExternalDataPopulation();
+  
+  // Auto-sync external data when component mounts with valid IDs
+  useEffect(() => {
+    const autoSyncData = async () => {
+      if (assessmentId && patientId && !hasAutoSynced) {
+        console.log('Auto-syncing external data on assessment form entry');
+        await populateExternalData(assessmentId, patientId);
+        setHasAutoSynced(true);
+      }
+    };
+    
+    autoSyncData();
+  }, [assessmentId, patientId, hasAutoSynced, populateExternalData]);
   
   const handleLocalFieldChange = useCallback((fieldId: string, value: any) => {
     setLocalFieldValues(prev => ({ ...prev, [fieldId]: value }));
