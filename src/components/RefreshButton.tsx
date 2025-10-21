@@ -5,25 +5,28 @@ import { useExternalDataPopulation } from "@/hooks/useExternalDataPopulation";
 interface RefreshButtonProps {
   assessmentId: string;
   patientId: string;
+  externalIsLoading?: boolean;
 }
 
-export function RefreshButton({ assessmentId, patientId }: RefreshButtonProps) {
+export function RefreshButton({ assessmentId, patientId, externalIsLoading }: RefreshButtonProps) {
   const { refreshExternalData, isLoading } = useExternalDataPopulation();
 
   const handleRefresh = async () => {
     await refreshExternalData(assessmentId, patientId);
   };
 
+  const isAnySyncing = isLoading || externalIsLoading;
+
   return (
     <Button
       variant="outline"
       size="sm"
       onClick={handleRefresh}
-      disabled={isLoading}
+      disabled={isAnySyncing}
       className="ml-2"
     >
-      <RefreshCw className={`h-4 w-4 mr-1 ${isLoading ? 'animate-spin' : ''}`} />
-      {isLoading ? 'Syncing...' : 'Refresh'}
+      <RefreshCw className={`h-4 w-4 mr-1 ${isAnySyncing ? 'animate-spin' : ''}`} />
+      {isAnySyncing ? 'Syncing...' : 'Refresh'}
     </Button>
   );
 }

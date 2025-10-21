@@ -78,7 +78,7 @@ export function TabAssessmentSystem({ onFieldChange, fieldValues, assessmentId, 
   const renderTabContent = (sectionId: string) => {
     switch (sectionId) {
       case 'general':
-        return <GeneralTab onFieldChange={handleLocalFieldChange} fieldValues={mergedFieldValues} assessmentId={assessmentId} patientId={patientId} />;
+        return <GeneralTab onFieldChange={handleLocalFieldChange} fieldValues={mergedFieldValues} assessmentId={assessmentId} patientId={patientId} isLoading={isLoading} />;
       case 'physical':
         return <PhysicalTab onFieldChange={handleLocalFieldChange} fieldValues={mergedFieldValues} />;
       case 'social':

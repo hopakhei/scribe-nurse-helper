@@ -8,9 +8,10 @@ interface GeneralTabProps {
   fieldValues: Record<string, any>;
   assessmentId?: string;
   patientId?: string;
+  isLoading?: boolean;
 }
 
-export function GeneralTab({ onFieldChange, fieldValues, assessmentId, patientId }: GeneralTabProps) {
+export function GeneralTab({ onFieldChange, fieldValues, assessmentId, patientId, isLoading }: GeneralTabProps) {
   const cards: FormCard[] = [
     {
       id: 'emergency-contact-1',
@@ -84,7 +85,7 @@ export function GeneralTab({ onFieldChange, fieldValues, assessmentId, patientId
         {assessmentId && patientId && (
           <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground">External data:</span>
-            <RefreshButton assessmentId={assessmentId} patientId={patientId} />
+            <RefreshButton assessmentId={assessmentId} patientId={patientId} externalIsLoading={isLoading} />
           </div>
         )}
       </div>
