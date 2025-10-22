@@ -70,6 +70,7 @@ interface EnhancedFormSectionProps {
   layout?: 'single' | 'two-column' | 'three-column' | 'double' | 'triple';
   onFieldChange: (fieldId: string, value: any) => void;
   fieldValues?: Record<string, any>;
+  fieldMetadata?: Record<string, { data_source?: DataSource; source_system?: string; ai_source_text?: string }>;
 }
 
 export function EnhancedFormSection({ 
@@ -78,7 +79,8 @@ export function EnhancedFormSection({
   cards, 
   layout = 'single',
   onFieldChange,
-  fieldValues = {}
+  fieldValues = {},
+  fieldMetadata = {}
 }: EnhancedFormSectionProps) {
   const [dynamicFields, setDynamicFields] = useState<Record<string, FormField[]>>({});
 
@@ -191,10 +193,13 @@ export function EnhancedFormSection({
   };
 
   const renderField = (field: FormField) => {
+    // Get actual data source from database metadata, fallback to field definition
+    const actualDataSource = fieldMetadata[field.id]?.data_source || field.dataSource;
+    
     const fieldClass = cn(
       "transition-colors border-2",
-      getFieldBackground(field.dataSource),
-      field.dataSource === 'ai-filled' && "border-primary/20",
+      getFieldBackground(actualDataSource),
+      actualDataSource === 'ai-filled' && "border-primary/20",
     );
 
     // Initialize with defaultValue if no current value exists

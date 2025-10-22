@@ -17,6 +17,7 @@ import { useExternalDataPopulation } from "@/hooks/useExternalDataPopulation";
 interface TabAssessmentSystemProps {
   onFieldChange: (fieldId: string, value: any) => void;
   fieldValues: Record<string, any>;
+  fieldMetadata?: Record<string, any>;
   assessmentId?: string;
   patientId?: string;
 }
@@ -30,7 +31,7 @@ interface TabSection {
   completedFields?: number;
 }
 
-export function TabAssessmentSystem({ onFieldChange, fieldValues, assessmentId, patientId }: TabAssessmentSystemProps) {
+export function TabAssessmentSystem({ onFieldChange, fieldValues, fieldMetadata, assessmentId, patientId }: TabAssessmentSystemProps) {
   const [currentSection, setCurrentSection] = useState('general');
   const [localFieldValues, setLocalFieldValues] = useState<Record<string, any>>({});
   const [hasAutoSynced, setHasAutoSynced] = useState(false);
@@ -79,7 +80,7 @@ export function TabAssessmentSystem({ onFieldChange, fieldValues, assessmentId, 
   const renderTabContent = (sectionId: string) => {
     switch (sectionId) {
       case 'general':
-        return <GeneralTab onFieldChange={handleLocalFieldChange} fieldValues={mergedFieldValues} assessmentId={assessmentId} patientId={patientId} isLoading={isLoading} />;
+        return <GeneralTab onFieldChange={handleLocalFieldChange} fieldValues={mergedFieldValues} fieldMetadata={fieldMetadata} assessmentId={assessmentId} patientId={patientId} isLoading={isLoading} />;
       case 'physical':
         return <PhysicalTab onFieldChange={handleLocalFieldChange} fieldValues={mergedFieldValues} />;
       case 'social':

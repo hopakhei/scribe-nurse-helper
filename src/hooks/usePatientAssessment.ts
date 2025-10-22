@@ -25,6 +25,7 @@ export const usePatientAssessment = (patientId?: string) => {
   const [patient, setPatient] = useState<any>(null);
   const [assessmentId, setAssessmentId] = useState<string | null>(null);
   const [fieldValues, setFieldValues] = useState<Record<string, any>>({});
+  const [fieldMetadata, setFieldMetadata] = useState<Record<string, FormFieldValue>>({});
   const [riskScores, setRiskScores] = useState<RiskScores>({
     morseScore: 0,
     mstScore: 0,
@@ -205,12 +206,16 @@ export const usePatientAssessment = (patientId?: string) => {
 
       // Convert array to object with field_id as key
       const values: Record<string, any> = {};
+      const metadata: Record<string, FormFieldValue> = {};
       data?.forEach((item: FormFieldValue) => {
         values[item.field_id] = item.value;
+        metadata[item.field_id] = item;
       });
 
       setFieldValues(values);
+      setFieldMetadata(metadata);
       console.log('Loaded field values:', values);
+      console.log('Loaded field metadata:', metadata);
     } catch (error: any) {
       console.error('Error loading field values:', error);
     }
@@ -469,6 +474,7 @@ export const usePatientAssessment = (patientId?: string) => {
     patient,
     assessmentId,
     fieldValues,
+    fieldMetadata,
     riskScores,
     isRecording,
     isProcessingAudio,

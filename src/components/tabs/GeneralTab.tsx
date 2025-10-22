@@ -3,15 +3,18 @@ import { EnhancedFormSection } from "@/components/EnhancedFormSection";
 import { RefreshButton } from "@/components/RefreshButton";
 import type { FormCard } from "@/components/EnhancedFormSection";
 
+import type { DataSource } from "@/components/EnhancedFormSection";
+
 interface GeneralTabProps {
   onFieldChange: (fieldId: string, value: any) => void;
   fieldValues: Record<string, any>;
+  fieldMetadata?: Record<string, { data_source?: DataSource; source_system?: string; ai_source_text?: string }>;
   assessmentId?: string;
   patientId?: string;
   isLoading?: boolean;
 }
 
-export function GeneralTab({ onFieldChange, fieldValues, assessmentId, patientId, isLoading }: GeneralTabProps) {
+export function GeneralTab({ onFieldChange, fieldValues, fieldMetadata, assessmentId, patientId, isLoading }: GeneralTabProps) {
   const cards: FormCard[] = [
     {
       id: 'emergency-contact-1',
@@ -20,20 +23,17 @@ export function GeneralTab({ onFieldChange, fieldValues, assessmentId, patientId
         {
           id: 'emergency_contact_1_name',
           label: 'Full Name',
-          type: 'text',
-          dataSource: 'manual'
+          type: 'text'
         },
         {
           id: 'emergency_contact_1_relationship',
           label: 'Relationship',
-          type: 'text',
-          dataSource: 'manual'
+          type: 'text'
         },
         {
           id: 'emergency_contact_1_phone',
           label: 'Phone Number',
-          type: 'text',
-          dataSource: 'manual'
+          type: 'text'
         }
       ]
     },
@@ -44,20 +44,17 @@ export function GeneralTab({ onFieldChange, fieldValues, assessmentId, patientId
         {
           id: 'emergency_contact_2_name',
           label: 'Full Name',
-          type: 'text',
-          dataSource: 'manual'
+          type: 'text'
         },
         {
           id: 'emergency_contact_2_relationship',
           label: 'Relationship',
-          type: 'text',
-          dataSource: 'manual'
+          type: 'text'
         },
         {
           id: 'emergency_contact_2_phone',
           label: 'Phone Number',
-          type: 'text',
-          dataSource: 'manual'
+          type: 'text'
         }
       ]
     },
@@ -95,6 +92,7 @@ export function GeneralTab({ onFieldChange, fieldValues, assessmentId, patientId
         layout="single"
         onFieldChange={onFieldChange}
         fieldValues={fieldValues}
+        fieldMetadata={fieldMetadata}
       />
     </TabsContent>
   );

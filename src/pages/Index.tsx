@@ -51,6 +51,7 @@ const Index = () => {
     isProcessingAudio,
     lastTranscript,
     fieldValues,
+    fieldMetadata,
     handleRecordingStart,
     handleRecordingStop,
     handleFieldChange,
@@ -295,6 +296,7 @@ const Index = () => {
                       patient_gender: patientFromHook?.sex === 'F' ? 'Female' : 'Male',
                       ...fieldValues
                     }}
+                    fieldMetadata={fieldMetadata}
                   />
 
                   {/* Action Buttons */}
