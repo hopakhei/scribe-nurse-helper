@@ -64,11 +64,10 @@ const Index = () => {
 
   // Register the scribe refresh callback
   useEffect(() => {
-    if (scribeDisplayRef.current) {
-      registerScribeRefresh(() => {
-        scribeDisplayRef.current?.refresh();
-      });
-    }
+    // Register regardless of current ref; callback will resolve ref at call time
+    registerScribeRefresh(() => {
+      scribeDisplayRef.current?.refresh();
+    });
   }, [registerScribeRefresh]);
 
   console.log('Hook data:', {
