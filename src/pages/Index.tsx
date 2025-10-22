@@ -332,6 +332,7 @@ const Index = () => {
                       ref={scribeDisplayRef}
                       assessmentId={assessmentId || ''}
                       currentFieldValues={fieldValues}
+                      patientId={patientId}
                     />
                   </div>
                 </div>

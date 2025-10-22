@@ -42,6 +42,7 @@ interface FormFieldValue {
 interface EnhancedScribeDataDisplayProps {
   assessmentId: string;
   currentFieldValues: Record<string, any>;
+  patientId?: string; // for loading history across dates
 }
 
 interface FieldValidationDisplay {
@@ -54,7 +55,7 @@ export interface EnhancedScribeDataDisplayRef {
 }
 
 export const EnhancedScribeDataDisplay = forwardRef<EnhancedScribeDataDisplayRef, EnhancedScribeDataDisplayProps>(
-  ({ assessmentId, currentFieldValues }, ref) => {
+  ({ assessmentId, currentFieldValues, patientId }, ref) => {
   const [scribeHistory, setScribeHistory] = useState<ScribeEntry[]>([]);
   const [aiFilledFields, setAiFilledFields] = useState<FormFieldValue[]>([]);
   const [validatedFields, setValidatedFields] = useState<FieldValidationDisplay[]>([]);
@@ -62,56 +63,104 @@ export const EnhancedScribeDataDisplay = forwardRef<EnhancedScribeDataDisplayRef
   const [isHistoryExpanded, setIsHistoryExpanded] = useState(false);
   const [isValidationExpanded, setIsValidationExpanded] = useState(true);
   
-  // Load scribe history from Supabase
-  const loadScribeHistory = useCallback(async () => {
-    if (!assessmentId) return;
-    
-    try {
+// Load scribe history from Supabase
+const loadScribeHistory = useCallback(async () => {
+  if (!assessmentId && !patientId) return;
+  try {
+    if (patientId) {
+      const { data, error } = await supabase
+        .from('audio_transcripts')
+        .select('id, transcript_text, processed, created_at, assessment_id, patient_assessments!inner(patient_id)')
+        .eq('patient_assessments.patient_id', patientId)
+        .order('created_at', { ascending: false })
+        .limit(100);
+      if (error) {
+        console.error('Error loading scribe history (by patient):', error);
+      } else {
+        setScribeHistory((data as any) || []);
+      }
+    } else {
       const { data, error } = await supabase
         .from('audio_transcripts')
         .select('*')
-        .eq('assessment_id', assessmentId)
+        .eq('assessment_id', assessmentId!)
         .order('created_at', { ascending: false });
-
       if (error) {
-        console.error('Error loading scribe history:', error);
+        console.error('Error loading scribe history (by assessment):', error);
       } else {
         setScribeHistory(data || []);
       }
-    } catch (error) {
-      console.error('Error in loadScribeHistory:', error);
     }
-  }, [assessmentId]);
+  } catch (error) {
+    console.error('Error in loadScribeHistory:', error);
+  }
+}, [assessmentId, patientId]);
 
-  // Load AI-filled fields from Supabase
-  const loadAiFilledFields = useCallback(async () => {
-    if (!assessmentId) return;
-    
-    try {
+// Load AI-filled fields from Supabase
+const loadAiFilledFields = useCallback(async () => {
+  if (!assessmentId && !patientId) return;
+  try {
+    if (patientId) {
+      const { data, error } = await supabase
+        .from('form_field_values')
+        .select('id, field_id, section_id, field_label, value, data_source, ai_source_text, created_at, assessment_id, patient_assessments!inner(patient_id)')
+        .eq('data_source', 'ai-filled')
+        .eq('patient_assessments.patient_id', patientId)
+        .order('created_at', { ascending: false })
+        .limit(200);
+      if (error) {
+        console.error('Error loading AI-filled fields (by patient):', error);
+      } else {
+        const fields = (data as any) || [];
+        setAiFilledFields(fields);
+        const validations = validateExtractedFields(
+          fields.map((field: any) => ({
+            fieldId: field.field_id,
+            value: field.value,
+            confidenceScore: 0.8
+          }))
+        );
+        const validatedDisplayData: FieldValidationDisplay[] = fields
+          .filter((field: any) => field.field_id && field.value)
+          .map((field: any) => {
+            const validation = validations.find(v => v.fieldId === field.field_id);
+            return {
+              fieldData: field as FormFieldValue,
+              validation: validation || {
+                fieldId: field.field_id || '',
+                originalValue: field.value || '',
+                validation: {
+                  isValid: true,
+                  errors: [],
+                  warnings: [],
+                  normalizedValue: field.value || ''
+                }
+              }
+            };
+          });
+        setValidatedFields(validatedDisplayData);
+      }
+    } else {
       const { data, error } = await supabase
         .from('form_field_values')
         .select('*')
-        .eq('assessment_id', assessmentId)
+        .eq('assessment_id', assessmentId!)
         .eq('data_source', 'ai-filled')
         .order('created_at', { ascending: false });
-
       if (error) {
-        console.error('Error loading AI-filled fields:', error);
+        console.error('Error loading AI-filled fields (by assessment):', error);
       } else {
         const fields = data || [];
         setAiFilledFields(fields);
-        
-        // Validate the extracted fields
         const validations = validateExtractedFields(
           fields.map(field => ({
             fieldId: field.field_id,
             value: field.value,
-            confidenceScore: 0.8 // Default confidence since not stored
+            confidenceScore: 0.8
           }))
         );
-        
         const validatedDisplayData: FieldValidationDisplay[] = fields
-          .filter(field => field.field_id && field.value) // Filter out null values
+          .filter(field => field.field_id && field.value)
           .map(field => {
             const validation = validations.find(v => v.fieldId === field.field_id);
             return {
@@ -128,13 +177,13 @@ export const EnhancedScribeDataDisplay = forwardRef<EnhancedScribeDataDisplayRef
               }
             };
           });
-        
         setValidatedFields(validatedDisplayData);
       }
-    } catch (error) {
-      console.error('Error in loadAiFilledFields:', error);
     }
-  }, [assessmentId]);
+  } catch (error) {
+    console.error('Error in loadAiFilledFields:', error);
+  }
+}, [assessmentId, patientId]);
 
   // Refresh data
   const refreshData = useCallback(async () => {
@@ -189,7 +238,7 @@ export const EnhancedScribeDataDisplay = forwardRef<EnhancedScribeDataDisplayRef
       transcriptsSubscription.unsubscribe();
       fieldsSubscription.unsubscribe();
     };
-  }, [assessmentId]);
+  }, [assessmentId, patientId]);
 
   // Get field display name with enhanced mapping
   const getFieldDisplayName = (fieldName: string): string => {
