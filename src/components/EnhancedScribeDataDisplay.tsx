@@ -287,7 +287,7 @@ const loadAiFilledFields = useCallback(async () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Activity className="h-5 w-5" />
-              <CardTitle>Enhanced AI-Extracted Data</CardTitle>
+              <CardTitle className="text-xl font-bold">Enhanced AI-Extracted Data</CardTitle>
             </div>
             <Button variant="outline" size="sm" onClick={refreshData}>
               <RefreshCw className="h-4 w-4 mr-1" />
@@ -440,7 +440,7 @@ const loadAiFilledFields = useCallback(async () => {
               <Button variant="ghost" className="flex items-center gap-2 w-full justify-start p-0 h-auto">
                 {isHistoryExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                 <Clock className="h-4 w-4" />
-                <CardTitle className="text-left">Scribe History ({scribeHistory.length})</CardTitle>
+                <CardTitle className="text-xl font-bold text-left">Scribe History ({scribeHistory.length})</CardTitle>
               </Button>
             </CollapsibleTrigger>
             <CollapsibleContent>
