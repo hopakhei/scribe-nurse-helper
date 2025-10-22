@@ -215,7 +215,6 @@ export const usePatientAssessment = (patientId?: string) => {
       setFieldValues(values);
       setFieldMetadata(metadata);
       console.log('Loaded field values:', values);
-      console.log('Loaded field metadata:', metadata);
     } catch (error: any) {
       console.error('Error loading field values:', error);
     }

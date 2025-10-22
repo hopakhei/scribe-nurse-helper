@@ -587,6 +587,10 @@ export function EnhancedFormSection({
                 return null;
               }
 
+              // Get actual data source from database metadata BEFORE rendering
+              const actualDataSource = fieldMetadata[field.id]?.data_source || field.dataSource;
+              const currentValue = fieldValues[field.id];
+
               return (
                 <div key={field.id} className={cn(
                   "space-y-2",
@@ -598,7 +602,7 @@ export function EnhancedFormSection({
                         {field.label}
                         {field.required && <span className="text-destructive ml-1">*</span>}
                       </Label>
-                      {field.dataSource && getDataSourceBadge(field.dataSource, fieldValues[field.id])}
+                      {getDataSourceBadge(actualDataSource, currentValue)}
                     </div>
                   )}
                   
@@ -609,13 +613,17 @@ export function EnhancedFormSection({
                     if (!conditionalField.showCondition || !conditionalField.showCondition(fieldValues[field.id])) {
                       return null;
                     }
+                    // Get actual data source for conditional fields too
+                    const conditionalDataSource = fieldMetadata[conditionalField.id]?.data_source || conditionalField.dataSource;
+                    const conditionalValue = fieldValues[conditionalField.id];
+                    
                     return (
                        <div key={conditionalField.id} className="ml-4 mt-2 p-3 bg-muted/50 rounded">
                          <div className="flex items-center justify-between mb-2">
                            <Label className="text-sm font-medium">
                              {conditionalField.label}
                            </Label>
-                           {conditionalField.dataSource && getDataSourceBadge(conditionalField.dataSource, fieldValues[conditionalField.id])}
+                           {getDataSourceBadge(conditionalDataSource, conditionalValue)}
                          </div>
                          {renderField(conditionalField)}
                        </div>
