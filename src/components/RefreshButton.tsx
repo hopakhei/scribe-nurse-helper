@@ -6,13 +6,17 @@ interface RefreshButtonProps {
   assessmentId: string;
   patientId: string;
   externalIsLoading?: boolean;
+  onRefreshComplete?: () => void;
 }
 
-export function RefreshButton({ assessmentId, patientId, externalIsLoading }: RefreshButtonProps) {
+export function RefreshButton({ assessmentId, patientId, externalIsLoading, onRefreshComplete }: RefreshButtonProps) {
   const { refreshExternalData, isLoading } = useExternalDataPopulation();
 
   const handleRefresh = async () => {
     await refreshExternalData(assessmentId, patientId);
+    if (onRefreshComplete) {
+      onRefreshComplete();
+    }
   };
 
   const isAnySyncing = isLoading || externalIsLoading;

@@ -60,7 +60,8 @@ const Index = () => {
     saveDraft,
     validateAssessment,
     assessmentId,
-    registerScribeRefresh
+    registerScribeRefresh,
+    loadFieldValues
   } = usePatientAssessment(patientId);
 
   // Register the scribe refresh callback
@@ -297,6 +298,7 @@ const Index = () => {
                       ...fieldValues
                     }}
                     fieldMetadata={fieldMetadata}
+                    onRefreshComplete={loadFieldValues}
                   />
 
                   {/* Action Buttons */}

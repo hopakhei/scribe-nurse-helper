@@ -485,6 +485,7 @@ export const usePatientAssessment = (patientId?: string) => {
     saveDraft,
     validateAssessment,
     registerScribeRefresh,
+    loadFieldValues,
     sections: [], // Add if needed
     currentSection: '', // Add if needed
     setCurrentSection: () => {}, // Add if needed

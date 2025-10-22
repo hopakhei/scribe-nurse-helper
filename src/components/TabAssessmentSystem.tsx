@@ -20,6 +20,7 @@ interface TabAssessmentSystemProps {
   fieldMetadata?: Record<string, any>;
   assessmentId?: string;
   patientId?: string;
+  onRefreshComplete?: () => void;
 }
 
 interface TabSection {
@@ -31,7 +32,7 @@ interface TabSection {
   completedFields?: number;
 }
 
-export function TabAssessmentSystem({ onFieldChange, fieldValues, fieldMetadata, assessmentId, patientId }: TabAssessmentSystemProps) {
+export function TabAssessmentSystem({ onFieldChange, fieldValues, fieldMetadata, assessmentId, patientId, onRefreshComplete }: TabAssessmentSystemProps) {
   const [currentSection, setCurrentSection] = useState('general');
   const [localFieldValues, setLocalFieldValues] = useState<Record<string, any>>({});
   const [hasAutoSynced, setHasAutoSynced] = useState(false);
@@ -44,6 +45,9 @@ export function TabAssessmentSystem({ onFieldChange, fieldValues, fieldMetadata,
         console.log('Auto-syncing external data on assessment form entry');
         await populateExternalData(assessmentId, patientId);
         setHasAutoSynced(true);
+        if (onRefreshComplete) {
+          onRefreshComplete();
+        }
       }
     };
     
@@ -80,7 +84,7 @@ export function TabAssessmentSystem({ onFieldChange, fieldValues, fieldMetadata,
   const renderTabContent = (sectionId: string) => {
     switch (sectionId) {
       case 'general':
-        return <GeneralTab onFieldChange={handleLocalFieldChange} fieldValues={mergedFieldValues} fieldMetadata={fieldMetadata} assessmentId={assessmentId} patientId={patientId} isLoading={isLoading} />;
+        return <GeneralTab onFieldChange={handleLocalFieldChange} fieldValues={mergedFieldValues} fieldMetadata={fieldMetadata} assessmentId={assessmentId} patientId={patientId} isLoading={isLoading} onRefreshComplete={onRefreshComplete} />;
       case 'physical':
         return <PhysicalTab onFieldChange={handleLocalFieldChange} fieldValues={mergedFieldValues} />;
       case 'social':
