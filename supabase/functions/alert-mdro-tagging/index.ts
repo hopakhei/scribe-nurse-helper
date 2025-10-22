@@ -84,6 +84,16 @@ function getPatientSpecificData(patientId: string) {
       isolation_type: "None",
       ppe_requirements: "Standard hand hygiene and universal precautions",
       special_instructions: "No isolation required. Last MDRO screening on 2025-10-15: Negative."
+    },
+    'd5555555-5555-5555-5555-555555555555': {
+      mdro_status: "Negative",
+      mdro_type: "None",
+      mdro_site: "N/A",
+      mdro_date_detected: "N/A",
+      isolation_precautions: "Standard Precautions",
+      isolation_type: "None",
+      ppe_requirements: "Standard hand hygiene and universal precautions",
+      special_instructions: "No isolation required. Last MDRO screening on 2025-10-18: Negative."
     }
   };
   

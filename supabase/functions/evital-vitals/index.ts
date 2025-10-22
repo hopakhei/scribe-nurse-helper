@@ -106,6 +106,20 @@ function getPatientSpecificData(patientId: string) {
       respiration_status: "Regular",
       spo2: "98",
       oxygen_therapy: "Room Air"
+    },
+    'd5555555-5555-5555-5555-555555555555': {
+      temperature: "37.4",
+      temp_method: "Oral",
+      pulse: "82",
+      pulse_location: "Radial",
+      pulse_pattern: "Regular",
+      bp_systolic: "138",
+      bp_diastolic: "84",
+      bp_position: "Sitting",
+      respiratory_rate: "18",
+      respiration_status: "Normal",
+      spo2: "96",
+      oxygen_therapy: "Room Air"
     }
   };
   
