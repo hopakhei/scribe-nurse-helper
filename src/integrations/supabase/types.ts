@@ -451,10 +451,6 @@ export type Database = {
         Args: { assessment_id_param: string }
         Returns: number
       }
-      cleanup_expired_transcripts: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
       get_current_user_department: {
         Args: Record<PropertyKey, never>
         Returns: string
