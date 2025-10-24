@@ -18,7 +18,7 @@ export const WardMap: React.FC<WardMapProps> = ({ selectedBed, onBedSelect }) =>
       <div className="flex items-center gap-4 p-3 bg-ward-background rounded-lg border border-bed-border/50">
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 rounded bg-bed-available border-2 border-bed-border"></div>
-          <span className="text-sm text-bed-text">空置</span>
+          <span className="text-sm text-bed-text">Vacant</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 rounded bg-team-a border-2 border-team-a/30"></div>
@@ -38,7 +38,7 @@ export const WardMap: React.FC<WardMapProps> = ({ selectedBed, onBedSelect }) =>
         </div>
         <div className="flex items-center gap-2">
           <Home className="h-4 w-4 text-bed-text" />
-          <span className="text-sm text-bed-text">家居休假</span>
+          <span className="text-sm text-bed-text">Home Leave</span>
         </div>
       </div>
 
@@ -67,8 +67,7 @@ export const WardMap: React.FC<WardMapProps> = ({ selectedBed, onBedSelect }) =>
         <div className="flex items-center justify-center">
           <div className="bg-primary/10 rounded-lg p-6 border-2 border-primary/20 text-center">
             <Users className="h-12 w-12 text-primary mx-auto mb-2" />
-            <h3 className="font-semibold text-foreground">護士站</h3>
-            <p className="text-xs text-muted-foreground mt-1">Nurse Station</p>
+            <h3 className="font-semibold text-foreground">Nurse Station</h3>
           </div>
         </div>
 
@@ -93,7 +92,7 @@ export const WardMap: React.FC<WardMapProps> = ({ selectedBed, onBedSelect }) =>
           <div className="flex items-center gap-2">
             <Home className="h-5 w-5 text-green-600" />
             <div>
-              <div className="text-xs text-green-700">可用床位</div>
+              <div className="text-xs text-green-700">Available Beds</div>
               <div className="text-2xl font-bold text-green-900">{ward.statistics.vacant}</div>
             </div>
           </div>
@@ -102,7 +101,7 @@ export const WardMap: React.FC<WardMapProps> = ({ selectedBed, onBedSelect }) =>
           <div className="flex items-center gap-2">
             <Users className="h-5 w-5 text-blue-600" />
             <div>
-              <div className="text-xs text-blue-700">已佔用</div>
+              <div className="text-xs text-blue-700">Occupied</div>
               <div className="text-2xl font-bold text-blue-900">{ward.statistics.occupied}</div>
             </div>
           </div>
@@ -111,7 +110,7 @@ export const WardMap: React.FC<WardMapProps> = ({ selectedBed, onBedSelect }) =>
           <div className="flex items-center gap-2">
             <AlertCircle className="h-5 w-5 text-orange-600" />
             <div>
-              <div className="text-xs text-orange-700">總床位</div>
+              <div className="text-xs text-orange-700">Total Beds</div>
               <div className="text-2xl font-bold text-orange-900">{ward.statistics.totalBeds}</div>
             </div>
           </div>

@@ -1,7 +1,7 @@
 import { WardData } from "@/types/bedManagement";
 
 export const mockWardData: WardData = {
-  name: "Ward 9",
+  name: "Ward 9A",
   statistics: {
     totalBeds: 40,
     occupancyRate: 85,

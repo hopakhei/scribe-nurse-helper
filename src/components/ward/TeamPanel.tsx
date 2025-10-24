@@ -35,7 +35,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({ teams }) => {
     <div className="bg-ward-background rounded-lg border border-bed-border/50 p-4 space-y-4">
       <div className="flex items-center gap-2 mb-4">
         <Users className="h-5 w-5 text-primary" />
-        <h3 className="font-semibold text-foreground">團隊分配</h3>
+        <h3 className="font-semibold text-foreground">Team Assignment</h3>
       </div>
 
       {teams.map((teamData) => (

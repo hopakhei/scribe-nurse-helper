@@ -78,7 +78,7 @@ export const BedIcon: React.FC<BedIconProps> = ({ bed, isSelected, onSelect }) =
       {/* Disinfection Badge */}
       {bed.isDisinfection && (
         <div className="absolute -top-1 -right-1 bg-ward-section-purple text-purple-800 text-[8px] font-semibold px-1 py-0.5 rounded">
-          消毒
+          DIS
         </div>
       )}
     </button>

@@ -27,12 +27,12 @@ export const RoomSection: React.FC<RoomSectionProps> = ({
           <h3 className="text-sm font-semibold text-foreground">{room.name}</h3>
           {room.isDisinfection && (
             <Badge className="bg-ward-section-purple text-purple-800 border-purple-300 text-xs">
-              消毒
+              Disinfection
             </Badge>
           )}
         </div>
         <span className="text-xs text-bed-text">
-          可用: {availableCount}/{room.beds.length}
+          Available: {availableCount}/{room.beds.length}
         </span>
       </div>
 

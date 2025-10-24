@@ -12,42 +12,42 @@ export const WardStatistics: React.FC<WardStatisticsProps> = ({ ward }) => {
 
   const statItems = [
     {
-      label: '空置',
+      label: 'Vacant',
       value: statistics.vacant,
       icon: Home,
       color: 'text-green-600',
       bgColor: 'bg-green-100'
     },
     {
-      label: '佔用',
+      label: 'Occupied',
       value: statistics.occupied,
       icon: Users,
       color: 'text-blue-600',
       bgColor: 'bg-blue-100'
     },
     {
-      label: '預留',
+      label: 'Reserved',
       value: statistics.reserved,
       icon: Lock,
       color: 'text-purple-600',
       bgColor: 'bg-purple-100'
     },
     {
-      label: '凍結',
+      label: 'Frozen',
       value: statistics.frozen,
       icon: AlertCircle,
       color: 'text-orange-600',
       bgColor: 'bg-orange-100'
     },
     {
-      label: '家居休假',
+      label: 'Home Leave',
       value: statistics.homeLeave,
       icon: Home,
       color: 'text-cyan-600',
       bgColor: 'bg-cyan-100'
     },
     {
-      label: '失蹤',
+      label: 'Missing',
       value: statistics.missing,
       icon: UserX,
       color: 'text-red-600',
@@ -62,7 +62,7 @@ export const WardStatistics: React.FC<WardStatisticsProps> = ({ ward }) => {
         <div className="flex items-center gap-3">
           <h2 className="text-2xl font-bold text-foreground">{ward.name}</h2>
           <Badge className="bg-team-a text-blue-900 border-blue-300 px-3 py-1">
-            佔用率: {statistics.occupancyRate}% - {statistics.occupied}/{statistics.totalBeds}
+            Occupancy: {statistics.occupancyRate}% - {statistics.occupied}/{statistics.totalBeds}
           </Badge>
         </div>
       </div>

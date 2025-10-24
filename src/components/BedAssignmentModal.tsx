@@ -68,7 +68,7 @@ export const BedAssignmentModal: React.FC<BedAssignmentModalProps> = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <MapPin className="h-5 w-5" />
-            床位分配 - {ward.name}
+            Bed Assignment - {ward.name}
           </DialogTitle>
         </DialogHeader>
 
@@ -122,13 +122,13 @@ export const BedAssignmentModal: React.FC<BedAssignmentModalProps> = ({
             <div className="bg-primary/10 rounded-lg p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium">已選擇床位: {selectedBed}</p>
+                  <p className="font-medium">Selected Bed: {selectedBed}</p>
                   <p className="text-sm text-muted-foreground">
-                    病人將被分配到此床位
+                    Patient will be assigned to this bed
                   </p>
                 </div>
                 <Badge className="bg-primary text-primary-foreground">
-                  已選擇
+                  Selected
                 </Badge>
               </div>
             </div>
@@ -137,14 +137,14 @@ export const BedAssignmentModal: React.FC<BedAssignmentModalProps> = ({
           {/* Action Buttons */}
           <div className="flex justify-end gap-3">
             <Button variant="outline" onClick={handleCancel}>
-              取消
+              Cancel
             </Button>
             <Button 
               onClick={handleConfirmAssignment}
               disabled={!selectedBed}
               className="min-w-32"
             >
-              分配床位 {selectedBed && `${selectedBed}`}
+              Assign Bed {selectedBed && `${selectedBed}`}
             </Button>
           </div>
         </div>
