@@ -1,5 +1,6 @@
 import React from 'react';
 import { Badge } from "@/components/ui/badge";
+import { getStatusBadgeColor } from "@/lib/colorUtils";
 import { 
   AlertCircle, 
   Clock, 
@@ -19,28 +20,28 @@ export const PatientStatusBadge: React.FC<PatientStatusBadgeProps> = ({ status }
           label: 'Awaiting Bed',
           variant: 'destructive' as const,
           icon: AlertCircle,
-          className: 'bg-orange-100 text-orange-800 border-orange-200 hover:bg-orange-200'
+          className: getStatusBadgeColor('awaiting_bed')
         };
       case 'bed_assigned':
         return {
           label: 'Bed Assigned',
           variant: 'secondary' as const,
           icon: Clock,
-          className: 'bg-blue-100 text-blue-800 border-blue-200 hover:bg-blue-200'
+          className: getStatusBadgeColor('bed_assigned')
         };
       case 'assessment_in_progress':
         return {
           label: 'In Progress',
           variant: 'default' as const,
           icon: User,
-          className: 'bg-yellow-100 text-yellow-800 border-yellow-200 hover:bg-yellow-200'
+          className: getStatusBadgeColor('assessment_in_progress')
         };
       case 'assessment_completed':
         return {
           label: 'Completed',
           variant: 'secondary' as const,
           icon: CheckCircle,
-          className: 'bg-green-100 text-green-800 border-green-200 hover:bg-green-200'
+          className: getStatusBadgeColor('assessment_completed')
         };
       default:
         return {

@@ -8,6 +8,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { WardMap } from "@/components/WardMap";
+import { WardStatistics } from "@/components/ward/WardStatistics";
+import { TeamPanel } from "@/components/ward/TeamPanel";
+import { mockWardData, mockTeamAssignments } from "@/data/wardMockData";
 import { User, MapPin, Clock } from "lucide-react";
 
 interface Patient {
@@ -57,18 +60,20 @@ export const BedAssignmentModal: React.FC<BedAssignmentModalProps> = ({
 
   if (!patient) return null;
 
+  const ward = mockWardData;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-7xl max-h-[95vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <MapPin className="h-5 w-5" />
-            Bed Assignment - Ward 9
+            床位分配 - {ward.name}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6">
-          {/* Patient Info */}
+        <div className="space-y-4">
+          {/* Patient Info Card */}
           <div className="bg-muted/50 rounded-lg p-4">
             <div className="flex items-center gap-3">
               <div className="bg-primary/10 rounded-full p-2">
@@ -93,13 +98,23 @@ export const BedAssignmentModal: React.FC<BedAssignmentModalProps> = ({
             </div>
           </div>
 
-          {/* Ward Map */}
-          <div>
-            <h4 className="font-medium mb-3">Select a bed from Ward 9:</h4>
-            <WardMap 
-              selectedBed={selectedBed}
-              onBedSelect={handleBedSelect}
-            />
+          {/* Ward Statistics */}
+          <WardStatistics ward={ward} />
+
+          {/* Main Content: Ward Map and Team Panel */}
+          <div className="grid grid-cols-3 gap-4">
+            {/* Ward Map - Takes 2 columns */}
+            <div className="col-span-2">
+              <WardMap 
+                selectedBed={selectedBed}
+                onBedSelect={handleBedSelect}
+              />
+            </div>
+
+            {/* Team Panel - Takes 1 column */}
+            <div>
+              <TeamPanel teams={mockTeamAssignments} />
+            </div>
           </div>
 
           {/* Selected Bed Info */}
@@ -107,13 +122,13 @@ export const BedAssignmentModal: React.FC<BedAssignmentModalProps> = ({
             <div className="bg-primary/10 rounded-lg p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium">Selected Bed: {selectedBed}</p>
+                  <p className="font-medium">已選擇床位: {selectedBed}</p>
                   <p className="text-sm text-muted-foreground">
-                    Patient will be assigned to this bed
+                    病人將被分配到此床位
                   </p>
                 </div>
                 <Badge className="bg-primary text-primary-foreground">
-                  Selected
+                  已選擇
                 </Badge>
               </div>
             </div>
@@ -122,14 +137,14 @@ export const BedAssignmentModal: React.FC<BedAssignmentModalProps> = ({
           {/* Action Buttons */}
           <div className="flex justify-end gap-3">
             <Button variant="outline" onClick={handleCancel}>
-              Cancel
+              取消
             </Button>
             <Button 
               onClick={handleConfirmAssignment}
               disabled={!selectedBed}
               className="min-w-32"
             >
-              Assign Bed {selectedBed && `${selectedBed}`}
+              分配床位 {selectedBed && `${selectedBed}`}
             </Button>
           </div>
         </div>

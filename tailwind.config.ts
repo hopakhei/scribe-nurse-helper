@@ -90,6 +90,26 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				bed: {
+					available: 'hsl(var(--bed-available))',
+					'occupied-blue': 'hsl(var(--bed-occupied-blue))',
+					'occupied-purple': 'hsl(var(--bed-occupied-purple))',
+					'occupied-yellow': 'hsl(var(--bed-occupied-yellow))',
+					'occupied-mint': 'hsl(var(--bed-occupied-mint))',
+					mdro: 'hsl(var(--bed-mdro))',
+					border: 'hsl(var(--bed-border))',
+					text: 'hsl(var(--bed-text))'
+				},
+				ward: {
+					background: 'hsl(var(--ward-background))',
+					'section-blue': 'hsl(var(--ward-section-blue))',
+					'section-purple': 'hsl(var(--ward-section-purple))'
+				},
+				team: {
+					a: 'hsl(var(--team-a))',
+					b: 'hsl(var(--team-b))',
+					c: 'hsl(var(--team-c))'
 				}
 			},
 			borderRadius: {

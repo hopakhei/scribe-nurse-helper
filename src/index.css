@@ -66,6 +66,31 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 240 5.9% 90%;
     --sidebar-ring: 142 76% 36%;
+    
+    /* Bed/Room status colors */
+    --bed-available: 0 0% 100%;
+    --bed-occupied-blue: 207 89% 86%;
+    --bed-occupied-purple: 250 100% 93%;
+    --bed-occupied-yellow: 45 100% 90%;
+    --bed-occupied-mint: 180 71% 90%;
+    --bed-mdro: 0 100% 93%;
+    --bed-border: 220 13% 91%;
+    --bed-text: 220 9% 46%;
+    
+    /* Ward section colors */
+    --ward-background: 210 40% 98%;
+    --ward-section-blue: 207 89% 95%;
+    --ward-section-purple: 250 100% 95%;
+    
+    /* Team colors */
+    --team-a: 207 89% 86%;
+    --team-b: 250 100% 93%;
+    --team-c: 45 100% 90%;
+    
+    /* Status badge colors */
+    --status-disinfection: 250 100% 93%;
+    --status-oncall: 250 100% 93%;
+    --status-attention: 0 84% 86%;
   }
 
   .dark {
@@ -128,6 +153,31 @@
     --sidebar-accent-foreground: 0 0% 98%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 142 76% 36%;
+    
+    /* Bed/Room status colors - dark mode */
+    --bed-available: 240 10% 10%;
+    --bed-occupied-blue: 207 89% 30%;
+    --bed-occupied-purple: 250 100% 40%;
+    --bed-occupied-yellow: 45 100% 30%;
+    --bed-occupied-mint: 180 71% 30%;
+    --bed-mdro: 0 100% 30%;
+    --bed-border: 220 13% 25%;
+    --bed-text: 220 9% 70%;
+    
+    /* Ward section colors - dark mode */
+    --ward-background: 210 40% 8%;
+    --ward-section-blue: 207 89% 20%;
+    --ward-section-purple: 250 100% 20%;
+    
+    /* Team colors - dark mode */
+    --team-a: 207 89% 30%;
+    --team-b: 250 100% 40%;
+    --team-c: 45 100% 30%;
+    
+    /* Status badge colors - dark mode */
+    --status-disinfection: 250 100% 40%;
+    --status-oncall: 250 100% 40%;
+    --status-attention: 0 84% 40%;
   }
 }
 

@@ -1,7 +1,8 @@
 import React from 'react';
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { RoomSection } from './ward/RoomSection';
+import { Badge } from './ui/badge';
+import { Home, Users, AlertCircle, Wrench } from 'lucide-react';
+import { mockWardData } from '@/data/wardMockData';
 
 interface WardMapProps {
   selectedBed: string | null;
@@ -9,129 +10,111 @@ interface WardMapProps {
 }
 
 export const WardMap: React.FC<WardMapProps> = ({ selectedBed, onBedSelect }) => {
-  // Generate bed numbers for Ward 9A and 9B
-  const generateBeds = (corridor: 'A' | 'B') => {
-    return Array.from({ length: 20 }, (_, i) => `9${corridor}-${String(i + 1).padStart(2, '0')}`);
-  };
-
-  const ward9ABeds = generateBeds('A');
-  const ward9BBeds = generateBeds('B');
-
-  // Mock occupied beds for demo
-  const occupiedBeds = ['9A-03', '9A-07', '9A-15', '9B-02', '9B-09', '9B-14', '9B-18'];
-
-  const getBedStatus = (bedNumber: string) => {
-    if (occupiedBeds.includes(bedNumber)) return 'occupied';
-    if (selectedBed === bedNumber) return 'selected';
-    return 'available';
-  };
-
-  const getBedClassName = (status: string) => {
-    switch (status) {
-      case 'occupied':
-        return 'bg-red-100 text-red-800 border-red-300 cursor-not-allowed opacity-50';
-      case 'selected':
-        return 'bg-primary text-primary-foreground border-primary ring-2 ring-primary/20';
-      case 'available':
-        return 'bg-green-50 text-green-800 border-green-300 hover:bg-green-100 hover:border-green-400';
-      default:
-        return '';
-    }
-  };
-
-  const renderCorridor = (beds: string[], corridorName: string) => (
-    <div className="space-y-3">
-      <h5 className="font-medium text-sm flex items-center gap-2">
-        Corridor {corridorName}
-        <Badge variant="outline" className="text-xs">
-          {beds.filter(bed => getBedStatus(bed) === 'available').length} available
-        </Badge>
-      </h5>
-      
-      <div className="grid grid-cols-10 gap-2">
-        {beds.map((bedNumber) => {
-          const status = getBedStatus(bedNumber);
-          const isOccupied = status === 'occupied';
-          
-          return (
-            <Button
-              key={bedNumber}
-              variant="outline"
-              size="sm"
-              disabled={isOccupied}
-              onClick={() => !isOccupied && onBedSelect(bedNumber)}
-              className={cn(
-                "h-12 w-full text-xs font-medium transition-all duration-200",
-                getBedClassName(status)
-              )}
-            >
-              <div className="text-center">
-                <div className="font-semibold">{bedNumber.split('-')[1]}</div>
-                <div className="text-[10px] opacity-75">{bedNumber.split('-')[0]}</div>
-              </div>
-            </Button>
-          );
-        })}
-      </div>
-    </div>
-  );
+  const ward = mockWardData;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Legend */}
-      <div className="flex flex-wrap gap-4 text-sm">
+      <div className="flex items-center gap-4 p-3 bg-ward-background rounded-lg border border-bed-border/50">
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-green-100 border border-green-300 rounded"></div>
-          <span>Available</span>
+          <div className="w-4 h-4 rounded bg-bed-available border-2 border-bed-border"></div>
+          <span className="text-sm text-bed-text">空置</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-red-100 border border-red-300 rounded opacity-50"></div>
-          <span>Occupied</span>
+          <div className="w-4 h-4 rounded bg-team-a border-2 border-team-a/30"></div>
+          <span className="text-sm text-bed-text">Team A</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-primary border border-primary rounded"></div>
-          <span>Selected</span>
+          <div className="w-4 h-4 rounded bg-team-b border-2 border-team-b/30"></div>
+          <span className="text-sm text-bed-text">Team B</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 rounded bg-team-c border-2 border-team-c/30"></div>
+          <span className="text-sm text-bed-text">Team C</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 rounded bg-bed-mdro border-2 border-red-300"></div>
+          <span className="text-sm text-bed-text">MDRO</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Home className="h-4 w-4 text-bed-text" />
+          <span className="text-sm text-bed-text">家居休假</span>
         </div>
       </div>
 
       {/* Ward Layout */}
-      <div className="bg-gray-50 rounded-lg p-6 space-y-8">
-        <div className="text-center">
-          <h4 className="font-semibold text-lg mb-2">Ward 9 - Floor Plan</h4>
-          <p className="text-sm text-muted-foreground">Click on an available bed to select</p>
-        </div>
-
-        {/* Corridor A */}
-        {renderCorridor(ward9ABeds, 'A')}
-
-        {/* Corridor Separator */}
-        <div className="flex items-center justify-center py-4">
-          <div className="flex-1 h-px bg-border"></div>
-          <div className="px-4 text-sm text-muted-foreground bg-background">
-            Nursing Station & Common Area
+      <div className="grid grid-cols-3 gap-4">
+        {/* Left Column - Corridor 1 */}
+        <div className="space-y-4">
+          <div className="bg-ward-section-blue/30 rounded-lg p-2">
+            <Badge className="bg-team-a text-blue-900 border-blue-300 mb-2">
+              Corridor 1
+            </Badge>
+            <div className="space-y-3">
+              {ward.rooms.filter(r => r.corridor === 'Corridor 1').map(room => (
+                <RoomSection
+                  key={room.id}
+                  room={room}
+                  selectedBed={selectedBed}
+                  onBedSelect={onBedSelect}
+                />
+              ))}
+            </div>
           </div>
-          <div className="flex-1 h-px bg-border"></div>
         </div>
 
-        {/* Corridor B */}
-        {renderCorridor(ward9BBeds, 'B')}
+        {/* Center Column - Nurse Station */}
+        <div className="flex items-center justify-center">
+          <div className="bg-primary/10 rounded-lg p-6 border-2 border-primary/20 text-center">
+            <Users className="h-12 w-12 text-primary mx-auto mb-2" />
+            <h3 className="font-semibold text-foreground">護士站</h3>
+            <p className="text-xs text-muted-foreground mt-1">Nurse Station</p>
+          </div>
+        </div>
+
+        {/* Right Column - Other Rooms */}
+        <div className="space-y-4">
+          <div className="space-y-3">
+            {ward.rooms.filter(r => !r.corridor).map(room => (
+              <RoomSection
+                key={room.id}
+                room={room}
+                selectedBed={selectedBed}
+                onBedSelect={onBedSelect}
+              />
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-3 gap-4 text-center">
-        <div className="bg-green-50 rounded-lg p-3">
-          <div className="font-semibold text-green-800">
-            {[...ward9ABeds, ...ward9BBeds].filter(bed => getBedStatus(bed) === 'available').length}
+      <div className="grid grid-cols-3 gap-3 mt-4">
+        <div className="bg-green-50 rounded-lg p-3 border border-green-200">
+          <div className="flex items-center gap-2">
+            <Home className="h-5 w-5 text-green-600" />
+            <div>
+              <div className="text-xs text-green-700">可用床位</div>
+              <div className="text-2xl font-bold text-green-900">{ward.statistics.vacant}</div>
+            </div>
           </div>
-          <div className="text-xs text-green-600">Available</div>
         </div>
-        <div className="bg-red-50 rounded-lg p-3">
-          <div className="font-semibold text-red-800">{occupiedBeds.length}</div>
-          <div className="text-xs text-red-600">Occupied</div>
+        <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
+          <div className="flex items-center gap-2">
+            <Users className="h-5 w-5 text-blue-600" />
+            <div>
+              <div className="text-xs text-blue-700">已佔用</div>
+              <div className="text-2xl font-bold text-blue-900">{ward.statistics.occupied}</div>
+            </div>
+          </div>
         </div>
-        <div className="bg-gray-50 rounded-lg p-3">
-          <div className="font-semibold text-gray-800">40</div>
-          <div className="text-xs text-gray-600">Total Beds</div>
+        <div className="bg-orange-50 rounded-lg p-3 border border-orange-200">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="h-5 w-5 text-orange-600" />
+            <div>
+              <div className="text-xs text-orange-700">總床位</div>
+              <div className="text-2xl font-bold text-orange-900">{ward.statistics.totalBeds}</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
