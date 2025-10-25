@@ -19,7 +19,7 @@ export function PatientHeader({ patient }: PatientHeaderProps) {
   if (!patient) return null;
   
   return (
-    <Card className="bg-ward-section-blue/20 border-l-4 border-l-primary p-6 mb-6">
+    <Card className="bg-blue-50/30 border-l-4 border-l-blue-400 p-6 mb-6">
       <div className="flex items-start justify-between">
         <div className="flex items-center space-x-4">
           <div className="bg-primary/10 p-3 rounded-full">
