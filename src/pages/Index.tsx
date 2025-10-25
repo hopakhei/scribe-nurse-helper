@@ -190,7 +190,7 @@ const Index = () => {
   return (
     <AndroidLayout>
       <ErrorBoundary>
-        <div className="min-h-screen bg-background">
+        <div className="min-h-screen bg-ward-background">
           <div className="container mx-auto py-6 px-4 max-w-7xl">
             {/* Header */}
           <div className="flex items-center justify-between mb-6">

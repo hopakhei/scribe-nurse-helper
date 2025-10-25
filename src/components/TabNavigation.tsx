@@ -49,7 +49,7 @@ export function TabNavigation({
       <Tabs value={currentSection} onValueChange={onSectionChange} className="w-full">
         {/* Tab List with horizontal scrolling */}
         <div className="mb-6 overflow-x-auto">
-          <TabsList className="inline-flex h-auto p-1 space-x-1 bg-muted rounded-lg min-w-full">
+          <TabsList className="inline-flex h-auto p-1 space-x-1 bg-ward-section-blue/10 rounded-lg min-w-full">
             {sections.map((section) => (
               <TabsTrigger
                 key={section.id}
