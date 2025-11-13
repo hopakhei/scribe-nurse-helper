@@ -468,11 +468,6 @@ This happens when the Capacitor config still points to a development server. To 
 - Development Team: Reach out via internal communication channels
 - Robot Hardware Issues: Contact robotic platform vendor
 
-### Documentation
-
-- Internal HA Wiki: [Robot Deployment Guidelines]
-- Technical Specifications: [Robot Hardware Requirements]
-- User Manual: [Nurse Training Materials]
 
 ---
 
