@@ -6,6 +6,9 @@ A proof-of-concept AI-powered patient assessment system designed for robotic ass
 
 This is an **in-house Hospital Authority project** that demonstrates how robotic assistants can streamline the patient admission process. The robot, running on an Android tablet interface, guides nurses through standardized patient assessments while automatically documenting findings and calculating risk scores in real-time.
 
+<img width="861" height="629" alt="image" src="https://github.com/user-attachments/assets/e96589af-459d-4eac-9239-98f23c98438c" />
+https://www.youtube.com/watch?v=4SO8gqcDRzw
+
 ## Features
 
 ### 🏥 Patient Management
